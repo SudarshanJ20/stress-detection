@@ -101,60 +101,55 @@ def save_png(frame, path: Path) -> None:
                      + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))
 
 
-def inspect_video(path: Path, output: Path) -> dict:
-    """Stream-decode every frame, detecting exceptions, corruption, and error logs."""
+def inspect_video(path: Path, output: Path | None = None) -> dict:
+    """Shared streaming inspection; optional previews for the original validator."""
     import av
+    from .video_reader import VideoReader
 
-    result = {"file": path.name, "decoded_frames": 0, "corrupt_frames": 0,
-              "missing_pts": 0, "nonmonotonic_pts": 0, "errors": [],
-              "visual_check": "pending", "preview_frames": []}
+    result = {"file": path.name, "decoded_frames": 0, "errors": [],
+              "visual_check": "pending", "preview_frames": [],
+              "decoder_error_logs": [], "decoder_error_count": 0}
+    reader = VideoReader(path)
+
+    def drain_logs(logs):
+        for level, _, message in logs:
+            if level <= av.logging.ERROR:
+                result["decoder_error_count"] += 1
+                if len(result["decoder_error_logs"]) < 20:
+                    result["decoder_error_logs"].append(message)
+        logs.clear()
+
     try:
-        with av.logging.Capture() as logs, av.open(str(path)) as container:
-            if len(container.streams.video) != 1:
-                raise ValueError("Expected exactly one video stream")
-            stream = container.streams.video[0]
-            stream.codec_context.options = {"err_detect": "explode"}
-            rate = float(stream.average_rate) if stream.average_rate else None
-            duration = float(stream.duration * stream.time_base) if stream.duration is not None else None
-            result.update(codec=stream.codec_context.name, width=stream.width, height=stream.height,
-                          frame_rate=rate, declared_frames=stream.frames,
-                          stream_duration_seconds=duration,
-                          container_duration_seconds=container.duration / av.time_base if container.duration else None,
-                          time_base=str(stream.time_base))
-            targets = {0: "beginning", max(0, stream.frames // 2): "middle"} if stream.frames else {0: "beginning"}
-            first = previous = last = None
-            last_frame = None
-            for index, frame in enumerate(container.decode(stream)):
-                result["decoded_frames"] += 1
-                result["corrupt_frames"] += int(frame.is_corrupt)
-                if frame.pts is None:
-                    result["missing_pts"] += 1
-                else:
-                    current = float(frame.pts * frame.time_base)
-                    if previous is not None and current <= previous:
-                        result["nonmonotonic_pts"] += 1
-                    if first is None:
-                        first = current
-                    previous = last = current
-                if index in targets:
-                    name = f"{path.stem}_{targets[index]}.png"
-                    save_png(frame, output / name)
-                    result["preview_frames"].append({"file": name, "index": index, "pts": frame.pts})
-                last_frame = frame
-            if last_frame is not None:
+        with av.logging.Capture() as logs, reader:
+            targets = {0: "beginning"}
+            if reader.metadata["declared_frames"] > 1:
+                targets[reader.metadata["declared_frames"] // 2] = "middle"
+            last = None
+            for decoded in reader:
+                drain_logs(logs)
+                if output is not None and decoded.index in targets:
+                    name = f"{path.stem}_{targets[decoded.index]}.png"
+                    save_png(decoded.rgb, output / name)
+                    result["preview_frames"].append({"file": name, "index": decoded.index, "pts": decoded.pts})
+                # Only retain the last preview candidate, never the whole video.
+                if output is not None:
+                    last = decoded
+            if output is not None and last is not None:
                 name = f"{path.stem}_end.png"
-                save_png(last_frame, output / name)
-                result["preview_frames"].append({"file": name, "index": result["decoded_frames"] - 1, "pts": last_frame.pts})
-            result["first_pts_seconds"] = first
-            result["last_pts_seconds"] = last
-            result["decoded_duration_at_nominal_rate_seconds"] = result["decoded_frames"] / rate if rate else None
-            result["pts_span_plus_nominal_frame_seconds"] = last - first + 1 / rate if first is not None and rate else None
-        result["decoder_error_logs"] = [message for level, _, message in logs if level <= av.logging.ERROR]
+                save_png(last.rgb, output / name)
+                result["preview_frames"].append({"file": name, "index": last.index, "pts": last.pts})
+        drain_logs(logs)
     except Exception as exc:
-        result["errors"].append(f"{type(exc).__name__}: {exc}")
-    result["valid"] = (result["decoded_frames"] > 0 and not any(result.get(k) for k in (
-        "corrupt_frames", "errors", "decoder_error_logs"))
-        and (not result.get("declared_frames") or result["decoded_frames"] == result["declared_frames"]))
+        result["errors"].append(type(exc).__name__)
+        if "logs" in locals():
+            drain_logs(logs)
+    result.update(reader.summary())
+    result["valid"] = (result["decoded_frames"] > 0 and result["decode_complete"]
+                       and not any(result.get(k) for k in (
+                           "corrupt_frames", "errors", "decoder_error_logs", "missing_pts",
+                           "missing_time_base", "duplicate_pts", "nonmonotonic_pts"))
+                       and (not result.get("declared_frames")
+                            or result["decoded_frames"] == result["declared_frames"]))
     return result
 
 
@@ -167,6 +162,19 @@ def require_ignored(path: Path) -> None:
     check = subprocess.run(["git", "check-ignore", "--quiet", str(path / "validation.json")], cwd=root)
     if check.returncode:
         raise ValueError("Output is not ignored by Git")
+
+
+def write_private_json(path: Path, report: dict) -> None:
+    """Create a new JSON report only at a Git-ignored processed-data path."""
+    path = path.resolve()
+    require_ignored(path.parent)
+    root = Path(__file__).resolve().parents[2]
+    if subprocess.run(["git", "check-ignore", "--quiet", str(path)], cwd=root).returncode:
+        raise ValueError("Report path is not ignored by Git")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("x") as target:
+        json.dump(report, target, indent=2, sort_keys=True, allow_nan=False)
+        target.write("\n")
 
 
 def main() -> None:
