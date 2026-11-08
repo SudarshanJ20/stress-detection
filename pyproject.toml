@@ -11,6 +11,7 @@ requires-python = ">=3.12"
 
 [project.optional-dependencies]
 inspection = ["av"]
+face-quality = ["av==19.0.2", "mediapipe==1.2.2", "numpy==2.5.4", "opencv-contrib-python==5.0.0.93"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
