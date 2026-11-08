@@ -74,8 +74,8 @@ speech and arithmetic. It describes CSAI-based questionnaires, with 7 cognitive,
 7 somatic, and 9 self-confidence items rated 1–4. The inspected sample has the
 documented resolution and codec, but its reported frame rate is 35.138 fps rather
 than the rounded 35 fps; see the validation summary. Detailed speech/arithmetic
-instructions and
-difficulty manipulations still need a complete reading of Section 2.2; the
+instructions and difficulty manipulations still need a complete reading of
+Section 2.2; the
 unmodified TSST protocol must not be assumed to apply.
 
 The README does not establish CSV header/timestamp conventions, units for BVP,
@@ -272,6 +272,14 @@ not test GPU acceleration. Disk space after extraction was approximately 741.55
 GiB; recheck before future acquisitions.
 
 ### Next action
+
+The sample-access/integrity/readability milestone is complete. **Synchronization
+verification and multi-participant acquisition are separate pending milestones.**
+The [research protocol](research-protocol.md) now specifies evaluation targets,
+participant roles, rejection comparisons, and acquisition/storage gates before
+any request for further participants. The [literature review](literature-review.md)
+records verified competitors and inaccessible evidence. The next implementation
+step is the timestamp reader and private manifest, using the existing sample.
 
 Verify the experiment's exact timing/trigger conventions and complete paper
 Section 2.2 before defining aligned windows. Resolve whether there is a known
