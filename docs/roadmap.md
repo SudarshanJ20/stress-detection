@@ -1,13 +1,18 @@
 # Research roadmap
 
-Only the initial repository scaffold is present. There is no trained model or
-validated accuracy; dataset access and research novelty remain unverified.
+The repository scaffold and Python development environment are set up. There is
+no trained model or validated accuracy; research novelty remains unverified.
 
-1. **Environment and GitHub setup** — Establish the local scaffold, development
-   rules, ignore patterns, and public GitHub repository. Defer dependency
-   installation until implementation requirements are defined.
-2. **Dataset access and sample verification** — Verify access, licensing, consent,
-   available labels, and representative samples before selecting a dataset.
+1. **Environment and GitHub setup — complete.** Local scaffold, development rules,
+   ignore patterns, public GitHub repository, and editable Python environment are
+   verified. No machine-learning dependencies are installed.
+2. **Dataset access and sample verification — in progress.** UBFC-Phys official
+   page, public DataPort metadata, license, and README inspected on 2026-11-08.
+   Participant packages are advertised; s25 is the smallest listed at 12.85 GB.
+   Login is needed to verify actual delivery and individual-file access; extracted
+   sizes remain unknown. No sample acquired or inspected; sample verification is
+   pending. See [dataset access](dataset-access.md) for sources, storage estimates,
+   protocol/label distinctions, unresolved checks, and the exact manual next step.
 3. **Literature verification and research question** — Read and verify primary
    literature, establish baselines, and formulate a testable research question.
    Do not claim novelty before verification.
