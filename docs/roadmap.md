@@ -24,9 +24,16 @@ no trained model or validated accuracy; research novelty remains unverified.
    participant-separated evaluation, matched-coverage rejection comparisons,
    degradation tests, and storage gates. Novelty, inaccessible full-text details,
    physiological synchronization, and wider construct validity remain unverified.
-4. **Data audit and participant-separated splits** — Audit labels, missingness,
-   consent constraints, and quality. Split by participant before creating training
-   and testing windows; prevent participant leakage across all evaluation sets.
+4. **Data audit and participant-separated splits — infrastructure implemented;
+   cohort audit and actual split pending.** The timestamp-preserving RGB reader
+   and private manifest builder share the existing inspection code. All three
+   sample videos passed timing inspection; original PTS/time bases, signal
+   counts/rates, relative paths, hashes, conditions, warnings and unverified
+   synchronization are recorded privately. Synthetic tests cover timing faults,
+   cleanup, ambiguous pairs and participant/recording/window split leakage.
+   The sample remains development-only; no real three-way split is created.
+   See [data pipeline commands and semantics](data-pipeline.md). Split future
+   data by participant before creating training/testing windows.
 5. **Facial, pulse, and quality feature extraction** — Implement facial behaviour,
    camera-derived pulse, and video-quality features; document assumptions and
    failure conditions. Keep participant features out of Git.
@@ -46,7 +53,8 @@ no trained model or validated accuracy; research novelty remains unverified.
     environment, methods, measured results, and limitations without publishing
     credentials or participant data.
 
-**Next small implementation milestone:** timestamp-preserving video reader and
-private dataset manifest, with synthetic timing/leakage tests as specified at
-the end of the research protocol. No facial models, pulse extraction, additional
-participant downloads, or training are part of that milestone.
+**Completed implementation milestone:** timestamp-preserving video reader,
+private dataset manifest, and split validator. Remaining gates are independent
+video/reference synchronization evidence and a feasible staged cohort plan.
+Facial models, pulse extraction, further participant acquisition and training
+have not begun.

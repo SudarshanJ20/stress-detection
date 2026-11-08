@@ -5,8 +5,10 @@ behaviour and camera-derived pulse, with video-quality checks.
 
 ## Current status
 
-This repository contains the project scaffold and a minimal development environment. There is no trained model
-or validated accuracy yet. Dataset access and research novelty remain unverified.
+This repository contains the development environment, sample validation, and
+timestamp-preserving video/manifest tools. There is no trained model or validated
+accuracy yet. One dataset sample is locally readable; synchronization, wider
+dataset suitability, and research novelty remain unverified.
 No predictions or research results are available. This is a research project,
 not a diagnostic or clinical tool.
 
@@ -30,8 +32,9 @@ before building a live webcam application.
 ## Getting started
 
 Use Python 3.12 or newer; the development environment has been verified with
-Python 3.12. No datasets or machine-learning dependencies are installed. The
-package has no runtime dependencies; setuptools is used to build and install it.
+Python 3.12. No machine-learning dependencies are installed. Participant data
+stays local and ignored. The base package has no runtime dependencies; setuptools
+is used to build/install it. The optional `inspection` extra provides PyAV.
 
 From the repository folder, create the environment once using an existing Python
 3.12 installation. With uv available, this reuses an installed interpreter and
@@ -60,3 +63,7 @@ GPU acceleration or scientific-library compatibility.
 
 Read [the development rules](AGENTS.md) and [the roadmap](docs/roadmap.md) before
 making changes. Keep credentials, participant data, and model artifacts out of Git.
+
+For sample inspection, manifest creation and participant-split validation, see
+[data pipeline commands and timing semantics](docs/data-pipeline.md). Reports
+stay in ignored `data/processed/`; the current sample has no evaluation split.
