@@ -1,11 +1,13 @@
 # Research roadmap
 
 The repository scaffold and Python development environment are set up. There is
-no trained model or validated accuracy; research novelty remains unverified.
+no trained stress model or validated stress accuracy; research novelty remains
+unverified. A pretrained landmark runtime is used for local measurements only.
 
 1. **Environment and GitHub setup — complete.** Local scaffold, development rules,
    ignore patterns, public GitHub repository, and editable Python environment are
-   verified. No machine-learning dependencies are installed.
+   verified. The optional pretrained landmark runtime is pinned; no stress-model
+   training stack has been configured.
 2. **Dataset access and sample verification — separate milestones:**
    - **Sample access, integrity, and readability — complete.** One participant's
      three tasks passed safe extraction/CRCs, numeric structure, metadata checks,
@@ -34,9 +36,15 @@ no trained model or validated accuracy; research novelty remains unverified.
    The sample remains development-only; no real three-way split is created.
    See [data pipeline commands and semantics](data-pipeline.md). Split future
    data by participant before creating training/testing windows.
-5. **Facial, pulse, and quality feature extraction** — Implement facial behaviour,
-   camera-derived pulse, and video-quality features; document assumptions and
-   failure conditions. Keep participant features out of Git.
+5. **Facial and basic video-quality measurements implemented; pulse pending.**
+   The existing reader streams pretrained landmarks, conservative single-face
+   association, face geometry/motion, raw brightness/clipping/sharpness proxies,
+   and geometric forehead/cheek RGB. All three local recordings were processed
+   and sparse overlays inspected. Invalid regions are explicit; no composite
+   quality score or stress interpretation is produced. See
+   [face-quality commands, definitions and limitations](face-quality.md).
+   Pulse extraction, validated quality/skin criteria and synchronization remain
+   pending. Model assets and all participant measurements stay ignored.
 6. **Baseline models** — Establish simple reproducible baselines and compare
    modalities using the predefined participant-separated evaluation protocol.
 7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
@@ -54,7 +62,9 @@ no trained model or validated accuracy; research novelty remains unverified.
     credentials or participant data.
 
 **Completed implementation milestone:** timestamp-preserving video reader,
-private dataset manifest, and split validator. Remaining gates are independent
-video/reference synchronization evidence and a feasible staged cohort plan.
-Facial models, pulse extraction, further participant acquisition and training
+private dataset manifest, split validator, and pretrained face/basic quality
+measurement pipeline. Remaining gates include independent video/reference
+synchronization evidence, quality/skin/association validation, native-wheel
+compatibility review before live capture, and a feasible staged cohort plan.
+Pulse extraction, further participant acquisition and stress-model training
 have not begun.

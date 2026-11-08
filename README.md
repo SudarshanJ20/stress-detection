@@ -6,8 +6,9 @@ behaviour and camera-derived pulse, with video-quality checks.
 ## Current status
 
 This repository contains the development environment, sample validation, and
-timestamp-preserving video/manifest tools. There is no trained model or validated
-accuracy yet. One dataset sample is locally readable; synchronization, wider
+timestamp-preserving video/manifest tools, and pretrained face/basic quality
+measurements. There is no trained stress model or validated stress accuracy yet.
+One dataset sample is locally readable; synchronization, wider
 dataset suitability, and research novelty remain unverified.
 No predictions or research results are available. This is a research project,
 not a diagnostic or clinical tool.
@@ -32,9 +33,10 @@ before building a live webcam application.
 ## Getting started
 
 Use Python 3.12 or newer; the development environment has been verified with
-Python 3.12. No machine-learning dependencies are installed. Participant data
-stays local and ignored. The base package has no runtime dependencies; setuptools
-is used to build/install it. The optional `inspection` extra provides PyAV.
+Python 3.12. Participant data and model assets stay local and ignored. The base
+package has no runtime dependencies; setuptools is used to build/install it.
+The optional `inspection` extra provides PyAV; `face-quality` provides the pinned
+pretrained landmark/measurement runtime. No stress model has been trained.
 
 From the repository folder, create the environment once using an existing Python
 3.12 installation. With uv available, this reuses an installed interpreter and
@@ -67,3 +69,5 @@ making changes. Keep credentials, participant data, and model artifacts out of G
 For sample inspection, manifest creation and participant-split validation, see
 [data pipeline commands and timing semantics](docs/data-pipeline.md). Reports
 stay in ignored `data/processed/`; the current sample has no evaluation split.
+For the pretrained landmark model, raw region RGB and unvalidated quality
+measurements, see [face-quality setup and commands](docs/face-quality.md).

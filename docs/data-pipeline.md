@@ -213,5 +213,7 @@ longer than each nominal 180-second BVP/EDA recording. The paper's rounded 35 fp
 must not replace the actual time base. Those structural observations do not
 establish video-to-sensor synchronization or psychological validity.
 
-Synchronization verification, broader acquisition, and all feature/model work
-remain pending under the [research protocol](research-protocol.md).
+The follow-on [face/basic quality pipeline](face-quality.md) now uses this
+reader. Synchronization verification, broader acquisition, pulse extraction
+and stress-model training remain pending under the
+[research protocol](research-protocol.md).
