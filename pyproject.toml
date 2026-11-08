@@ -9,5 +9,8 @@ description = "Research prototype for quality-aware stress pattern estimation"
 readme = "README.md"
 requires-python = ">=3.12"
 
+[project.optional-dependencies]
+inspection = ["av"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
