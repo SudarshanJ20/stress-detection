@@ -6,13 +6,15 @@ no trained model or validated accuracy; research novelty remains unverified.
 1. **Environment and GitHub setup — complete.** Local scaffold, development rules,
    ignore patterns, public GitHub repository, and editable Python environment are
    verified. No machine-learning dependencies are installed.
-2. **Dataset access and sample verification — in progress.** UBFC-Phys official
-   page, public DataPort metadata, license, and README inspected on 2026-11-08.
-   Participant packages are advertised; s25 is the smallest listed at 12.85 GB.
-   Login is needed to verify actual delivery and individual-file access; extracted
-   sizes remain unknown. No sample acquired or inspected; sample verification is
-   pending. See [dataset access](dataset-access.md) for sources, storage estimates,
-   protocol/label distinctions, unresolved checks, and the exact manual next step.
+2. **Dataset access and sample verification — in progress; sample-access
+   checkpoint complete for local integrity and readability.** One participant's
+   three-task archive was safely extracted with all CRCs passing. Signal shapes,
+   numeric values, metadata structure, full video decoding, and nine sparse
+   visual checks passed. Minor documented-format differences are recorded.
+   Video/reference synchronization, complete protocol detail, and wider dataset
+   suitability remain unresolved. One participant is for pipeline development,
+   not generalization or a train/validation/test split. See
+   [dataset access](dataset-access.md) for the nonidentifying summary and commands.
 3. **Literature verification and research question** — Read and verify primary
    literature, establish baselines, and formulate a testable research question.
    Do not claim novelty before verification.

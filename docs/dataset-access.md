@@ -1,8 +1,11 @@
 # UBFC-Phys access investigation
 
-Checked **2026-11-08**. Access research is complete for publicly inspectable
-material; **no participant sample has been downloaded or verified**. Dataset
-selection remains provisional. No licenses were accepted or applications submitted.
+Checked **2026-11-08**. One user-downloaded participant archive has now been
+extracted and inspected locally. The sample-access checkpoint covers file
+availability, CRCs, numeric structure, full video decoding, and sparse visual
+inspection; synchronization remains unverified. Dataset selection remains
+provisional. No licenses were accepted or applications submitted on the user's
+behalf.
 
 ## Official sources and inspection results
 
@@ -43,9 +46,9 @@ sN/
   selfReportedAnx_sN.csv
 ```
 
-This is a documentation-derived schema, not an inspected archive listing. The
-current download browser also lists outer folders named `sN_zip`; their contents
-cannot be expanded anonymously. Confirm the actual wrapper and filenames later.
+This documented schema matches the inspected local sample: one `s25/` folder
+with 11 files. The download browser also lists outer folders named `sN_zip`;
+individual-file delivery through that interface remains unverified.
 
 | Field | Documented meaning |
 | --- | --- |
@@ -68,14 +71,18 @@ outcome or assume every participant responded in the intended direction.
 The paper reports 35 fps, 1024 × 1024 Motion JPEG video and three retained minutes
 per task: the middle three minutes for rest, and the initial three minutes for
 speech and arithmetic. It describes CSAI-based questionnaires, with 7 cognitive,
-7 somatic, and 9 self-confidence items rated 1–4. These acquisition specifications
-are not verified against files. Detailed speech/arithmetic instructions and
+7 somatic, and 9 self-confidence items rated 1–4. The inspected sample has the
+documented resolution and codec, but its reported frame rate is 35.138 fps rather
+than the rounded 35 fps; see the validation summary. Detailed speech/arithmetic
+instructions and
 difficulty manipulations still need a complete reading of Section 2.2; the
 unmodified TSST protocol must not be assumed to apply.
 
 The README does not establish CSV header/timestamp conventions, units for BVP,
-sample counts, missing samples, or exact video/reference alignment. Those need
-sample inspection. Nominal duration and sampling rate alone do not prove sync.
+sample counts, missing samples, or exact video/reference alignment. Local
+sample checks below establish numeric structure and counts, but cannot establish
+that no acquisitions were lost upstream. Nominal duration and sampling rate
+alone do not prove synchronization.
 Public DataPort comments report possible filename issues for s40 and s56; those
 are user reports, not verified corrections. Avoid those participants initially
 and audit identifiers rather than silently renaming files.
@@ -124,7 +131,8 @@ unknown. EDA is optional for the planned camera/pulse smoke check.
 **Preferred first sample:** all three tasks from **s25**, with matched BVP, EDA,
 participant metadata, questionnaire, and README. The smallest publicly advertised
 participant package is **`s25.zip`, 12.85 GB**. This is the smallest listed package,
-not a verified successfully downloadable sample. No sample is currently acquired.
+and has now been obtained by the user and inspected locally. This confirms
+availability of that participant package, not individual-file download support.
 
 Verified DataPort listing figures:
 
@@ -150,9 +158,9 @@ or guarantee. Recheck free space and actual uncompressed sizes before extraction
 
 macOS already has `/usr/bin/unzip`; no ML libraries are needed. Once a ZIP has
 been obtained legitimately, local `unzip -l` can inspect member names and sizes
-before extraction. Python 3.12's standard-library `zipfile` supports ZIP64, but
-the actual compression/encryption method and archive integrity remain untested.
-Do not assume every archive encoding works with macOS tools.
+before extraction. Python 3.12's standard-library `zipfile` supports ZIP64.
+The inspected sample uses stored/Deflate members without encryption, and all
+member CRCs passed during extraction. Other archives remain untested.
 
 **Selective remote extraction is not established.** ZIP can support selective
 member reads in principle, but a remote implementation needs working byte-range
@@ -163,7 +171,7 @@ extraction does not save the initial archive download. Use individual files only
 if the authenticated official interface actually provides them; otherwise plan
 to download one complete participant archive.
 
-## Exact next action and unresolved checks
+## Original acquisition route (retained for future participants)
 
 1. In a normal browser, open
    https://ieee-dataport.org/open-access/ubfc-phys-2 and choose **Login** (or create
@@ -178,7 +186,7 @@ to download one complete participant archive.
    single archive in a later sample-acquisition task. If neither route works,
    inspect the author-linked university URL above in the browser or ask the
    authors for an official one-participant route.
-4. Keep any future downloads under ignored `data/raw/ubfc-phys/`, with expired or
+4. Keep any future downloads under ignored `data/raw/UBFC-Phys/`, with expired or
    authenticated links and credentials out of Git. Do not put credentials into
    shell arguments or commit browser session information.
 5. Before extraction, inspect the archive member listing, total uncompressed
@@ -186,8 +194,89 @@ to download one complete participant archive.
    readability/frame timing, BVP counts and timing, metadata, questionnaire layout,
    alignment, and any filename anomalies. Only then mark sample verification done.
 
-Remaining blockers are authenticated file delivery and individual-file sizes,
-actual archive structure/format/extracted size, complete protocol detail, and
-sample quality/synchronization. Public documentation research does not resolve
-these. No videos, signal files, or large archives were downloaded in this task;
-no third-party document is committed.
+## Local sample validation — 2026-11-08
+
+**Sample-access checkpoint complete for the checks below. Phase 2 remains in
+progress because alignment and broader dataset suitability are unresolved.**
+One participant supports pipeline development only; it does not support a
+participant-separated training/validation/test split or a generalization claim.
+
+- Rechecked free space, archive entry paths, duplicates, symlinks, destination
+  absence, and Git exclusions before extraction. No unsafe entries were found.
+- Extracted 11 files (13,836,913,516 bytes, about 12.887 GiB) into ignored
+  `data/raw/UBFC-Phys/`, preserving the participant folder. Files were created
+  exclusively, so existing files could not be silently overwritten. Reading
+  every ZIP member to EOF checked CRCs; all passed. The source ZIP was opened
+  read-only and retained unchanged (size and modification time also checked).
+- Locally inspected the information and questionnaire files. The participant ID,
+  sex/scenario codes, and five-line information structure are valid. Date/time
+  separators are underscores (`YYYY_MM_DD`, `hh_mm_ss`), unlike the README's
+  hyphens. Questionnaire shape is 3 × 2 with finite numeric values, matching the
+  documented dimension rows and pre/post columns. No values or personal fields
+  are included here. Task assignments remain experimental labels, not diagnoses.
+- All six signals are headerless, single-column numeric CSVs, with no blank,
+  nonnumeric, nonfinite, or malformed rows. Each BVP file has 11,520 samples at
+  the documented 64 Hz; each EDA file has 720 samples at 4 Hz. Both imply a
+  nominal 180 seconds per task. The files contain no explicit timestamp column;
+  no timestamps were fabricated.
+- All three videos are Motion JPEG, 1024 × 1024, reported 35.138 fps, with 6,325
+  declared and decoded frames each and duration about 180.004553 seconds.
+  Full sequential decoding found no decoder exceptions, error-level decoder
+  messages, flagged corrupt frames, missing presentation timestamps, or
+  nonmonotonic presentation timestamps. No original was resized or recompressed.
+- Beginning, middle, and final frames of each video were inspected locally. A
+  face was visible in all nine inspected frames. This is a sparse visual check,
+  not a guarantee of face visibility or rPPG quality throughout each recording.
+- Video minus nominal signal duration is about +0.004553 seconds for every
+  task, less than one nominal video frame. There is no material duration
+  discrepancy at that threshold. This does **not** verify start offset, drift,
+  trigger correspondence, or physiological alignment. Do not trim, resample,
+  or assume synchronization based solely on equal durations.
+
+Detailed JSON reports and full-resolution PNG inspection copies are stored only
+under ignored `data/processed/ubfc-phys/`. Extraction details are in
+`extraction.json`; the final run is in `inspection-verified/validation.json`.
+Personal metadata and questionnaire scores are omitted from the validator report.
+Manual visual observations are recorded separately in `visual-review.json`.
+No participant files, frame images, or detailed outputs are committed.
+
+### Reproduce validation
+
+From the repository root, with the already extracted sample present:
+
+```sh
+source .venv/bin/activate
+python -m pip install -e '.[inspection]'
+python -m unittest discover -s tests -v
+python -m stress_detection.validate_sample data/raw/UBFC-Phys/s25 \
+  --output data/processed/ubfc-phys/inspection-new
+```
+
+Choose a **new** output directory on every run; existing output directories are
+refused. The validator requires Git-ignored output under `data/processed/`, checks
+all task/video/reference pairs, parses signals strictly, checks metadata and
+questionnaire shape, stream-decodes every video frame, writes private JSON, and
+saves beginning/middle/end previews for local review. Structural failures return
+a nonzero exit status. Duration discrepancies are warnings; synchronization and
+visual review are never inferred automatically. Synthetic tests cover malformed
+signals, missing reference/video pairs, and metadata format variation. No real
+participant values are used as test fixtures.
+
+No existing FFmpeg/ffprobe executable was found. The optional `inspection` extra
+adds only **PyAV (`av`)**, whose wheel bundles FFmpeg libraries; the verified local
+version is 19.0.2. No ML dependencies, Pillow, NumPy, or standalone FFmpeg package
+were installed. See [PyAV installation documentation](https://pyav.org/docs/stable/overview/installation.html).
+Exact Python/PyAV/FFmpeg library versions are recorded in the private report.
+The command reports container metadata and decoded presentation timing; it does
+not test GPU acceleration. Disk space after extraction was approximately 741.55
+GiB; recheck before future acquisitions.
+
+### Next action
+
+Verify the experiment's exact timing/trigger conventions and complete paper
+Section 2.2 before defining aligned windows. Resolve whether there is a known
+video/BVP offset and how retained segments were selected; consult the authors if
+the official documentation is insufficient. Wider cohort audit, actual
+individual-file download support, other participants' extracted sizes, and
+research novelty remain unresolved. Do not acquire the full dataset based on
+this sample or start model evaluation with a one-participant split.
