@@ -245,5 +245,13 @@ one invalid-cheek example were visually inspected locally. In that example a
 far-side cheek collapses during head rotation and is correctly marked invalid
 for too few pixels. Sparse inspection does not establish all-frame landmark,
 skin, identity or physiological validity. Native-library warnings above remain
-a compatibility limitation. Synchronization and all pulse/stress-model work
+a compatibility limitation. Synchronization and physiological pulse validation
 remain pending. One participant still supports pipeline development only.
+
+## Follow-on offline pulse milestone
+
+The [offline pulse baseline](pulse-baseline.md) now reuses these completed RGB
+runs without modifying them. It adds green/POS extraction and independent
+recording-level BVP summaries. Synchronization, physiological pulse validation,
+HRV and stress-model work remain pending; the descriptions above document what
+the face-quality command itself does.

@@ -36,15 +36,19 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    The sample remains development-only; no real three-way split is created.
    See [data pipeline commands and semantics](data-pipeline.md). Split future
    data by participant before creating training/testing windows.
-5. **Facial and basic video-quality measurements implemented; pulse pending.**
+5. **Facial/basic quality measurements and offline pulse baseline implemented.**
    The existing reader streams pretrained landmarks, conservative single-face
    association, face geometry/motion, raw brightness/clipping/sharpness proxies,
    and geometric forehead/cheek RGB. All three local recordings were processed
    and sparse overlays inspected. Invalid regions are explicit; no composite
    quality score or stress interpretation is produced. See
    [face-quality commands, definitions and limitations](face-quality.md).
-   Pulse extraction, validated quality/skin criteria and synchronization remain
-   pending. Model assets and all participant measurements stay ignored.
+   Green and POS offline pulse methods now consume saved per-region RGB with
+   fixed windows, timestamp-aware short-gap resampling, explicit rejections and
+   independent recording-level BVP summaries. See [pulse baseline](pulse-baseline.md).
+   This does not validate pulse accuracy or alignment. Validated quality/skin
+   criteria, synchronization, HRV and live extraction remain pending. Model assets
+   and all participant measurements/reference values stay ignored.
 6. **Baseline models** — Establish simple reproducible baselines and compare
    modalities using the predefined participant-separated evaluation protocol.
 7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
@@ -63,8 +67,10 @@ unverified. A pretrained landmark runtime is used for local measurements only.
 
 **Completed implementation milestone:** timestamp-preserving video reader,
 private dataset manifest, split validator, and pretrained face/basic quality
-measurement pipeline. Remaining gates include independent video/reference
+measurement pipeline, and offline green/POS pulse baseline. Remaining gates
+include independent video/reference
 synchronization evidence, quality/skin/association validation, native-wheel
 compatibility review before live capture, and a feasible staged cohort plan.
-Pulse extraction, further participant acquisition and stress-model training
-have not begun.
+Offline pulse processing is complete only as an engineering baseline; pulse
+validation, live capture, HRV, further participant acquisition and stress-model
+training remain pending.

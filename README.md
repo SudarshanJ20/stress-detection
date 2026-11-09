@@ -6,11 +6,13 @@ behaviour and camera-derived pulse, with video-quality checks.
 ## Current status
 
 This repository contains the development environment, sample validation, and
-timestamp-preserving video/manifest tools, and pretrained face/basic quality
-measurements. There is no trained stress model or validated stress accuracy yet.
+timestamp-preserving video/manifest tools, pretrained face/basic quality
+measurements, and an offline green/POS pulse baseline. There is no trained stress
+model or validated stress accuracy yet.
 One dataset sample is locally readable; synchronization, wider
 dataset suitability, and research novelty remain unverified.
-No predictions or research results are available. This is a research project,
+No stress predictions or validated research results are available. This is a
+research project,
 not a diagnostic or clinical tool.
 
 ## Planned approach
@@ -71,3 +73,7 @@ For sample inspection, manifest creation and participant-split validation, see
 stay in ignored `data/processed/`; the current sample has no evaluation split.
 For the pretrained landmark model, raw region RGB and unvalidated quality
 measurements, see [face-quality setup and commands](docs/face-quality.md).
+
+For offline green/POS extraction from saved RGB traces and independent
+recording-level BVP comparison, see [pulse baseline commands and limits](docs/pulse-baseline.md).
+Synchronization and pulse accuracy remain unverified.

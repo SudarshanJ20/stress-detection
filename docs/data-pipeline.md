@@ -214,6 +214,7 @@ must not replace the actual time base. Those structural observations do not
 establish video-to-sensor synchronization or psychological validity.
 
 The follow-on [face/basic quality pipeline](face-quality.md) now uses this
-reader. Synchronization verification, broader acquisition, pulse extraction
+reader. The [offline pulse baseline](pulse-baseline.md) now consumes its saved
+region RGB. Synchronization verification, pulse validation, broader acquisition
 and stress-model training remain pending under the
 [research protocol](research-protocol.md).
