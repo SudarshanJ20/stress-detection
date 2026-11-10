@@ -149,6 +149,58 @@ alone does not establish usable RGB, pulse, acquisition clock accuracy or
 video-to-wrist synchronization. Gap diagnostics now include exact original
 fractions, preceding/current frame indices and PTS, and interval duration.
 
+### Optional bounded track restarts
+
+`--track-policy contiguous` remains the default. For an explicitly versioned
+development audit, `--track-policy bounded-reacquire` allows a new geometric
+segment after a short missing-face interruption. The same policy applies to
+every selected recording, independently of pulse/reference agreement.
+
+Require exactly one finite, valid, unclipped candidate and compatibility with
+the last retained face under the existing IoU >=0.2 / normalized center shift
+<=0.5 bounds. Confirm at least five consecutive candidates spanning at least
+0.2 seconds, each matching the preceding candidate with IoU >=0.5 and shift
+<=0.25. The last retained observation must be no more than two seconds old.
+Missing or incompatible candidates reset confirmation. Multi-face ambiguity,
+timestamp/geometry faults, large track discontinuities and expired absence
+remain invalid and do not automatically establish a new identity.
+
+Every pending or ambiguous observation has null landmarks/RGB and no motion
+estimate. Only the final confirming frame starts a new segment; earlier frames
+are never retrospectively filled. Motion and brightness-change calculations
+reset at each break/restart. Segment IDs are geometric provenance, not biometric
+identity. Log every acquire/break/restart/block event with original frame/PTS
+in `track-events.jsonl`; all frames retain their statuses and segment ID/null
+in `frames.jsonl`. Summary counts distinguish detected faces from retained
+tracks. Save up to 20 event overlays as well as ordinary previews, log all
+events even beyond that image limit, and inspect local overlays before accepting
+a development change.
+
+The 0.2-second confirmation leaves a gap larger than the frozen 0.15-second
+pulse support limit, so windows crossing a restart retain explicit pulse
+rejections. No pulse parameter, band, method or ROI is selected or retuned.
+Synthetic tests cover ambiguity/timeout refusal, confirmation invalidity,
+motion reset and window-specific rejection under the unchanged pulse code.
+
+For the authorized local camera audit, a new private selection points to the
+existing extracted directories, preserving the earlier roots. Use a fresh root:
+
+```sh
+.venv/bin/python -m stress_detection.pilot \
+  --selection data/processed/ubfc-phys/pilot-selections/batch-01-camera-audit.json \
+  --output data/processed/ubfc-phys/pilot-runner/batch-01-camera-audit \
+  --track-policy bounded-reacquire --dry-run
+
+.venv/bin/python -m stress_detection.pilot \
+  --selection data/processed/ubfc-phys/pilot-selections/batch-01-camera-audit.json \
+  --output data/processed/ubfc-phys/pilot-runner/batch-01-camera-audit \
+  --track-policy bounded-reacquire
+```
+
+The selection and all detailed timing/overlay/before-after results remain
+Git ignored. This is a development policy and does not establish physiological
+accuracy, reliable identity continuity, or readiness for cohort expansion.
+
 Every stage gets a unique immutable attempt directory with an atomic
 `receipt.json`, start/end times, input/settings/code/software/model provenance,
 command log where a subprocess ran, output path and content hashes. A process

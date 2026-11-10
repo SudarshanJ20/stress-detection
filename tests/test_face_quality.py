@@ -92,6 +92,94 @@ class MaskMeasurementTests(unittest.TestCase):
 
 
 class TrackingTimingTests(unittest.TestCase):
+    def test_bounded_reacquisition_requires_unique_stable_geometry_and_logs_segments(self):
+        track = SingleFaceTrack(reacquire=True)
+        face = synthetic_face()
+        self.assertIsNotNone(track.accept([face], 0, 256, 256)[0])
+        self.assertEqual(track.last_event['type'], 'acquire')
+        track.accept([], .04, 256, 256)
+        self.assertEqual(track.last_event['type'], 'break')
+        for t in (.08, .12, .16, .20, .24):
+            self.assertIsNone(track.accept([face], t, 256, 256)[0])
+        selected, status = track.accept([face], .28, 256, 256)
+        self.assertIsNotNone(selected)
+        self.assertEqual(status, 'track_reacquired')
+        self.assertEqual(track.segment_id, 2)
+        self.assertEqual(track.last_event['type'], 'restart')
+        self.assertGreaterEqual(track.last_event['confirmation_seconds'], .2 - 1e-9)
+
+    def test_reacquisition_refuses_ambiguity_long_absence_and_far_geometry(self):
+        face = synthetic_face()
+        for kind in ('multiple', 'timeout', 'timing'):
+            track = SingleFaceTrack(reacquire=True)
+            track.accept([face], 0, 256, 256)
+            track.accept([], .04, 256, 256)
+            if kind == 'multiple':
+                track.accept([face, face.copy()], .08, 256, 256)
+            elif kind == 'timeout':
+                track.accept([face], 2.1, 256, 256)
+            else:
+                track.accept([face], .03, 256, 256)
+            self.assertFalse(track.restart_allowed)
+            self.assertIsNone(track.accept([face], 2.2, 256, 256)[0])
+        track = SingleFaceTrack(reacquire=True)
+        track.accept([face], 0, 256, 256)
+        track.accept([], .04, 256, 256)
+        moved = face.copy(); moved[:, 0] += .3
+        self.assertEqual(track.accept([moved], .08, 256, 256)[1], 'reacquire_geometry_mismatch')
+
+    def test_anchor_uses_original_bounds_with_tighter_consecutive_confirmation(self):
+        face = synthetic_face()
+        face[:, :2] = .5 + (face[:, :2] - .5) * .5
+        moved = face.copy(); moved[:, 0] += .12
+        track = SingleFaceTrack(reacquire=True)
+        track.accept([face], 0, 256, 256)
+        track.accept([], .04, 256, 256)
+        for t in (.08, .12, .16, .20, .24):
+            self.assertIsNone(track.accept([moved], t, 256, 256)[0])
+        self.assertIsNotNone(track.accept([moved], .28, 256, 256)[0])
+
+    def test_motion_resets_on_restart_and_all_confirmation_rows_remain_invalid(self):
+        rgb = np.full((256, 256, 3), 100, np.uint8)
+        face = synthetic_face()
+        analyzer = FrameAnalyzer({'reacquire_enabled': True})
+        detector = Mock()
+        detector.detect.return_value = [face]
+        analyzer.analyze(frame(0, Fraction(0)), rgb, detector)
+        detector.detect.return_value = []
+        lost, _ = analyzer.analyze(frame(1, Fraction(1, 25)), rgb, detector)
+        self.assertEqual(lost['track_event']['type'], 'break')
+        detector.detect.return_value = [face]
+        for i in range(2, 7):
+            row, _ = analyzer.analyze(frame(i, Fraction(i, 25)), rgb, detector)
+            self.assertTrue(all(not r['valid'] for r in row['regions'].values()))
+            self.assertIsNone(row['motion_face_sizes_per_second'])
+        restart, _ = analyzer.analyze(frame(7, Fraction(7, 25)), rgb, detector)
+        self.assertEqual(restart['track_event']['type'], 'restart')
+        self.assertIsNone(restart['motion_face_sizes_per_second'])
+        self.assertIsNone(restart['brightness_change_per_second'])
+        self.assertEqual(restart['track_segment_id'], 2)
+        after, _ = analyzer.analyze(frame(8, Fraction(8, 25)), rgb, detector)
+        self.assertIsNotNone(after['motion_face_sizes_per_second'])
+
+    def test_confirmation_gap_is_rejected_by_frozen_pulse_limit_only_in_affected_window(self):
+        from stress_detection.pulse import Settings, resample_window
+        track = SingleFaceTrack(reacquire=True)
+        face = synthetic_face()
+        times = np.arange(2400) / 40
+        rgb = np.full((len(times), 3), np.nan)
+        accepted = []
+        for i, t in enumerate(times):
+            selected, _ = track.accept([] if i == 40 else [face], float(t), 256, 256)
+            if selected is not None:
+                rgb[i] = 100
+                accepted.append(t)
+        self.assertGreater(max(np.diff(accepted)), Settings().max_gap_seconds)
+        _, availability, reason = resample_window(times, rgb, 0, Settings())
+        self.assertGreater(availability['valid_data_fraction'], .9)
+        self.assertEqual(reason, 'long_gap')
+        self.assertIsNone(resample_window(times, rgb, 30, Settings())[2])
+
     def test_missing_face_is_not_filled_or_reacquired(self):
         track = SingleFaceTrack()
         points = synthetic_face()

@@ -65,12 +65,13 @@ def selection(path):
     return config
 
 
-def context(model, model_config):
+def context(model, model_config, track_policy='contiguous'):
     from .face_quality import DEFAULT_CONFIG
     info = read(model_config)
     if fingerprint(model, model.name)['sha256'] != info['sha256']:
         raise ValueError('Local face model does not match model configuration')
-    return {'pulse_settings': asdict(Settings()), 'face_settings': DEFAULT_CONFIG,
+    return {'pulse_settings': asdict(Settings()), 'face_track_policy': track_policy,
+            'face_settings': {**DEFAULT_CONFIG, 'reacquire_enabled': track_policy == 'bounded-reacquire'},
             'model': info, 'python': platform.python_version(),
             'software': {p: version(p) for p in ('av', 'numpy', 'mediapipe', 'opencv-contrib-python', 'matplotlib')},
             'code': {p.name: fingerprint(p, p.name)['sha256'] for p in sorted(Path(__file__).parent.glob('*.py'))}}
@@ -376,7 +377,8 @@ def execute_participant(entry, output, ctx, storage, events):
             candidate = reuse.get('face', {}).get(task)
             face = stage(task + '/face', base,
                 lambda out, log: command('face_quality', ['--input', folder / Path(record['files']['vid']['path']).name,
-                    '--manifest', manifest, '--model', ctx['model_path'], '--model-config', ctx['model_config_path'], '--output', out], log),
+                    '--manifest', manifest, '--model', ctx['model_path'], '--model-config', ctx['model_config_path'],
+                    '--track-policy', ctx.get('face_track_policy', 'contiguous'), '--output', out], log),
                 lambda out: verify_face(out, record, ctx), Path(candidate) if candidate else None)
             stages[task + '/face'] = face
             base['face_files'] = inventory(face)
@@ -448,6 +450,7 @@ def summarize(entry, folder, stages, failures):
             'scheduled_camera_windows_per_group': count, 'scheduled_bvp_windows': reference.get('total'),
             'unknown_window_inventory': count is None or reference.get('total') is None,
             'face_detection_coverage': fs.get('detection_coverage'), 'face_tracked_coverage': fs.get('tracked_coverage'),
+            'track_event_counts': fs.get('track_event_counts'), 'track_segments': fs.get('track_segments'),
             'region_coverage': fs.get('region_coverage'), 'face_status_counts': fs.get('frame_status_counts'),
             'camera_groups': recording_summary(camera),
             'recording_comparisons': ps.get('groups'),
@@ -557,6 +560,7 @@ def main():
     parser.add_argument('--selection', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--track-policy', choices=('contiguous', 'bounded-reacquire'), default='contiguous')
     parser.add_argument('--model', type=Path, default=ROOT / 'models/mediapipe/face_landmarker.task')
     parser.add_argument('--model-config', type=Path, default=ROOT / 'configs/face-landmarker.json')
     parser.add_argument('--reserve-gib', type=float, default=100)
@@ -568,7 +572,7 @@ def main():
         parser.error('Storage allowances must be finite and nonnegative')
     config = selection(args.selection)
     require_ignored(args.output)
-    ctx = context(args.model, args.model_config)
+    ctx = context(args.model, args.model_config, args.track_policy)
     ctx.update(model_path=str(args.model.resolve()), model_config_path=str(args.model_config.resolve()))
     if args.dry_run:
         result = plan(config, args.output, ctx, storage)

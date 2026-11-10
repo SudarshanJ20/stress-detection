@@ -98,45 +98,108 @@ def normalized_motion(previous_xy, xy, previous_box, box, elapsed_seconds):
 
 
 class SingleFaceTrack:
-    """One contiguous geometrically associated track; no automatic reacquisition.
+    """Geometric segments, not identity recognition; optional bounded restarts.
 
-    This is not identity recognition. Once acquired, a missing/multiple face,
-    timing fault, or large spatial discontinuity latches the track as lost.
-    Later detections are recorded but cannot silently become the selected person.
+    Restart only after a short missing-face interruption and stable unique,
+    spatially compatible detections. Multi-face, timing and discontinuity faults
+    stay latched. Pending/ambiguous observations never become valid RGB.
     """
 
-    def __init__(self, min_iou=0.2, max_center_shift=0.5, max_gap_seconds=0.5):
+    def __init__(self, min_iou=0.2, max_center_shift=0.5, max_gap_seconds=0.5,
+                 *, reacquire=False, reacquire_min_frames=5, reacquire_stable_seconds=.2,
+                 reacquire_max_absence_seconds=2., reacquire_min_iou=.5,
+                 reacquire_max_center_shift=.25):
         self.previous_box = self.previous_time = None
+        self.last_observed_time = None
         self.lost = False
         self.min_iou, self.max_center_shift, self.max_gap = min_iou, max_center_shift, max_gap_seconds
+        self.reacquire = reacquire
+        self.confirm_frames, self.confirm_seconds = reacquire_min_frames, reacquire_stable_seconds
+        self.max_absence = reacquire_max_absence_seconds
+        self.restart_iou, self.restart_shift = reacquire_min_iou, reacquire_max_center_shift
+        if (self.confirm_frames < 2 or self.confirm_seconds <= 0 or self.max_absence <= self.confirm_seconds
+                or not 0 < self.restart_iou <= 1 or self.restart_shift <= 0):
+            raise ValueError('Invalid reacquisition settings')
+        self.segment_id = 0
+        self.last_event = None
+        self.restart_allowed = False
+        self.candidate = None
 
-    def invalidate(self):
-        if self.previous_box is not None:
+    def invalidate(self, reason='external_failure', *, reacquirable=False):
+        if self.previous_box is not None and not self.lost:
             self.lost = True
+            self.restart_allowed = bool(self.reacquire and reacquirable)
+            self.last_event = {'type': 'break', 'reason': reason, 'segment_id': self.segment_id,
+                               'last_retained_seconds': self.previous_time,
+                               'restart_allowed': self.restart_allowed}
+        elif self.lost and self.restart_allowed and not reacquirable:
+            self.restart_allowed = False
+            self.last_event = {'type': 'restart_blocked', 'reason': reason, 'segment_id': self.segment_id}
+        self.candidate = None
+
+    @staticmethod
+    def compatible(old_box, box, min_iou, max_shift):
+        a, b = np.array(old_box), np.array(box)
+        intersection = np.maximum(0, np.minimum(a[2:], b[2:]) - np.maximum(a[:2], b[:2])).prod()
+        area_a, area_b = np.prod(a[2:] - a[:2]), np.prod(b[2:] - b[:2])
+        iou = intersection / max(area_a + area_b - intersection, 1e-12)
+        shift = np.linalg.norm((a[:2] + a[2:] - b[:2] - b[2:]) / 2) / np.sqrt(area_a)
+        return bool(iou >= min_iou and shift <= max_shift)
 
     def accept(self, faces, timestamp, width, height):
+        self.last_event = None
+        if (not np.isfinite(timestamp) or self.last_observed_time is not None and timestamp <= self.last_observed_time):
+            self.invalidate('unusable_timestamp')
+            return None, 'track_continuity_failed'
+        self.last_observed_time = timestamp
         if len(faces) != 1:
-            self.invalidate()
+            self.invalidate('missing_face' if not faces else 'multiple_faces', reacquirable=not faces)
             return None, "missing_face" if not faces else "multiple_faces"
         points = np.asarray(faces[0], dtype=float)
         if points.shape != (478, 3) or not np.isfinite(points).all() or np.abs(points[:, :2]).max() > 4:
-            self.invalidate()
+            self.invalidate('invalid_landmarks')
             return None, "invalid_landmarks"
-        box = bounding_box(points[:468, :2] * [width, height], width, height)["xyxy_pixels"]
+        geometry = bounding_box(points[:468, :2] * [width, height], width, height)
+        box = geometry['xyxy_pixels']
         if box[2] <= box[0] or box[3] <= box[1]:
-            self.invalidate()
+            self.invalidate('invalid_face_box')
             return None, "invalid_face_box"
         if self.lost:
-            return None, "track_lost_no_reacquisition"
+            if not self.restart_allowed:
+                return None, 'track_lost_no_reacquisition'
+            if timestamp - self.previous_time > self.max_absence:
+                self.invalidate('reacquisition_timeout')
+                return None, 'reacquisition_timeout'
+            # Anchor to the last segment with the existing association bounds;
+            # confirmation candidates must additionally satisfy tighter bounds.
+            if geometry['clipped'] or not self.compatible(self.previous_box, box, self.min_iou, self.max_center_shift):
+                self.candidate = None
+                return None, 'reacquire_geometry_mismatch'
+            if (self.candidate is None or timestamp - self.candidate['last'] > self.max_gap
+                    or not self.compatible(self.candidate['box'], box, self.restart_iou, self.restart_shift)):
+                self.candidate = {'start': timestamp, 'last': timestamp, 'frames': 1, 'box': box}
+            else:
+                self.candidate.update(last=timestamp, frames=self.candidate['frames'] + 1, box=box)
+            if (self.candidate['frames'] < self.confirm_frames
+                    or timestamp - self.candidate['start'] + 1e-9 < self.confirm_seconds):
+                return None, 'reacquire_pending'
+            self.last_event = {'type': 'restart', 'previous_segment_id': self.segment_id,
+                               'segment_id': self.segment_id + 1, 'reason': 'confirmed_unique_geometry',
+                               'last_retained_seconds': self.previous_time,
+                               'confirmation_frames': self.candidate['frames'],
+                               'confirmation_seconds': timestamp - self.candidate['start']}
+            self.segment_id += 1
+            self.lost = self.restart_allowed = False
+            self.candidate = None
+            self.previous_box, self.previous_time = box, timestamp
+            return points, 'track_reacquired'
         if self.previous_box is not None:
-            a, b = np.array(self.previous_box), np.array(box)
-            intersection = np.maximum(0, np.minimum(a[2:], b[2:]) - np.maximum(a[:2], b[:2])).prod()
-            area_a, area_b = np.prod(a[2:] - a[:2]), np.prod(b[2:] - b[:2])
-            iou = intersection / max(area_a + area_b - intersection, 1e-12)
-            shift = np.linalg.norm((a[:2] + a[2:] - b[:2] - b[2:]) / 2) / np.sqrt(area_a)
             if (timestamp <= self.previous_time or timestamp - self.previous_time > self.max_gap
-                    or iou < self.min_iou or shift > self.max_center_shift):
-                self.lost = True
+                    or not self.compatible(self.previous_box, box, self.min_iou, self.max_center_shift)):
+                self.invalidate('track_continuity_failed')
                 return None, "track_continuity_failed"
+        else:
+            self.segment_id += 1
+            self.last_event = {'type': 'acquire', 'segment_id': self.segment_id, 'reason': 'initial_unique_face'}
         self.previous_box, self.previous_time = box, timestamp
         return points, "tracked"

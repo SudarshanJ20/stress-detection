@@ -23,7 +23,10 @@ DEFAULT_CONFIG = {"min_pixels": 32, "dark_threshold": 20, "saturated_threshold":
                   "exclusion_margin_fraction": 0.015, "num_faces": 2,
                   "min_face_detection_confidence": 0.5, "min_face_presence_confidence": 0.5,
                   "min_tracking_confidence": 0.5, "min_track_iou": 0.2,
-                  "max_track_center_shift": 0.5, "max_track_gap_seconds": 0.5}
+                  "max_track_center_shift": 0.5, "max_track_gap_seconds": 0.5,
+                  'reacquire_enabled': False, 'reacquire_min_frames': 5, 'reacquire_stable_seconds': .2,
+                  'reacquire_max_absence_seconds': 2., 'reacquire_min_iou': .5,
+                  'reacquire_max_center_shift': .25}
 
 
 class TimestampBridge:
@@ -77,7 +80,10 @@ class FrameAnalyzer:
         self.config = {**DEFAULT_CONFIG, **(config or {})}
         c = self.config
         self.bridge = TimestampBridge()
-        self.track = SingleFaceTrack(c["min_track_iou"], c["max_track_center_shift"], c["max_track_gap_seconds"])
+        self.track = SingleFaceTrack(c["min_track_iou"], c["max_track_center_shift"], c["max_track_gap_seconds"],
+            reacquire=c['reacquire_enabled'], **{k: c[k] for k in (
+                'reacquire_min_frames', 'reacquire_stable_seconds', 'reacquire_max_absence_seconds',
+                'reacquire_min_iou', 'reacquire_max_center_shift')})
         self.previous = None
 
     def analyze(self, frame, rgb, detector):
@@ -91,6 +97,7 @@ class FrameAnalyzer:
                "detection_score": None, "tracking_score": None,
                "landmarks_normalized_xyz": None, "face_box": None, "measurements": None,
                "motion_face_sizes_per_second": None, "brightness_change_per_second": None}
+        self.track.last_event = None
         masks = {}
         try:
             if frame.corrupt:
@@ -105,6 +112,8 @@ class FrameAnalyzer:
             selected, status = self.track.accept(faces, float(frame.presentation_time), rgb.shape[1], rgb.shape[0])
             row["face_status"] = status
             if selected is not None:
+                if self.track.last_event and self.track.last_event['type'] in ('acquire', 'restart'):
+                    self.previous = None
                 xy, box, face, masks, _ = face_masks(selected, rgb.shape[:2], c["exclusion_margin_fraction"])
                 measurements = quality_measurements(rgb, face, c["min_pixels"], c["dark_threshold"], c["saturated_threshold"])
                 row.update(landmarks_normalized_xyz=selected.tolist(), face_box=box, measurements=measurements)
@@ -127,15 +136,17 @@ class FrameAnalyzer:
             row["face_status"] = code if code in {
                 "missing_original_timestamp", "duplicate_or_nonmonotonic_original_timestamp",
                 "integer_timestamp_collision", "corrupt_frame"} else "invalid_geometry_or_detector_value_error"
-            self.track.invalidate()
+            self.track.invalidate(row['face_status'])
             self.previous = None
         except RuntimeError:
             row["face_status"] = "detector_runtime_error"
-            self.track.invalidate()
+            self.track.invalidate(row['face_status'])
             self.previous = None
         if "regions" not in row:
             row["regions"] = {name: {"valid": False, "pixel_count": 0, "mean_rgb": None,
                                       "reason": row["face_status"]} for name in REGIONS}
+        row['track_segment_id'] = self.track.segment_id if row['landmarks_normalized_xyz'] is not None else None
+        row['track_event'] = self.track.last_event
         return row, masks
 
 
@@ -158,9 +169,11 @@ def save_overlay(rgb, row, masks, output):
         raise OSError("Overlay could not be saved")
 
 
-def run_video(input_path, output, model, model_info, *, max_frames=None, manifest=None, detector_factory=MediaPipeDetector):
+def run_video(input_path, output, model, model_info, *, max_frames=None, manifest=None,
+              detector_factory=MediaPipeDetector, measurement_config=None):
     """A new private run directory owns all outputs; summary/status mark partial failures."""
     started = time.perf_counter()
+    measurements = {**DEFAULT_CONFIG, **(measurement_config or {})}
     output, input_path, model = Path(output), Path(input_path), Path(model)
     require_ignored(output)
     if not input_path.is_file() or not model.is_file():
@@ -181,14 +194,15 @@ def run_video(input_path, output, model, model_info, *, max_frames=None, manifes
         source["path"] = matches[0]["files"]["vid"]["path"]
     output.mkdir(parents=True, exist_ok=False)
     configuration = {"schema_version": "1.0", "source": source, "recording_id": recording_id,
-                     "model": model_info, "measurements": DEFAULT_CONFIG,
+                     "model": model_info, "measurements": measurements,
                      "regions_landmark_indices": REGIONS, "max_frames": max_frames,
                      "software": {p: version(p) for p in ("mediapipe", "numpy", "opencv-contrib-python", "av")},
                      "python": platform.python_version(), "architecture": platform.machine(),
                      "delegate": "CPU", "synchronization": "unverified",
                      "scores": "Detection/tracking scores not exposed by FaceLandmarkerResult; thresholds are not scores",
                      "api_time": "round_half_up(1000*(original_time-first_valid_original_time)); collisions are skipped, not repaired",
-                     "identity_policy": "single contiguous geometric track; no automatic reacquisition or biometric identity claim"}
+                     "identity_policy": ('bounded confirmed geometric segments; no biometric identity claim'
+                         if measurements['reacquire_enabled'] else 'single contiguous geometric track; no automatic reacquisition or biometric identity claim')}
     write_private_json(output / "config.json", configuration)
 
     def status(value):
@@ -202,13 +216,15 @@ def run_video(input_path, output, model, model_info, *, max_frames=None, manifes
                "valid_region_frames": {name: 0 for name in REGIONS}, "synchronization": "unverified",
                "overlays_visual_check": "pending", "preview_files": []}
     counts = Counter()
-    analyzer = FrameAnalyzer()
+    event_counts = Counter()
+    event_previews = 0
+    analyzer = FrameAnalyzer(measurements)
     detector = None
     reader = VideoReader(input_path)
     process_start = None
     try:
-        detector = detector_factory(model, DEFAULT_CONFIG)
-        with reader, (output / "frames.jsonl").open("x") as frames_file:
+        detector = detector_factory(model, measurements)
+        with reader, (output / "frames.jsonl").open("x") as frames_file, (output / 'track-events.jsonl').open('x') as events_file:
             extent = min(reader.metadata["declared_frames"] or (max_frames or 1), max_frames or reader.metadata["declared_frames"] or 1)
             previews = {0, extent // 2, extent - 1}
             process_start = time.perf_counter()
@@ -221,8 +237,17 @@ def run_video(input_path, output, model, model_info, *, max_frames=None, manifes
                 summary["single_face_frames"] += int(row["face_count"] == 1)
                 summary["missing_face_frames"] += int(row["face_count"] == 0)
                 summary["multiple_face_frames"] += int(row["face_count"] is not None and row["face_count"] > 1)
-                summary["tracked_frames"] += int(row["face_status"] == "tracked")
+                summary["tracked_frames"] += int(row['track_segment_id'] is not None)
                 counts[row["face_status"]] += 1
+                if row['track_event']:
+                    event_counts[row['track_event']['type']] += 1
+                    event = {k: row[k] for k in ('frame_index', 'pts', 'time_base', 'presentation_time_fraction', 'track_event')}
+                    events_file.write(json.dumps(event, allow_nan=False) + '\n')
+                    if event_previews < 20:
+                        name = f"overlay_event_{frame.index:06d}_{row['track_event']['type']}.png"
+                        save_overlay(rgb, row, masks, output / name)
+                        summary['preview_files'].append(name)
+                        event_previews += 1
                 for name, region in row["regions"].items():
                     summary["valid_region_frames"][name] += int(region["valid"])
                 if frame.index in previews:
@@ -249,6 +274,8 @@ def run_video(input_path, output, model, model_info, *, max_frames=None, manifes
                 summary["cleanup_failure_type"] = type(exc).__name__
         summary["reader"] = reader.summary()
         summary["frame_status_counts"] = dict(sorted(counts.items()))
+        summary['track_event_counts'] = dict(sorted(event_counts.items()))
+        summary['track_segments'] = analyzer.track.segment_id
         summary["processing_seconds"] = time.perf_counter() - process_start if process_start is not None else None
         summary["total_seconds"] = time.perf_counter() - started
         n = summary["processed_frames"]
@@ -269,9 +296,11 @@ def main():
     parser.add_argument("--model-config", type=Path, default=Path("configs/face-landmarker.json"))
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--max-frames", type=int, help="explicit partial smoke run")
+    parser.add_argument('--track-policy', choices=('contiguous', 'bounded-reacquire'), default='contiguous')
     args = parser.parse_args()
     result = run_video(args.input, args.output, args.model, json.loads(args.model_config.read_text()),
-                       max_frames=args.max_frames, manifest=json.loads(args.manifest.read_text()) if args.manifest else None)
+                       max_frames=args.max_frames, manifest=json.loads(args.manifest.read_text()) if args.manifest else None,
+                       measurement_config={'reacquire_enabled': args.track_policy == 'bounded-reacquire'})
     print(json.dumps(result, indent=2))
     if result["status"] == "failed":
         raise SystemExit(1)
