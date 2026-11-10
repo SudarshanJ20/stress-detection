@@ -35,6 +35,22 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("missing_vid", records[1]["warnings"])
         self.assertEqual([r["task_id"] for r in records], ["T1", "T2", "T3"])
 
+    def test_explicit_participant_scope_never_inspects_unselected_data(self):
+        self.fixture()
+        other = self.root / 's998'
+        other.mkdir()
+        (other / 'vid_s998_T1.avi').write_bytes(b'unselected')
+        with patch('stress_detection.manifest.inspect_video', return_value={
+                'valid': True, 'observed_duration_seconds': 1, 'frame_rate': 25,
+                'timing_warnings': []}) as inspect:
+            report = build_manifest(self.root, 's999')
+        self.assertEqual(inspect.call_count, 3)
+        self.assertEqual({r['participant_id'] for r in report['records']}, {'s999'})
+        self.assertEqual(report['records'][0]['files']['vid']['path'], 's999/vid_s999_T1.avi')
+        for selection in ('../s999', 's997'):
+            with self.assertRaises(ValueError):
+                discover(self.root, selection)
+
     def test_ambiguous_backup_is_not_chosen(self):
         self.fixture()
         (self.subject / "bvp_s999_T1 (1).csv").write_text("0\n")

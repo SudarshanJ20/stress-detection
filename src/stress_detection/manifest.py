@@ -14,15 +14,22 @@ PATTERN = re.compile(r"^(vid|bvp|eda)_(s[1-9][0-9]*)_(T[0-9]+)(.*?)\.(avi|csv)$"
 PARTICIPANT = re.compile(r"s[1-9][0-9]*")
 
 
-def discover(root: Path):
+def discover(root: Path, participant: str | None = None):
     """Pair by directory participant and filename task, retaining every candidate.
 
     Repeated wrappers/copies and filename-directory ID mismatches are errors;
     neither 'first match wins' nor automatic renaming is allowed.
     """
     root = root.resolve()
+    search = root
+    if participant is not None:
+        if not PARTICIPANT.fullmatch(participant):
+            raise ValueError('Invalid participant selection')
+        search = root / participant
+        if search.is_symlink() or not search.is_dir():
+            raise ValueError('Selected participant must be an existing nonsymlink directory')
     participants, grouped, issues = {}, {}, []
-    for folder in sorted(root.rglob("*")):
+    for folder in sorted([search, *search.rglob("*")]):
         if folder.is_dir() and not folder.is_symlink() and PARTICIPANT.fullmatch(folder.name):
             participants.setdefault(folder.name, []).append(folder.relative_to(root).as_posix())
     for subject, folders in sorted(participants.items()):
@@ -30,7 +37,7 @@ def discover(root: Path):
             issues.append({"code": "duplicate_participant_directories", "participant_id": subject, "paths": folders})
         for task in TASK_CONDITIONS:
             grouped[(subject, task)] = {kind: [] for kind in ("vid", "bvp", "eda")}
-    for path in sorted(root.rglob("*")):
+    for path in sorted(search.rglob("*")):
         if not path.is_file() and not path.is_symlink():
             continue
         match = PATTERN.fullmatch(path.name)
@@ -83,12 +90,12 @@ def fingerprint(path: Path, relative: str):
     return {"path": relative, "bytes": after.st_size, "sha256": digest}
 
 
-def build_manifest(root: Path):
+def build_manifest(root: Path, participant: str | None = None):
     """Inspect unique pairs, recording failures rather than selecting a candidate."""
     root = root.resolve()
     if not root.is_dir():
         raise ValueError("Dataset root must be an existing directory")
-    records, issues = discover(root)
+    records, issues = discover(root, participant)
     report = {"schema_version": SCHEMA_VERSION, "dataset": "UBFC-Phys", "records": records,
               "discovery_issues": issues, "synchronization": "unverified",
               "task_conditions_source": "Official UBFC-Phys READ_ME (see docs/dataset-access.md)",
@@ -153,6 +160,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dataset_root", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--participant", help="inspect only this explicit participant, retaining dataset-relative paths")
     parser.add_argument("--splits", type=Path, help="optional private participant split JSON; never auto-generated")
     args = parser.parse_args()
     # Check output privacy and overwrite protection before expensive decoding.
@@ -160,7 +168,7 @@ def main():
     require_ignored(args.output.parent)
     if args.output.exists():
         parser.error("Output exists; choose a new manifest path")
-    report = build_manifest(args.dataset_root)
+    report = build_manifest(args.dataset_root, args.participant)
     if args.splits:
         from .validate_splits import validate_splits
         split = json.loads(args.splits.read_text())
