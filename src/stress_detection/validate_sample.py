@@ -221,7 +221,7 @@ def main() -> None:
             video["signal_duration_deltas_seconds"] = {}
             for kind in ("bvp", "eda"):
                 signal = next((s for s in report["signals"] if s["file"] == f"{kind}_{folder.name}_T{task}.csv"), None)
-                duration = video.get("decoded_duration_at_nominal_rate_seconds")
+                duration = video.get("observed_duration_seconds")
                 if signal and signal["valid"] and duration is not None:
                     delta = duration - signal["nominal_duration_seconds"]
                     video["signal_duration_deltas_seconds"][kind] = delta

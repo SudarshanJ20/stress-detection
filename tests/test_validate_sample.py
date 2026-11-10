@@ -1,10 +1,12 @@
 """Synthetic validation fixtures only; never load participant data."""
 
 from pathlib import Path
+import json
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from stress_detection.validate_sample import inspect_info, inspect_numeric, missing_files
+from stress_detection.validate_sample import inspect_info, inspect_numeric, main, missing_files
 
 
 class SignalValidationTests(unittest.TestCase):
@@ -43,6 +45,27 @@ class SignalValidationTests(unittest.TestCase):
 
 
 class PairValidationTests(unittest.TestCase):
+    def test_duration_comparison_uses_observed_pts_extent_with_gaps(self):
+        root = Path(__file__).resolve().parents[1] / 'data/processed'
+        with tempfile.TemporaryDirectory(dir=root) as directory:
+            folder = Path(directory) / 's999'
+            folder.mkdir()
+            for task in (1, 2, 3):
+                (folder / f'vid_s999_T{task}.avi').touch()
+                (folder / f'bvp_s999_T{task}.csv').write_text('1\n' * 64)
+                (folder / f'eda_s999_T{task}.csv').write_text('1\n' * 4)
+            (folder / 'info_s999.txt').write_text('999\nf\nctrl\n2000-01-01\n12-00-00\n')
+            (folder / 'selfReportedAnx_s999.csv').write_text('1,1\n1,1\n1,1\n')
+            output = Path(directory) / 'validation'
+            video = {'valid': True, 'frame_rate': 25, 'observed_duration_seconds': 1.08,
+                     'decoded_duration_at_nominal_rate_seconds': 1.0}
+            with patch('sys.argv', ['validator', str(folder), '--output', str(output)]), \
+                    patch('stress_detection.validate_sample.inspect_video', side_effect=lambda *args: dict(video)):
+                main()
+            report = json.loads((output / 'validation.json').read_text())
+            self.assertTrue(all(v['duration_discrepancy'] for v in report['videos']))
+            self.assertAlmostEqual(report['videos'][0]['signal_duration_deltas_seconds']['bvp'], .08)
+
     def test_missing_reference_and_video_pairs(self):
         with tempfile.TemporaryDirectory() as directory:
             folder = Path(directory) / "s999"
