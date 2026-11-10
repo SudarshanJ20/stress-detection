@@ -15,7 +15,8 @@ behalf.
 | IEEE DataPort dataset | https://ieee-dataport.org/open-access/ubfc-phys-2 | Public HTML inspected directly over HTTPS; web reader could not fetch it. File access is login-gated. Dataset DOI: `10.21227/5da0-7344`. |
 | Dataset documentation | DataPort page, **DOCUMENTATION → READ_ME.docx** | Public 7.4 KiB document downloaded to temporary storage and read using standard-library ZIP/XML tools. Not committed. Use the page to obtain its current link; the document URL expires. |
 | Original paper | https://doi.org/10.1109/TAFFC.2021.3056960 and https://ieeexplore.ieee.org/document/9346017 | Publisher's indexed article text inspected; direct Xplore requires JavaScript/robot verification. Published online in 2021; journal issue 14(1), 622–636, 2023. |
-| Author-linked paper copy | https://drive.google.com/file/d/1M39d0MnIlHGtGtzbxle8DRp3aHMg8bCF/view | Viewer/loading page; PDF download was not obtained. Open in a normal browser if needed. |
+| Author-linked paper copy | https://drive.google.com/file/d/1M39d0MnIlHGtGtzbxle8DRp3aHMg8bCF/view | Viewer/loading page; PDF download was not obtained from this route. |
+| Authors' university laboratory paper copy | https://lead.ube.fr/wp-content/uploads/2025/04/Meziati_Sabour_et_al._2023.pdf | Downloaded and read on 2026-11-10; explicit trigger evidence noted below. Not redistributed. |
 | University download route | https://search-data.ubfc.fr/FR-18008901306731-2022-05-05_UBFC-Phys-A-Multimodal-Dataset-For.html | Author-linked official route, but returned Anubis access denied. Contents, license, sizes, and download granularity could not be inspected. |
 | License linked by DataPort | https://creativecommons.org/licenses/by/4.0/ | Inspected; dataset metadata explicitly links CC BY 4.0. |
 
@@ -73,10 +74,9 @@ per task: the middle three minutes for rest, and the initial three minutes for
 speech and arithmetic. It describes CSAI-based questionnaires, with 7 cognitive,
 7 somatic, and 9 self-confidence items rated 1–4. The inspected sample has the
 documented resolution and codec, but its reported frame rate is 35.138 fps rather
-than the rounded 35 fps; see the validation summary. Detailed speech/arithmetic
-instructions and difficulty manipulations still need a complete reading of
-Section 2.2; the
-unmodified TSST protocol must not be assumed to apply.
+than the rounded 35 fps; see the validation summary. A subsequent complete
+reading of Section 2.2 is recorded in the timing update below; the unmodified
+TSST protocol must not be assumed to apply.
 
 The README does not establish CSV header/timestamp conventions, units for BVP,
 sample counts, missing samples, or exact video/reference alignment. Local
@@ -273,6 +273,19 @@ GiB; recheck before future acquisitions.
 
 ### Next action
 
+**Timing documentation update, 2026-11-10:** the official DataPort README was
+downloaded again through its refreshed documentation link. The original
+paper's timing sections were also read from the
+[authors' university laboratory](https://lead.ube.fr/wp-content/uploads/2025/04/Meziati_Sabour_et_al._2023.pdf),
+including Sections 2.2–2.3. It documents camera-visible E4 button presses at
+announced task boundaries as a synchronization aid, continuous session capture,
+and different retained-segment conventions for rest versus speech/arithmetic.
+This resolves the earlier lack of explicit trigger evidence; it does not supply
+event logs or exact retained CSV sample/video-frame mappings. Synchronization
+therefore remains unverified. See the [frozen signal audit](pulse-diagnostics.md)
+for findings and the next pilot workflow. No signed download URLs or copies of
+third-party documentation are committed.
+
 The sample-access/integrity/readability milestone is complete. **Synchronization
 verification and multi-participant acquisition are separate pending milestones.**
 The [research protocol](research-protocol.md) now specifies evaluation targets,
@@ -281,10 +294,10 @@ any request for further participants. The [literature review](literature-review.
 records verified competitors and inaccessible evidence. The next implementation
 step is the timestamp reader and private manifest, using the existing sample.
 
-Verify the experiment's exact timing/trigger conventions and complete paper
-Section 2.2 before defining aligned windows. Resolve whether there is a known
-video/BVP offset and how retained segments were selected; consult the authors if
-the official documentation is insufficient. Wider cohort audit, actual
-individual-file download support, other participants' extracted sizes, and
+Verify exact retained-segment mappings before defining aligned windows. Resolve
+whether there is a known video/BVP offset and how marker times map to retained
+samples/frames; consult the authors if official documentation is insufficient.
+The acquisition marker mechanism is now documented, as noted above. Wider
+cohort audit, actual individual-file download support, other participants' extracted sizes, and
 research novelty remain unresolved. Do not acquire the full dataset based on
 this sample or start model evaluation with a one-participant split.

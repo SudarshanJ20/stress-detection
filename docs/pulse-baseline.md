@@ -212,9 +212,9 @@ validator. BVP uses the documented **64 Hz** rate from the
 index / 64, not a measured timestamp or a claim of alignment to video. The BVP
 estimator uses its own complete 30-second nonoverlapping intervals and the same
 spectral band, detrend, taper and peak screen. No camera estimate enters that
-calculation. BVP flatness/motion/diffuse-spectrum failures are retained; wrist
-BVP is not automatically clean ground truth. No band or screen was relaxed
-when the reference or camera failed locally.
+calculation. BVP flatness and diffuse-spectrum failures are retained; there is
+no dedicated motion detector, and wrist BVP is not automatically clean ground
+truth. No band or screen was relaxed when the reference or camera failed locally.
 
 For each method/region, aggregate **accepted camera windows** by their median
 BPM; independently take the median of accepted reference windows. Report their

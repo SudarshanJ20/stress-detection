@@ -271,6 +271,16 @@ lighting geometry, or other datasets. Preserve all failed conditions in reports.
 
 ## Pulse-reference synchronization gate — pending
 
+The [2026-11-10 frozen diagnostic audit](pulse-diagnostics.md) located explicit
+acquisition trigger evidence in the original paper: camera-visible E4 button
+presses at announced task boundaries. This does not establish retained-file
+sample/frame correspondence. Event logs, precise trim mappings and residual
+offset/drift remain unverified, so the gate below stays pending. No offset was
+estimated from the development traces; reference comparisons remain at the
+recording level. The audit also specifies the next batch pilot's automatic
+diagnostics, archive lifecycle and pretraining checks. Acquisition and training
+are not part of that completed audit, and s25 remains development-only.
+
 Before pulse-reference agreement claims, verify official capture/trigger and
 retained-segment conventions, signal sample-index origin, timestamps/time bases,
 recording gaps, and any documented video–wrist offset. Audit independently per
