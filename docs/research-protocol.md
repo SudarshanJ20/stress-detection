@@ -315,6 +315,12 @@ claimed tested. Do not invent laptop performance before measurements.
 
 ## Staged participant acquisition and storage — pending
 
+The [local pilot runner](pilot-runner.md) implements dry-run input/storage checks,
+safe local ZIP extraction, sequential stages and content-verified resume. Its
+explicit `pilot_development` roles are engineering-only; it assigns no final
+test cohort or model-fitting split. Its summaries keep s25 separate. Additional
+downloads and model training remain separately scoped steps.
+
 1. **Current stage:** use the existing sample only to implement the manifest,
    timestamp reader, and synchronization audit. Do not train models or download
    additional participants in this task. Keep this participant development-only.

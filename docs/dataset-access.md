@@ -291,8 +291,12 @@ verification and multi-participant acquisition are separate pending milestones.*
 The [research protocol](research-protocol.md) now specifies evaluation targets,
 participant roles, rejection comparisons, and acquisition/storage gates before
 any request for further participants. The [literature review](literature-review.md)
-records verified competitors and inaccessible evidence. The next implementation
-step is the timestamp reader and private manifest, using the existing sample.
+records verified competitors and inaccessible evidence. The timestamp reader
+and private manifest are implemented. The
+[local pilot runner](pilot-runner.md) now provides resumable execution and exact
+dry-run commands. Its availability-conditional first new batch is s1/s2, with
+archive, extraction, output and reserve budgets documented there. Additional
+downloads and training remain separate future steps.
 
 Verify exact retained-segment mappings before defining aligned windows. Resolve
 whether there is a known video/BVP offset and how marker times map to retained

@@ -98,7 +98,9 @@ Batch size is a storage constraint, not a sufficiency claim.
    verify CRCs, and preserve the original archive. Process one participant/task
    at a time with bounded video decoding; stop the batch on structural failures
    rather than silently renaming or substituting files. These are workflow
-   requirements; an unattended archive orchestrator has not been implemented.
+   requirements. The subsequent [local pilot runner](pilot-runner.md) implements
+   resumable sequential orchestration and safe local archive extraction; it does
+   not acquire archives or perform model training.
 3. Run existing sample validation and manifest generation. Save a private batch
    inventory keyed by participant/task and hashes. Freeze participant roles
    before cohort windowing: all tasks and later derivatives inherit their
