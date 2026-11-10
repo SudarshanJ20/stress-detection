@@ -147,8 +147,14 @@ def build_manifest(root: Path, participant: str | None = None):
             if delta is not None and abs(delta) > 1 / (video.get("frame_rate") or 1):
                 record["warnings"].append(f"video_{kind}_duration_discrepancy")
         record["warnings"] = sorted(set(record["warnings"]))
+        # Timing/count/duration diagnostics do not override usable decoded PTS.
+        # Decode/timing failures, ambiguous pairing and inspection errors still fail.
+        diagnostic_warnings = set(video.get('timing_warnings', [])) | {
+            'video_bvp_duration_discrepancy', 'video_eda_duration_discrepancy'}
+        record['eligibility_rejections'] = [w for w in record['warnings'] if w not in diagnostic_warnings]
+        record['camera_eligibility_policy'] = video.get('camera_eligibility_policy')
         record["validation_status"] = "passed" if (
-            pairing_ok and not record["warnings"] and video.get("valid")
+            pairing_ok and not record['eligibility_rejections'] and video.get("valid")
             and len(record["signals"]) == 2 and all(s["valid"] for s in record["signals"].values())
         ) else "needs_review"
     report["validation_status"] = "passed" if records and not issues and all(

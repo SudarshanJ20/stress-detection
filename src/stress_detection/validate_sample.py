@@ -101,6 +101,27 @@ def save_png(frame, path: Path) -> None:
                      + chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))
 
 
+def video_integrity(result: dict) -> dict:
+    """Eligibility follows decoded data/PTS; container frame counts are metadata.
+
+    Positive monotonic gaps remain visible for downstream window support checks.
+    No timestamp/frame repair, duration alignment or count-based extrapolation.
+    """
+    decoded = result.get('decoded_frames', 0)
+    declared = result.get('declared_frames')
+    decode_ok = bool(decoded > 0 and result.get('decode_complete') and not any(
+        result.get(k) for k in ('corrupt_frames', 'errors', 'decoder_error_logs', 'decoder_error_count')))
+    extent = result.get('last_frame_duration_seconds')
+    duration = result.get('observed_duration_seconds')
+    timing_ok = (not any(result.get(k) for k in ('missing_pts', 'missing_time_base', 'duplicate_pts', 'nonmonotonic_pts'))
+                 and extent is not None and math.isfinite(extent) and extent > 0
+                 and duration is not None and math.isfinite(duration) and duration > 0)
+    return {'camera_eligibility_policy': 'decoded-pts-v1', 'decode_integrity_passed': decode_ok,
+            'timing_integrity_passed': bool(timing_ok),
+            'metadata_frame_count_matches': decoded == declared if declared else None,
+            'valid': bool(decode_ok and timing_ok)}
+
+
 def inspect_video(path: Path, output: Path | None = None) -> dict:
     """Shared streaming inspection; optional previews for the original validator."""
     import av
@@ -144,12 +165,7 @@ def inspect_video(path: Path, output: Path | None = None) -> dict:
         if "logs" in locals():
             drain_logs(logs)
     result.update(reader.summary())
-    result["valid"] = (result["decoded_frames"] > 0 and result["decode_complete"]
-                       and not any(result.get(k) for k in (
-                           "corrupt_frames", "errors", "decoder_error_logs", "missing_pts",
-                           "missing_time_base", "duplicate_pts", "nonmonotonic_pts"))
-                       and (not result.get("declared_frames")
-                            or result["decoded_frames"] == result["declared_frames"]))
+    result.update(video_integrity(result))
     return result
 
 

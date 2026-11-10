@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from stress_detection.validate_sample import inspect_info, inspect_numeric, main, missing_files
+from stress_detection.validate_sample import inspect_info, inspect_numeric, main, missing_files, video_integrity
 
 
 class SignalValidationTests(unittest.TestCase):
@@ -45,6 +45,19 @@ class SignalValidationTests(unittest.TestCase):
 
 
 class PairValidationTests(unittest.TestCase):
+    def test_decoded_integrity_separates_count_metadata_and_timestamp_failure(self):
+        good = {'decoded_frames': 100, 'declared_frames': 101, 'decode_complete': True,
+                'last_frame_duration_seconds': .04, 'observed_duration_seconds': 4.04,
+                'gap_intervals': 1, 'irregular_intervals': 1}
+        result = video_integrity(good)
+        self.assertTrue(result['valid'])
+        self.assertFalse(result['metadata_frame_count_matches'])
+        for key, value in [('missing_pts', 1), ('missing_time_base', 1), ('duplicate_pts', 1),
+                           ('nonmonotonic_pts', 1), ('corrupt_frames', 1), ('decoder_error_count', 1),
+                           ('decode_complete', False), ('last_frame_duration_seconds', None)]:
+            with self.subTest(key=key):
+                self.assertFalse(video_integrity({**good, key: value})['valid'])
+
     def test_duration_comparison_uses_observed_pts_extent_with_gaps(self):
         root = Path(__file__).resolve().parents[1] / 'data/processed'
         with tempfile.TemporaryDirectory(dir=root) as directory:

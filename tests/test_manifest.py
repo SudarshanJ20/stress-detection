@@ -106,8 +106,10 @@ class ManifestTests(unittest.TestCase):
         report = build_manifest(self.root)
         self.assertEqual(len(report["records"]), 3)
         self.assertTrue(all(r["video"]["decoded_frames"] == 3 for r in report["records"]))
-        # Deliberate gaps and duration mismatch must not become a silent pass.
-        self.assertEqual(report["validation_status"], "needs_review")
+        # Positive PTS gaps and nominal duration differences remain visible warnings.
+        self.assertEqual(report["validation_status"], "passed")
+        self.assertTrue(all(r['warnings'] for r in report['records']))
+        self.assertTrue(all(not r['eligibility_rejections'] for r in report['records']))
 
 
 class SplitTests(unittest.TestCase):

@@ -126,6 +126,29 @@ does not initiate transfers between them.
 
 ## Verification, receipts and failures
 
+### Camera eligibility policy: decoded-pts-v1
+
+Camera eligibility follows actual decode and timing integrity. Require a complete
+nonempty decode, no corrupt frames/decoder exceptions/error logs, finite positive
+final-frame extent, and present strictly increasing original PTS/time bases.
+Missing/duplicate/backward timing or incomplete/errorful decode remains ineligible.
+Container declared-frame counts are metadata: an AVI may count an empty video
+slot without containing an image there. A count mismatch alone neither proves
+lost acquisition frames nor makes the surviving timestamps unreliable. Counts,
+duration differences and positive PTS gaps remain visible warnings in the
+validator/manifest; warnings do not silently disappear when eligibility passes.
+
+All recordings use this same rule. Use the first original PTS as the window
+origin, retain complete original-axis 30-second intervals, and never pad to the
+declared count or reference duration. The unchanged pulse source/grid checks
+reject windows lacking valid RGB or temporal support. A positive gap may only
+support interpolation within the existing 0.15-second limit; longer gaps and
+unsupported boundaries remain explicit failures in the common window inventory.
+No image/frame is synthesized and timestamps are never renumbered. Timing support
+alone does not establish usable RGB, pulse, acquisition clock accuracy or
+video-to-wrist synchronization. Gap diagnostics now include exact original
+fractions, preceding/current frame indices and PTS, and interval duration.
+
 Every stage gets a unique immutable attempt directory with an atomic
 `receipt.json`, start/end times, input/settings/code/software/model provenance,
 command log where a subprocess ran, output path and content hashes. A process

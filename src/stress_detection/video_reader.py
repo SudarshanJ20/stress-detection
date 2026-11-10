@@ -34,6 +34,7 @@ class TimingAudit:
             raise ValueError("Fallback FPS must be positive")
         self.fallback_origin = Fraction(str(fallback_origin))
         self.first = self.last = self.previous = None
+        self.previous_index = None
         self.first_pts = self.last_pts = None
         self.first_time_base = self.last_time_base = None
         self.first_valid_index = None
@@ -47,6 +48,7 @@ class TimingAudit:
 
     def observe(self, index, pts, time_base, duration=None):
         issues = []
+        prior_time, prior_index, prior_pts = self.previous, self.previous_index, self.last_pts
         tb = Fraction(time_base) if time_base is not None else None
         if pts is None:
             issues.append("missing_pts")
@@ -76,11 +78,20 @@ class TimingAudit:
             self.last, self.last_pts, self.last_time_base = current, pts, tb
         # Missing timing breaks adjacency: do not invent an interval across it.
         self.previous = current
+        self.previous_index = index
         self.last_frame_duration = duration * tb if current is not None and duration and duration > 0 else None
         for issue in issues:
             self.counts[issue] += 1
         if issues and len(self.examples) < 20:
-            self.examples.append({"frame_index": index, "issues": issues})
+            example = {'frame_index': index, 'issues': issues, 'pts': pts,
+                       'time_base': str(tb) if tb is not None else None,
+                       'original_time_fraction': str(current) if current is not None else None}
+            if prior_time is not None and current is not None:
+                delta = current - prior_time
+                example.update(previous_frame_index=prior_index, previous_pts=prior_pts,
+                               previous_time_fraction=str(prior_time), interval_fraction=str(delta),
+                               interval_seconds=float(delta))
+            self.examples.append(example)
         fallback = (self.fallback_origin + index / self.fallback_fps
                     if current is None and self.fallback_fps else None)
         relative = current - self.first if current is not None else None

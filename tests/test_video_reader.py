@@ -32,6 +32,18 @@ def make_video(path, pts=(50, 51, 54)):
 
 
 class TimingTests(unittest.TestCase):
+    def test_gap_example_preserves_exact_original_location(self):
+        audit = TimingAudit(Fraction(25))
+        audit.observe(0, 10, Fraction(1, 25), 1)
+        audit.observe(1, 12, Fraction(1, 25), 1)
+        gap = audit.examples[0]
+        self.assertEqual(gap['previous_frame_index'], 0)
+        self.assertEqual(gap['previous_pts'], 10)
+        self.assertEqual(gap['pts'], 12)
+        self.assertEqual(gap['previous_time_fraction'], '2/5')
+        self.assertEqual(gap['original_time_fraction'], '12/25')
+        self.assertEqual(gap['interval_fraction'], '2/25')
+
     def test_exact_fraction_and_nonzero_origin(self):
         audit = TimingAudit(Fraction(30000, 1001))
         first = audit.observe(0, 300, Fraction(1001, 30000), 1)

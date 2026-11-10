@@ -15,6 +15,18 @@ from stress_detection.pulse import (Settings, analyze_region, extract_pulse, loa
 
 
 class PulseTests(unittest.TestCase):
+    def test_timing_gaps_affect_only_supported_windows_without_repair(self):
+        times = 7.5 + np.arange(2400) / 40
+        rgb = np.full((2400, 3), 100.)
+        short = np.ones(len(times), bool)
+        short[1] = False
+        self.assertIsNone(resample_window(times[short], rgb[short], 7.5, Settings())[2])
+        long = short.copy()
+        long[100:110] = False
+        self.assertEqual(resample_window(times[long], rgb[long], 7.5, Settings())[2], 'long_gap')
+        self.assertIsNone(resample_window(times[long], rgb[long], 37.5, Settings())[2])
+        self.assertEqual(times[0], 7.5)
+
     def setUp(self):
         self.cfg = Settings()
         self.times = 7.5 + np.arange(1200) / 40
