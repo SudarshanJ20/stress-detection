@@ -161,6 +161,7 @@ def main():
     parser.add_argument("dataset_root", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--participant", help="inspect only this explicit participant, retaining dataset-relative paths")
+    parser.add_argument('--retain-failures', action='store_true', help='retain ineligible records for an audit; statuses remain unchanged')
     parser.add_argument("--splits", type=Path, help="optional private participant split JSON; never auto-generated")
     args = parser.parse_args()
     # Check output privacy and overwrite protection before expensive decoding.
@@ -182,7 +183,7 @@ def main():
             report["validation_status"] = "needs_review"
     write_private_json(args.output, report)
     print("Manifest records:", len(report["records"]), "Status:", report["validation_status"])
-    if report["validation_status"] != "passed":
+    if report["validation_status"] != "passed" and not args.retain_failures:
         raise SystemExit(1)
 
 

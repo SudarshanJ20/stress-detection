@@ -24,6 +24,7 @@ from .pilot_state import (GIB, StageStore, atomic, digest, extract_zip, inspect_
 from .pulse import (METHODS, REGIONS, Settings, analyze_region, load_face_run,
                     recording_summary, reference_summary)
 from .validate_sample import inspect_info, inspect_numeric, missing_files, require_ignored
+from .validate_sample import write_private_json
 
 TASKS = ('T1', 'T2', 'T3')
 ROOT = Path(__file__).resolve().parents[2]
@@ -85,31 +86,43 @@ def command(module, arguments, log):
 
 def verify_validation(output):
     report = read(output / 'validation.json')
-    if (not report.get('structural_checks_passed') or report.get('missing_files')
+    if (report.get('validation_completed') is not True or report.get('missing_files')
             or len(report.get('signals', [])) != 6 or len(report.get('videos', [])) != 3
-            or not all(r.get('valid') for r in report['signals'] + report['videos'])):
-        raise ValueError('Incomplete/failed participant validation')
+            or not all(r.get('valid') for r in report['signals'])
+            or not report.get('info', {}).get('valid') or not report.get('questionnaire', {}).get('valid')):
+        raise ValueError('Incomplete validation or unsafe participant/reference structure')
 
 
 def verify_manifest(output, participant, files):
     report = read(output / 'manifest.json')
     records = report['records']
-    if (report.get('schema_version') != '1.0' or report.get('validation_status') != 'passed'
+    if (report.get('schema_version') != '1.0' or report.get('validation_status') not in ('passed', 'needs_review')
             or report.get('discovery_issues') or len(records) != 3
             or {r['recording_id'] for r in records} != {participant + '/' + t for t in TASKS}):
         raise ValueError('Incomplete/failed/wrong-participant manifest')
     for record in records:
-        if record['participant_id'] != participant or record['validation_status'] != 'passed':
+        if record['participant_id'] != participant or record['validation_status'] not in ('passed', 'needs_review'):
             raise ValueError('Manifest participant/status mismatch')
         for kind, ext in (('vid', 'avi'), ('bvp', 'csv'), ('eda', 'csv')):
             name = f'{kind}_{participant}_{record["task_id"]}.{ext}'
             expected = {**files[name], 'path': participant + '/' + name}
             if record['files'][kind] != expected or len(record['candidates'][kind]) != 1:
                 raise ValueError('Manifest input fingerprint/pairing mismatch')
-        if (not record['video'].get('decode_complete', record['video'].get('valid'))
-                or record['signals']['bvp']['sampling_rate_hz'] != 64
+        if (record['signals']['bvp']['sampling_rate_hz'] != 64
                 or record['signals']['eda']['sampling_rate_hz'] != 4):
             raise ValueError('Manifest rate/decode mismatch')
+
+
+def save_reference(output, path):
+    """Use the frozen independent wrist estimator even when camera input fails."""
+    output.mkdir(parents=True, exist_ok=False)
+    write_private_json(output / 'reference.json', reference_summary(path, Settings()))
+
+
+def verify_reference(output, path):
+    report = read(output / 'reference.json')
+    if report.get('status') != 'completed' or report != reference_summary(path, Settings()):
+        raise ValueError('Independent reference incomplete or not reproducible')
 
 
 def verify_face(output, record, ctx):
@@ -216,7 +229,7 @@ def spec(ctx, entry, inputs, stage):
 
 def task_specs(ctx, entry, files, manifest, record, face=None, pulse=None):
     base = {'files': files, 'manifest': fingerprint(manifest, 'manifest.json')}
-    result = {'face': spec(ctx, entry, base, 'face')}
+    result = {s: spec(ctx, entry, base, s) for s in ('reference', 'face')}
     if face:
         result['pulse'] = spec(ctx, entry, {**base, 'face_files': inventory(face)}, 'pulse')
     if pulse:
@@ -249,7 +262,7 @@ def plan(config, output, ctx, storage):
             additional += math.ceil(storage['outputs_gib_per_participant'] * GIB)
             if files is None or p['errors']:
                 p['stages'].extend({'stage': s, 'decision': 'pending valid extraction/inputs'}
-                                   for s in ('validate', 'manifest', *[t + '/' + s for t in TASKS for s in ('face', 'pulse', 'diagnostics')]))
+                                   for s in ('validate', 'manifest', *[t + '/' + s for t in TASKS for s in ('reference', 'face', 'pulse', 'diagnostics')]))
                 continue
             validation = store.lookup(entry['id'] + '/validate', digest(spec(ctx, entry, files, 'validate')))
             p['stages'].append({'stage': 'validate', 'decision': 'resume' if validation else 'run'})
@@ -268,7 +281,10 @@ def plan(config, output, ctx, storage):
                 if manifest_dir:
                     mf = manifest_dir / 'manifest.json'
                     record = next(r for r in read(mf)['records'] if r['task_id'] == task)
-                for stage in ('face', 'pulse', 'diagnostics'):
+                for stage in ('reference', 'face', 'pulse', 'diagnostics'):
+                    if manifest_dir and stage != 'reference' and record['validation_status'] != 'passed':
+                        p['stages'].append({'stage': task + '/' + stage, 'decision': 'blocked: ineligible camera record'})
+                        continue
                     key = entry['id'] + '/' + task + '/' + stage
                     cached = None
                     specs = task_specs(ctx, entry, files, mf, record, face, pulse) if manifest_dir else {}
@@ -338,10 +354,10 @@ def execute_participant(entry, output, ctx, storage, events):
         files = inputs['files']
     stages = {}
     stages['validate'] = stage('validate', files,
-        lambda out, log: command('validate_sample', [folder, '--output', out], log), verify_validation)
+        lambda out, log: command('validate_sample', [folder, '--output', out, '--retain-failures'], log), verify_validation)
     candidate = entry.get('reuse', {}).get('manifest')
     stages['manifest'] = stage('manifest', files,
-        lambda out, log: command('manifest', [folder.parent, '--participant', p, '--output', out / 'manifest.json'], log),
+        lambda out, log: command('manifest', [folder.parent, '--participant', p, '--output', out / 'manifest.json', '--retain-failures'], log),
         lambda out: verify_manifest(out, p, files), Path(candidate).parent if candidate else None)
     manifest = stages['manifest'] / 'manifest.json'
     records = {r['task_id']: r for r in read(manifest)['records']}
@@ -350,6 +366,12 @@ def execute_participant(entry, output, ctx, storage, events):
         record = records[task]
         base = {'files': files, 'manifest': fingerprint(manifest, 'manifest.json')}
         try:
+            bvp = folder / Path(record['files']['bvp']['path']).name
+            stages[task + '/reference'] = stage(task + '/reference', base,
+                lambda out, log: save_reference(out, bvp), lambda out: verify_reference(out, bvp))
+            if record['validation_status'] != 'passed':
+                failures[task] = 'structural_camera_ineligible: ' + ','.join(record.get('warnings', []))
+                continue
             reuse = entry.get('reuse', {})
             candidate = reuse.get('face', {}).get(task)
             face = stage(task + '/face', base,
@@ -385,6 +407,7 @@ def summarize(entry, folder, stages, failures):
         face = stages.get(task + '/face')
         pulse = stages.get(task + '/pulse')
         diagnostics = stages.get(task + '/diagnostics')
+        wrist = stages.get(task + '/reference')
         fs = read(face / 'summary.json') if face else {}
         ps = read(pulse / 'summary.json') if pulse else {}
         ds = read(diagnostics / 'report.json') if diagnostics else {}
@@ -398,6 +421,8 @@ def summarize(entry, folder, stages, failures):
                       for i in range(count) for method in METHODS for region in REGIONS]
         if pulse:
             reference = read(pulse / 'reference.json')
+        elif wrist:
+            reference = read(wrist / 'reference.json')
         else:
             path = folder / f'bvp_{entry["id"]}_{task}.csv' if folder else None
             audit = inspect_numeric(path, 1, 64) if path and path.is_file() else {}
@@ -418,6 +443,8 @@ def summarize(entry, folder, stages, failures):
                                 'source': source, **r, **extra, 'stage_failure': reason})
         tasks.append({'participant': entry['id'], 'role': entry['role'], 'task': task,
             'status': 'failed' if reason else 'completed', 'failure': reason,
+            'camera_validation_status': records.get(task, {}).get('validation_status'),
+            'camera_validation_warnings': records.get(task, {}).get('warnings', []),
             'scheduled_camera_windows_per_group': count, 'scheduled_bvp_windows': reference.get('total'),
             'unknown_window_inventory': count is None or reference.get('total') is None,
             'face_detection_coverage': fs.get('detection_coverage'), 'face_tracked_coverage': fs.get('tracked_coverage'),

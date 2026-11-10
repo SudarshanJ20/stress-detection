@@ -181,6 +181,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("participant_dir", type=Path)
     parser.add_argument("--output", type=Path, required=True, help="new directory under data/processed")
+    parser.add_argument('--retain-failures', action='store_true', help='finish an audit report with failed checks; does not make those checks pass')
     args = parser.parse_args()
     folder = args.participant_dir.resolve()
     if not re.fullmatch(r"s[1-9][0-9]*", folder.name) or not folder.is_dir():
@@ -239,9 +240,10 @@ def main() -> None:
     report["structural_checks_passed"] = not missing and all(
         item.get("valid", False) for item in report["signals"] + report["videos"]
         + [report.get("info", {}), report.get("questionnaire", {})])
+    report['validation_completed'] = True
     (args.output / "validation.json").write_text(json.dumps(report, indent=2) + "\n")
     print("Private report saved. Structural checks:", "PASS" if report["structural_checks_passed"] else "FAIL")
-    if not report["structural_checks_passed"]:
+    if not report["structural_checks_passed"] and not args.retain_failures:
         raise SystemExit(1)
 
 

@@ -157,10 +157,18 @@ fingerprinted receipt thereafter. Diagnostics run afresh against the selected
 manifest and pulse runs. Saved stage signatures include current source hashes;
 editing runner code invalidates earlier receipts conservatively.
 
-Structural validation, manifest or extraction failure stops the batch; all later
-participants/tasks remain in the invocation summary as blocked. Per-task
-face/pulse/diagnostic failures retain that task and allow subsequent tasks to
-run. A completed pulse computation with rejected windows is still a completed
+Unsafe extraction, ambiguous pairing, incomplete reports or invalid participant/
+reference structure stop the batch; later tasks remain explicitly blocked.
+The runner requests `--retain-failures` from validation and manifest commands:
+a completed audit is distinct from passed structural checks. Those flags never
+change source validity. Each ineligible camera record remains a forced rejection,
+while structurally valid tasks continue. Independent wrist summaries reuse
+`pulse.reference_summary` with frozen settings even if the camera is ineligible.
+Partial validator reports lack the final `validation_completed` marker and
+cannot be promoted. The invocation retains failed task status and exits nonzero
+if any camera task failed; completion of the remaining tasks does not hide it.
+Per-task face/pulse/diagnostic failures likewise retain the task and allow
+subsequent tasks to run. A completed pulse computation with rejected windows is still a completed
 stage; zero acceptance is not a process failure. Failures never become success
 because output files happened to be present.
 

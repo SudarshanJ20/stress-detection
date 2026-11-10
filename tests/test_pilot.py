@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 import zipfile
 
 from stress_detection.pilot import (execute_participant, plan, run, selection, spec,
-                                    summarize, TASKS)
+                                    summarize, verify_validation, TASKS)
 from stress_detection.pilot_state import (GIB, atomic, extract_zip,
                                          inspect_zip, inventory, read)
 
@@ -64,7 +64,7 @@ class PilotTests(unittest.TestCase):
             report = plan(self.config(), output, {}, storage)
         self.assertTrue(report['passed'])
         self.assertEqual(report['participants'][0]['tasks'], list(TASKS))
-        self.assertEqual(len(report['participants'][0]['stages']), 11)
+        self.assertEqual(len(report['participants'][0]['stages']), 14)
         self.assertFalse(output.exists())
         with patch('stress_detection.pilot.shutil.disk_usage', return_value=Mock(free=10 * GIB)):
             self.assertFalse(plan(self.config(), output, {}, storage)['passed'])
@@ -172,6 +172,20 @@ class PilotTests(unittest.TestCase):
         values['pulse'] = 'later stage'
         self.assertEqual(receipt_spec['inputs'], {'source': 'original'})
 
+    def test_completed_validation_can_retain_ineligible_video_but_not_partial_report(self):
+        output = self.root / 'validation'
+        output.mkdir()
+        report = {'validation_completed': True, 'structural_checks_passed': False,
+                  'missing_files': [], 'signals': [{'valid': True}] * 6,
+                  'videos': [{'valid': False}, {'valid': True}, {'valid': True}],
+                  'info': {'valid': True}, 'questionnaire': {'valid': True}}
+        atomic(output / 'validation.json', report)
+        verify_validation(output)
+        report.pop('validation_completed')
+        atomic(output / 'validation.json', report)
+        with self.assertRaises(ValueError):
+            verify_validation(output)
+
     def test_orchestration_and_dry_run_agree_on_all_resumed_stage_signatures(self):
         folder = self.fixture('s999')
         entry = self.config('s999')['participants'][0]
@@ -182,14 +196,16 @@ class PilotTests(unittest.TestCase):
                               for kind, ext in (('vid', 'avi'), ('bvp', 'csv'), ('eda', 'csv'))},
                     'candidates': {k: ['one'] for k in ('vid', 'bvp', 'eda')},
                     'signals': {'bvp': {'sampling_rate_hz': 64}, 'eda': {'sampling_rate_hz': 4}},
-                    'video': {'valid': True, 'decode_complete': True, 'decoded_frames': 1200}}
+                    'video': {'valid': True, 'decode_complete': True, 'decoded_frames': 1200,
+                              'observed_duration_seconds': 30}}
                    for task in TASKS]
         def fake_command(module, arguments, log):
             # Synthetic subprocess outputs; this test checks orchestration, not estimators.
             target = Path(arguments[arguments.index('--output') + 1])
             if module == 'manifest':
                 target.parent.mkdir(parents=True)
-                atomic(target, {'schema_version': '1.0', 'validation_status': 'passed',
+                atomic(target, {'schema_version': '1.0',
+                                'validation_status': 'passed' if all(r['validation_status'] == 'passed' for r in records) else 'needs_review',
                                 'discovery_issues': [], 'records': records})
             else:
                 target.mkdir()
@@ -203,7 +219,7 @@ class PilotTests(unittest.TestCase):
             first = []
             _, stages, failures = execute_participant(entry, output, ctx, storage, first)
             self.assertFalse(failures)
-            self.assertEqual(len(stages), 11)
+            self.assertEqual(len(stages), 14)
             self.assertEqual(calls.call_count, 11)
             report = plan(self.config('s999'), output, ctx, storage)
             self.assertTrue(report['passed'])
@@ -212,6 +228,23 @@ class PilotTests(unittest.TestCase):
             execute_participant(entry, output, ctx, storage, second)
             self.assertEqual(calls.call_count, 11)
             self.assertTrue(all(e['decision'] == 'resume' for e in second))
+            # A failed camera record must not suppress independent BVP or healthy tasks.
+            records[0]['validation_status'] = 'needs_review'
+            records[0]['warnings'] = ['synthetic_frame_count_mismatch']
+            records[0]['video']['valid'] = False
+            _, retained, failures = execute_participant(entry, self.root / 'ineligible', ctx, storage, [])
+            self.assertEqual(set(failures), {'T1'})
+            self.assertNotIn('T1/face', retained)
+            self.assertIn('T1/reference', retained)
+            self.assertIn('T2/diagnostics', retained)
+            self.assertIn('T3/diagnostics', retained)
+            only_references = {k: v for k, v in retained.items() if k == 'manifest' or k.endswith('/reference')}
+            tasks, windows = summarize(entry, folder, only_references, {t: 'synthetic camera failure' for t in TASKS})
+            self.assertTrue(all(t['scheduled_camera_windows_per_group'] == 1 for t in tasks))
+            self.assertTrue(all(t['bvp']['total'] == 1 for t in tasks))
+            self.assertEqual(len([w for w in windows if w['source'] == 'camera']), 18)
+            self.assertEqual(len([w for w in windows if w['source'] == 'bvp']), 3)
+            self.assertTrue(all(w['status'] == 'rejected' for w in windows if w['source'] == 'camera'))
 
 
 if __name__ == '__main__':
