@@ -1,15 +1,23 @@
 """Synthetic diagnostics: no participant traces or values."""
 
 from dataclasses import asdict
+from pathlib import Path
+import tempfile
 import unittest
 
 import numpy as np
 
 from stress_detection.pulse import Settings, spectral_rate
-from stress_detection.pulse_diagnostics import describe_signal, edge_info, longest_run
+from stress_detection.pulse_diagnostics import describe_signal, edge_info, longest_run, plot_windows
 
 
 class DiagnosticsTests(unittest.TestCase):
+    def test_no_complete_reference_windows_still_produces_diagnostic_plot(self):
+        with tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[1] / 'data/processed') as folder:
+            output = Path(folder) / 'empty.png'
+            plot_windows([], output, 64, Settings())
+            self.assertTrue(output.read_bytes().startswith(b'\x89PNG'))
+
     def test_rate_axis_bpm_and_detrend_with_drift(self):
         t = np.arange(1920) / 64
         x = np.sin(2 * np.pi * 1.5 * t) + .4 * t + 20

@@ -103,6 +103,13 @@ def plot_windows(windows, output, rate, cfg):
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
 
+    if not windows:
+        fig, ax = plt.subplots()
+        ax.text(.5, .5, 'No complete reference windows', ha='center', va='center')
+        ax.set_axis_off()
+        fig.savefig(output, dpi=130)
+        plt.close(fig)
+        return
     fig, axes = plt.subplots(len(windows), 4, figsize=(20, 3 * len(windows)), squeeze=False)
     for i, (x, report, (detrended, f, power)) in enumerate(windows):
         t = report['start_nominal_seconds'] + np.arange(len(x)) / rate
