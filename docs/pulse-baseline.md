@@ -131,6 +131,50 @@ manifest; the BVP path must stay inside the dataset root, have one candidate,
 and match its recorded checksum. No questionnaire or task-class label is read
 into the pulse estimator. Source recording IDs remain private provenance.
 
+### Frozen diagnostics command
+
+Use the saved face and pulse runs without changing any `Settings` defaults:
+
+```sh
+for task in T1 T2 T3; do
+  .venv/bin/python -m stress_detection.pulse_diagnostics \
+    --face-run "data/processed/ubfc-phys/face-quality/$task" \
+    --pulse-run "data/processed/ubfc-phys/pulse-baseline/$task" \
+    --manifest data/processed/ubfc-phys/timestamps/manifest.json \
+    --dataset-root data/raw/UBFC-Phys \
+    --output "data/processed/ubfc-phys/pulse-diagnostics-reviewed/$task"
+done
+```
+
+Choose a new output path for each repeat. The command requires completed runs,
+the saved default settings, matching recording/source and RGB-file provenance,
+and the existing unique manifest/BVP checksum pairing. It reruns camera window
+analysis and reference estimation through the existing pulse code, comparing
+every result row to the saved run. A discrepancy exits unsuccessfully for
+investigation; originals are never overwritten. It does not decode video again.
+
+Each ignored output contains `report.json`, `bvp-windows.png`, and `status.json`.
+Reports record input/code hashes, library versions, complete half-open sample
+intervals, every original decision/reason, winning bins, strongest bins and
+local maxima, signed distances to band edges, threshold margins, detrended
+power, fitted linear drift, below-band power share, largest adjacent steps,
+exact constant runs and repeated extrema. Raw and detrended traces, full and
+expanded spectra are plotted for every complete reference window. An independent
+diagnostic reconstruction must match the production peak fraction and BPM.
+Plotting uses the already available Matplotlib; the audited environment has
+NumPy 2.5.4 and Matplotlib 3.11.2. No packages were installed for this audit.
+
+Camera estimates and reference candidate peaks within one FFT bin of either
+band edge receive an annotation. This is a diagnostic definition, **not a new
+acceptance threshold**. Existing accepted/rejected status and the baseline
+band/screen remain unchanged. Distances outside the band are signed; annotation
+uses absolute distance. Exact plateaus, repeated extrema, slope and jump size
+are observations, not calibrated artifact detectors. CSV units and hardware
+clipping rails are undocumented; these statistics cannot prove saturation,
+motion, poor contact or a physiological cause. No method/ROI is selected using
+reference agreement. See [the diagnostic audit](pulse-diagnostics.md) for
+interpretation and the next pilot gates.
+
 ## Private output schema and lifecycle
 
 A new ignored output directory contains:

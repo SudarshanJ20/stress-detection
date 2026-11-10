@@ -149,5 +149,38 @@ class PrivateRunTests(unittest.TestCase):
         record['files']['bvp']['path']='../outside.csv';manifest.write_text(json.dumps({'records':[record]}))
         with self.assertRaisesRegex(ValueError,'Unsafe'):matched_bvp(manifest,self.root,config)
 
+    def test_diagnostics_reproduce_saved_runs_and_preserve_inputs(self):
+        from stress_detection.pulse_diagnostics import audit
+        p = self.root / 'bvp.csv'
+        values = np.r_[np.sin(2*np.pi*1.5*np.arange(1920)/64),
+                       np.sin(2*np.pi*2*np.arange(1920)/64), [0, 1, 2]]
+        np.savetxt(p, values)
+        entry = {'path': 'bvp.csv', 'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
+        manifest = self.root / 'manifest.json'
+        manifest.write_text(json.dumps({'records': [{'recording_id': 'synthetic/recording',
+            'candidates': {'bvp': ['bvp.csv']},
+            'files': {'vid': {'sha256': 'synthetic'}, 'bvp': entry}}]}))
+        saved = self.root / 'saved'
+        run(self.face, saved, Settings(), manifest, self.root)
+        before = {f.name: f.read_bytes() for f in saved.iterdir()}
+        output = self.root / 'diagnostics'
+        report = audit(self.face, saved, manifest, self.root, output)
+        self.assertEqual(report['implementation_check'], 'passed')
+        self.assertEqual(report['trailing_samples'], 3)
+        self.assertEqual([r['estimated_bpm'] for r in report['bvp_windows']], [90, 120])
+        self.assertEqual([r['start_sample_inclusive'] for r in report['bvp_windows']], [0, 1920])
+        self.assertEqual([r['end_sample_exclusive'] for r in report['bvp_windows']], [1920, 3840])
+        self.assertTrue((output / 'bvp-windows.png').is_file())
+        self.assertEqual(before, {f.name: f.read_bytes() for f in saved.iterdir()})
+        with self.assertRaises(FileExistsError):
+            audit(self.face, saved, manifest, self.root, output)
+        with self.assertRaises(ValueError):
+            audit(self.face, saved, manifest, self.root, Path('/tmp/public-diagnostics'))
+        config = json.loads((saved / 'config.json').read_text())
+        config['settings']['min_peak_fraction'] = .09
+        (saved / 'config.json').write_text(json.dumps(config))
+        with self.assertRaisesRegex(ValueError, 'frozen'):
+            audit(self.face, saved, manifest, self.root, self.root / 'different-settings')
+
 
 if __name__=='__main__':unittest.main()
