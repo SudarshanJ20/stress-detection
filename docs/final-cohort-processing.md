@@ -7,7 +7,9 @@ provide explicit final-role support without changing historical pilot/feature/
 LOPO commands or their receipts. The implementation version is
 `explicit-final-support-v2`; analytical configuration SHA remains `c395c805…`.
 The frozen config's earlier pipeline-status text is historical, not a changed
-analytical design. No reserved participant payload was acquired or inspected.
+analytical design. No reserved participant payload was acquired or inspected at
+the initial implementation checkpoint. The completed prediction lock is recorded
+at the end of this document.
 
 ## Completed training and validation
 
@@ -186,7 +188,46 @@ access remains login-gated/unverified: check small info delivery first, then pre
 separate videos/companions if offered; questionnaires stay in sealed custody.
 The private exact filenames are in `independent-evaluation-plan-v1/next-files.md`.
 
-No reserved payloads were downloaded. Exposure outside reviewed local records is
-still unconfirmed; the final cohort is **not certified untouched**. This support
+No reserved payloads were downloaded during initial implementation. Exposure
+outside reviewed local records is still unconfirmed; the final cohort is **not certified untouched**. This support
 implements the locked protocol-transfer experiment, not ordinary webcam/live
 anxiety validation or removal of task/recording confounds.
+
+## Completed prediction lock
+
+All ten locked-final sessions have now completed the frozen processing workflow.
+All **180 scheduled original video windows** remain represented, including null
+measurements and support failures. The remaining six participants' **72**
+predictions were validated separately; the complete **120 unique predictions**
+(ten participants × six fixed models × two outcomes) then passed strict
+validation with `all_scheduled_predictions_locked: true`.
+
+All 12 model artifacts retain the frozen inventory hash recorded above. No
+refitting, feature/policy changes, tuning, participant substitution or outcome
+evaluation occurred. Original archives, previous experiments and the four earlier
+participants' exports and prediction bundles remain preserved. Every extraction
+received fresh storage checks and CRC/size validation; the documented reserve
+was retained. Detailed participant/task coverage, nulls, rejection reasons, timing
+warnings, runtime and storage reports stay ignored.
+
+Completed artifacts are private under:
+
+- `independent-evaluation-v2/predictions/remaining-six-v1/`: validated 72 new predictions.
+- `independent-evaluation-v2/predictions/all-v1/`: complete 120 predictions, full configuration, source/software/code provenance and hashes.
+- `independent-evaluation-v2/complete-cohort-lock-v1/`: lock receipt, configuration copy, all 180 scheduled windows and hash manifest.
+- `independent-evaluation-v2/remaining-processing-review-v1/`: private support/storage/runtime report and targeted checks.
+
+The complete validation command is:
+
+```sh
+.venv/bin/python -m stress_detection.independent_anxiety --validate-predictions \
+  --plan data/processed/ubfc-phys/independent-evaluation-plan-v1/acquisition-manifest.json \
+  --output data/processed/ubfc-phys/independent-evaluation-v2/predictions/all-v1
+```
+
+Questionnaire values remain **sealed and unparsed**. The artifact prerequisite
+for the predefined outcome evaluation is satisfied; outcome release, structural
+label validation and evaluation are separate subsequent work. External exposure
+history remains unconfirmed and must be resolved or explicitly handled before
+claiming participant independence. The prediction lock does not certify an
+untouched cohort or ordinary-webcam anxiety validity.

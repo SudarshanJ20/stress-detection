@@ -77,11 +77,13 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    with external-history clearance pending. s25 remains engineering-only.
    Metadata-only access must be checked after login. [Explicit final-role export/
    inference](final-cohort-processing.md) and its leakage/compatibility tests are
-   now implemented. All 12 fixed models are frozen on s1–s6; no reserved outcome
-   or real final prediction was opened/generated. The original pipeline and
-   planning artifacts are preserved.
-   The conservative archive fallback fits the measured budget provisionally;
-   actual archive preflight and independent-person precision remain limitations. The bounded
+   now implemented. All 12 fixed models are frozen on s1–s6. The complete
+   prediction lock passed: 120 unique predictions and all 180 scheduled video
+   windows retained. Questionnaire values remain sealed; no outcome evaluation,
+   refitting or tuning occurred. Source archives and prior artifacts are preserved.
+   Actual archive safety/CRC/size and repeated storage checks passed;
+   external exposure history and independent-person precision remain limitations.
+   The bounded
    [post-session anxiety audit](session-anxiety.md) constructed and validated six
    session rows with separate outcomes and preserved no-fit receipts. The
    [direct-score decision](released-anxiety-targets.md) subsequently corrected the
@@ -89,7 +91,8 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    Frozen post-cognitive/post-somatic mean/Ridge LOPO feasibility is now complete,
    with no categories or final-evaluation claim. s1–s6 and s25 remain development-only.
    Independent-population/precision planning, calibration and rejection tuning
-   remain separate gates; no new acquisition is part of this experiment.
+   remain separate gates; no further acquisition is part of this completed
+   processing step.
    Quality-aware rejection remains a later separate engineering experiment.
 8. **Evaluation, robustness, and laptop performance** — Report measured metrics,
    uncertainty, failure cases, lighting and motion sensitivity, rejection coverage,
@@ -124,9 +127,10 @@ simulate video degradation. The source-backed label audit is now complete:
 current findings cover exploratory task classification and session-score
 regression; the psychological outcomes are session anxiety dimensions, not
 momentary stress. Next, resolve
-external-history clearance before any reserved acquisition for the locked v2
-session-outcome plan. Explicit-role support and 12-model freezing are complete;
-final data processing and scoring remain unexecuted. New participants alone
+external-history clearance before outcome release/evaluation for the locked v2
+session-outcome plan. Explicit-role support, 12-model freezing, final camera
+processing and the complete 120-prediction lock are complete; questionnaire
+values remain sealed and scoring is unexecuted. New participants alone
 do not remove task confounding. Camera/wrist synchronization, pulse validation,
 calibrated rejection, live capture, HRV, further acquisition and final stress-model
 evaluation remain pending. Six development-informed people
