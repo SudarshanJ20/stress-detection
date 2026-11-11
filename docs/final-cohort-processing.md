@@ -225,9 +225,12 @@ The complete validation command is:
   --output data/processed/ubfc-phys/independent-evaluation-v2/predictions/all-v1
 ```
 
-Questionnaire values remain **sealed and unparsed**. The artifact prerequisite
-for the predefined outcome evaluation is satisfied; outcome release, structural
-label validation and evaluation are separate subsequent work. External exposure
-history remains unconfirmed and must be resolved or explicitly handled before
+At the prediction-lock checkpoint, questionnaire values remained **sealed and
+unparsed**. The artifact prerequisite for the predefined outcome evaluation was
+satisfied. Outcome release, structural label validation and evaluation have now
+completed as a separate [recorded evaluation](locked-anxiety-evaluation.md).
+The original sealed files and pre-outcome lock remain unchanged; evaluation-only
+copies and a new receipt record the release. No model was refitted. External
+exposure history remains unconfirmed and must be resolved or explicitly handled before
 claiming participant independence. The prediction lock does not certify an
 untouched cohort or ordinary-webcam anxiety validity.

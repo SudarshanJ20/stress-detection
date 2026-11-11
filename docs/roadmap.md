@@ -79,8 +79,10 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    inference](final-cohort-processing.md) and its leakage/compatibility tests are
    now implemented. All 12 fixed models are frozen on s1–s6. The complete
    prediction lock passed: 120 unique predictions and all 180 scheduled video
-   windows retained. Questionnaire values remain sealed; no outcome evaluation,
-   refitting or tuning occurred. Source archives and prior artifacts are preserved.
+   windows retained. The [predefined outcome evaluation](locked-anxiety-evaluation.md)
+   is also complete: ten scorable people for each outcome, all six model arms,
+   no refitting, tuning or deployment selection. Source archives, the original
+   lock and prior artifacts are preserved.
    Actual archive safety/CRC/size and repeated storage checks passed;
    external exposure history and independent-person precision remain limitations.
    The bounded
@@ -127,13 +129,17 @@ simulate video degradation. The source-backed label audit is now complete:
 current findings cover exploratory task classification and session-score
 regression; the psychological outcomes are session anxiety dimensions, not
 momentary stress. Next, resolve
-external-history clearance before outcome release/evaluation for the locked v2
-session-outcome plan. Explicit-role support, 12-model freezing, final camera
-processing and the complete 120-prediction lock are complete; questionnaire
-values remain sealed and scoring is unexecuted. New participants alone
+external-history uncertainty for the locked v2 session-outcome plan. Explicit-role
+support, 12-model freezing, final camera processing, the 120-prediction lock and
+the predefined outcome evaluation are complete. Labels were released only after
+verification; original artifacts remain preserved. Facial cognitive improvement
+over mean is very small and inconsistent across people; no arm improves somatic
+MAE/RMSE over mean. No deployment model is selected. New participants alone
 do not remove task confounding. Camera/wrist synchronization, pulse validation,
 calibrated rejection, live capture, HRV, further acquisition and final stress-model
 evaluation remain pending. Six development-informed people
 provide exploratory evidence only; final evaluation needs a separately planned
 cohort. A bounded ten-person final reservation is now frozen privately; it is
-not yet exposure-cleared or evaluated and does not establish cohort sufficiency.
+evaluated with unconfirmed external exposure history and does not establish
+cohort sufficiency. Those ten participants are now outcome-exposed and cannot
+serve as a fresh test of altered methods.

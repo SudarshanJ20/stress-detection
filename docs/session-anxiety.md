@@ -1,6 +1,6 @@
-# Session anxiety: released-score regression completed
+# Session anxiety: released-score regression and locked evaluation
 
-Updated 2026-11-11. The released CSV values are **author-computed dimension
+Updated 2026-11-12. The released CSV values are **author-computed dimension
 scores**, not individual item responses. Their meaning, mean scale and pre/post
 order are documented. The earlier audit unnecessarily required item-level
 reconstruction details before direct prediction. That gate is corrected in the
@@ -252,12 +252,32 @@ justified response lags/alignment; session scores cannot supply them. New people
 alone do not remove task confounding. No acquisition, categorical accuracy,
 calibration, rejection tuning or live assessment occurred in this run.
 
-## Final-cohort implementation checkpoint
+## Final-cohort implementation checkpoint (historical)
 
 The [locked independent plan](untouched-evaluation.md) now has
 [explicit-role export/inference support](final-cohort-processing.md). Twelve
 models were frozen on all six development sessions, without changing any target,
 feature or Ridge setting. These are separate final-fit artifacts, not an ensemble
-or replacement of the exploratory folds. No reserved outcome was opened and no
-real final prediction exists. Exposure history outside reviewed records remains
-unconfirmed. Acquisition and blinded final processing are later steps.
+or replacement of the exploratory folds. At this implementation checkpoint no
+reserved outcome had been opened and no real final prediction existed. Exposure
+history outside reviewed records remained unconfirmed. Subsequent processing and
+evaluation are recorded below.
+
+## Completed reserved-participant outcome evaluation
+
+On 2026-11-12 the original complete lock, configuration, twelve models, 120
+predictions and 180 scheduled windows were verified before questionnaire release.
+All ten post cognitive/somatic outcomes passed the documented structural, range
+and participant-alignment checks. The [complete aggregate report](locked-anxiety-evaluation.md)
+preserves all six predefined models and all participants, without fitting, tuning,
+clipping or deployment-model selection. Individual scores/errors and plots stay
+private. The original sealed files, prediction lock and prior experiments remain
+preserved; new evaluation copies/receipts record the release.
+
+Facial cognitive MAE is 0.5513 versus training mean 0.5571, a 0.0058-unit gain
+with five people improving and five worsening. No other model beats mean for
+cognitive MAE/RMSE, and no model beats mean for somatic MAE/RMSE. The development
+BPM advantage does not carry over here. These are ten reserved participants with
+unconfirmed external exposure history, not a certified untouched cohort. No
+intervals or significance tests were specified or added. They are now
+outcome-exposed; they cannot supply a fresh test of a changed pipeline.

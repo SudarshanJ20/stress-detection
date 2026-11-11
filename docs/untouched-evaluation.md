@@ -18,14 +18,23 @@ manifest is bound by canonical SHA-256
 `7a98c6ecd744d8ce0e93cc91abf972dffed0eda16d35a55242b194c831c6b680`.
 Changing membership/settings requires a versioned reason before any unblinding;
 never substitute people because their scores, quality or predictions are poor.
-No data acquisition, new model fitting or reserved outcome inspection occurred.
+At the original planning checkpoint, no data acquisition, new model fitting or
+reserved outcome inspection had occurred.
 
-**Implementation update:** [explicit final-role export/inference](final-cohort-processing.md)
+**Initial implementation update (historical):** [explicit final-role export/inference](final-cohort-processing.md)
 is now implemented and tested. The active 12 models are frozen on s1–s6 under
 `independent-evaluation-v2/models-v2/`; s25 remains excluded. The original
-planning artifacts and analytical configuration are unchanged. No reserved
-payload or real final prediction exists. External exposure history remains
+planning artifacts and analytical configuration are unchanged. At that checkpoint
+no reserved payload or real final prediction existed. External exposure history remains
 unconfirmed; this implementation does not certify the cohort untouched.
+
+**Completed evaluation update, 2026-11-12:** the complete prediction lock passed
+before outcome release. All 120 saved predictions were evaluated on ten valid
+session outcomes per endpoint. [Methods and aggregate findings](locked-anxiety-evaluation.md)
+report every predefined comparison, without refitting or selection. External
+exposure history remains unconfirmed; the sample is ten reserved participants,
+not a certified untouched cohort. These ten are now outcome-exposed. The original
+configuration and lock remain unchanged historical artifacts.
 
 ## Exposure audit and allocation
 
@@ -62,7 +71,9 @@ exposed IDs is pending. Reservations/design are locked, but independence is not
 certified until that history is cleared. Newly discovered prior exposure requires
 a documented pre-outcome reallocation/re-lock; if discovered after unblinding,
 mark the evaluation compromised rather than quietly replacing people. Do not
-claim the entire remaining dataset is untouched.
+claim the entire remaining dataset is untouched. The authorized outcome
+evaluation proceeded with this uncertainty explicitly disclosed; its completion
+does not certify that external-history clearance was obtained.
 
 ## Practical scope and model lock
 
@@ -219,7 +230,9 @@ complete 120-key prediction inventory, source/output receipts and absence of sco
 access. All source outcomes/models/reports stay ignored. The original planning phase
 fitted nothing. The separate implementation phase fitted/froze the 12 models using existing development tables only; no test
 processing occurred. Earlier exploratory models and planning receipts remain
-preserved. Final payload processing and outcome release are still deferred.
+preserved. Payload processing and outcome release were deferred at that
+implementation checkpoint; both have since completed under the separate
+[evaluation receipt and procedure](locked-anxiety-evaluation.md).
 
 This evaluates transfer between people **under the recorded UBFC protocol**.
 It does not establish ordinary webcam performance, momentary anxiety, causality,
