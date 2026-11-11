@@ -1,0 +1,31 @@
+{
+  "name": "still-local",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev --hostname 127.0.0.1 --turbopack",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build --turbopack",
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.2.0",
+    "gsap": "^3.14.2",
+    "lucide-react": "^0.577.0",
+    "motion": "14.12.0",
+    "next": "16.4.6",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "tailwindcss": "^4.2.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "prettier": "^3.10.0",
+    "typescript": "^5.9.3"
+  }
+}

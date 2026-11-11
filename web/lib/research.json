@@ -1,0 +1,114 @@
+{
+  "cognitive_post": {
+    "camera_bpm": {
+      "n": 10,
+      "mae": 0.7013444742377081,
+      "rmse": 0.9278690420529986,
+      "r2": -0.5463060143994298,
+      "better_than_mean": 5,
+      "worse_than_mean": 5,
+      "mean_paired_absolute_error_difference": 0.14424447423770798
+    },
+    "facial": {
+      "n": 10,
+      "mae": 0.5513245400396268,
+      "rmse": 0.7346035903376376,
+      "r2": 0.030767053360775343,
+      "better_than_mean": 5,
+      "worse_than_mean": 5,
+      "mean_paired_absolute_error_difference": -0.005775459960373141
+    },
+    "facial_camera_bpm": {
+      "n": 10,
+      "mae": 0.6879207799851964,
+      "rmse": 0.8870063020952542,
+      "r2": -0.41310842663043945,
+      "better_than_mean": 4,
+      "worse_than_mean": 6,
+      "mean_paired_absolute_error_difference": 0.13082077998519645
+    },
+    "mean": {
+      "n": 10,
+      "mae": 0.5570999999999999,
+      "rmse": 0.748737889903922,
+      "r2": -0.006889234775106612,
+      "better_than_mean": 0,
+      "worse_than_mean": 0,
+      "mean_paired_absolute_error_difference": 0.0
+    },
+    "missingness": {
+      "n": 10,
+      "mae": 1.0407280741284939,
+      "rmse": 1.9549684174375128,
+      "r2": -5.864383943074028,
+      "better_than_mean": 4,
+      "worse_than_mean": 6,
+      "mean_paired_absolute_error_difference": 0.48362807412849396
+    },
+    "quality_values": {
+      "n": 10,
+      "mae": 0.6910891427398459,
+      "rmse": 0.8337452012488515,
+      "r2": -0.2485006414475679,
+      "better_than_mean": 4,
+      "worse_than_mean": 6,
+      "mean_paired_absolute_error_difference": 0.13398914273984588
+    }
+  },
+  "somatic_post": {
+    "camera_bpm": {
+      "n": 10,
+      "mae": 0.8089930958466146,
+      "rmse": 1.0314560026683863,
+      "r2": -4.78513909975143,
+      "better_than_mean": 2,
+      "worse_than_mean": 8,
+      "mean_paired_absolute_error_difference": 0.4897930958466147
+    },
+    "facial": {
+      "n": 10,
+      "mae": 0.41141606866620073,
+      "rmse": 0.5140703319534603,
+      "r2": -0.4370023276723489,
+      "better_than_mean": 4,
+      "worse_than_mean": 6,
+      "mean_paired_absolute_error_difference": 0.09221606866620076
+    },
+    "facial_camera_bpm": {
+      "n": 10,
+      "mae": 0.6792656420314904,
+      "rmse": 0.8945803051993736,
+      "r2": -3.3516209185128734,
+      "better_than_mean": 4,
+      "worse_than_mean": 6,
+      "mean_paired_absolute_error_difference": 0.36006564203149055
+    },
+    "mean": {
+      "n": 10,
+      "mae": 0.3192,
+      "rmse": 0.42886320662887367,
+      "r2": -0.00011506097606406307,
+      "better_than_mean": 0,
+      "worse_than_mean": 0,
+      "mean_paired_absolute_error_difference": 0.0
+    },
+    "missingness": {
+      "n": 10,
+      "mae": 0.5626581726698089,
+      "rmse": 0.8766852566541024,
+      "r2": -3.1792639090132466,
+      "better_than_mean": 4,
+      "worse_than_mean": 6,
+      "mean_paired_absolute_error_difference": 0.2434581726698089
+    },
+    "quality_values": {
+      "n": 10,
+      "mae": 0.43912618857891256,
+      "rmse": 0.5949307282658253,
+      "r2": -0.9246208761768544,
+      "better_than_mean": 2,
+      "worse_than_mean": 8,
+      "mean_paired_absolute_error_difference": 0.1199261885789126
+    }
+  }
+}
