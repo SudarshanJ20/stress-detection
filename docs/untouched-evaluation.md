@@ -20,6 +20,13 @@ Changing membership/settings requires a versioned reason before any unblinding;
 never substitute people because their scores, quality or predictions are poor.
 No data acquisition, new model fitting or reserved outcome inspection occurred.
 
+**Implementation update:** [explicit final-role export/inference](final-cohort-processing.md)
+is now implemented and tested. The active 12 models are frozen on s1–s6 under
+`independent-evaluation-v2/models-v2/`; s25 remains excluded. The original
+planning artifacts and analytical configuration are unchanged. No reserved
+payload or real final prediction exists. External exposure history remains
+unconfirmed; this implementation does not certify the cohort untouched.
+
 ## Exposure audit and allocation
 
 Reviewed project receipts, feature selections, pilot/review records, regression
@@ -192,23 +199,27 @@ without parsing before those stages. Do **not** run the sample validator on fina
 folders: it computes questionnaire statistics. Hash/CRC bytes do not count as
 psychological inspection; parsing, printing or viewing outcome values does.
 
-**Implementation gate before any reserved processing:** the current pilot runner
-and feature CLI accept engineering roles only, and regression CLI hardcodes six
-LOPO participants. Do not relabel final participants as `pilot_development` or
-call the LOPO runner a final-evaluation command. A minimal extension of existing
-feature/session export and fit/predict entry points must support explicit
-train/test roles, scheduled failures and feature-only final processing with
-questionnaire access forbidden. Test it using existing development/synthetic data
-and hidden-label leakage tests, then freeze its code before acquisition/processing.
-No new audit platform or unavailable CLI is invented for this planning step.
-The native command recipes are valid building blocks, not a claim that the
-end-to-end final evaluation command already exists.
+The implementation gate is now completed by `final_camera_features` and
+`independent_anxiety`, with explicit `locked_final` indices and native `test`
+manifest roles. The historical pilot, feature and LOPO commands retain their
+engineering-only contracts. Do not relabel participants to use them. New commands
+reuse their numerical helpers, check frozen policy/schema and source identities,
+and never accept a questionnaire path for final export/prediction. The model
+bundle includes training-video hashes to reject renamed training/final content;
+duplicate final content is rejected across batches.
+
+See [exact public commands](final-cohort-processing.md) and the private
+`processing-commands-final-support-v2.md`. Ten single-participant, five pair and
+one whole-cohort selection templates are prepared. Complete 120-key prediction
+validation is required before any outcome release; partial batch locks do not
+meet that condition. There is no score-joining API in this implementation.
 
 Before label release, verify disjoint roles, fixed setting/policy hashes,
-complete120-key prediction inventory, source/output receipts and absence of score
-access. All source outcomes/models/reports stay ignored. No training or test
-processing occurred during planning. Existing local development tables/models
-are reused as provenance; new final fits are deferred to execution.
+complete 120-key prediction inventory, source/output receipts and absence of score
+access. All source outcomes/models/reports stay ignored. The original planning phase
+fitted nothing. The separate implementation phase fitted/froze the 12 models using existing development tables only; no test
+processing occurred. Earlier exploratory models and planning receipts remain
+preserved. Final payload processing and outcome release are still deferred.
 
 This evaluates transfer between people **under the recorded UBFC protocol**.
 It does not establish ordinary webcam performance, momentary anxiety, causality,
@@ -225,6 +236,8 @@ roles, per-participant test assignments, expected120-key inventory, absence of
 new archives, current storage projection and preservation of original experiment
 inventories. Native CLI argument schemas were checked with `--help`; deferred
 shell/Python recipes passed syntax checks without execution. Fourteen existing
-manifest/split tests and `pip check` passed. This is planning validation, not a
-CRC/decode/feature/model validation of unavailable final data. Detailed next files
+manifest/split tests and `pip check` passed for the original plan. The subsequent
+implementation passed 145 tests and artifact-only/deep validation of 12 models,
+including 120 synthetic held-out predictions under questionnaire-read traps.
+These checks do not validate CRC/decode/features/models on unavailable final data. Detailed next files
 are in the private `next-files.md`; no scores or detailed assignments enter Git.

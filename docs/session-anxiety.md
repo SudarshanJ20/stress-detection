@@ -251,3 +251,13 @@ remain necessary. Momentary anxiety needs time-local psychological labels with
 justified response lags/alignment; session scores cannot supply them. New people
 alone do not remove task confounding. No acquisition, categorical accuracy,
 calibration, rejection tuning or live assessment occurred in this run.
+
+## Final-cohort implementation checkpoint
+
+The [locked independent plan](untouched-evaluation.md) now has
+[explicit-role export/inference support](final-cohort-processing.md). Twelve
+models were frozen on all six development sessions, without changing any target,
+feature or Ridge setting. These are separate final-fit artifacts, not an ensemble
+or replacement of the exploratory folds. No reserved outcome was opened and no
+real final prediction exists. Exposure history outside reviewed records remains
+unconfirmed. Acquisition and blinded final processing are later steps.

@@ -1,15 +1,17 @@
 # Provisional research protocol
 
-Version 0.7, 2026-11-11. This revision records the source-backed
+Version 0.8, 2026-11-11. This revision records the source-backed
 [label-validity decision](label-validity.md) after completed task-classification
 baselines and confound ablations. Those experiments remain exploratory engineering
 evidence. They do not validate mental-stress detection. The proposed psychological
 target is released post-session cognitive anxiety, with post-session somatic
 anxiety secondary. [Independent evaluation v2](untouched-evaluation.md) freezes
 the existing summaries/settings and six-model comparison, six training people
-and ten private final reservations. External exposure history and a role-safe
-final exporter/inference gate remain pending; no reserved outcome was inspected.
-No acquisition or additional fitting occurred in this planning revision.
+and ten private final reservations. External exposure history remains pending.
+[Explicit final-role processing](final-cohort-processing.md) now implements the
+export/inference contract and freezes 12 models on s1–s6 only. No reserved payload
+was acquired or inspected and no real final prediction was generated. All locked
+analytical settings and previous experiment outputs remain unchanged.
 Changes must be versioned with reasons before final-test evaluation; a protocol
 change after examining test outcomes invalidates confirmatory interpretation.
 

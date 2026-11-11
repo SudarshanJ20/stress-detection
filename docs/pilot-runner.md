@@ -375,3 +375,12 @@ Existing regression tests cover ambiguous/expired returns, invalid pending
 frames, motion/brightness resets, and restart gaps exceeding the unchanged
 0.15-second pulse limit. Registration adds tests for altered configs, conflicting
 overrides, missing receipt stamps and independent reference reuse.
+
+## Locked final participants
+
+This engineering runner still rejects final-test participants; do not change
+roles to bypass it. The [explicit final-role adapter](final-cohort-processing.md)
+uses the native manifest/face/pulse functions and frozen policy with separate
+role-preserving export, training on s1–s6 only, and artifact-only inference. It
+never accepts a reserved questionnaire path. Model/export/prediction locks and
+all original pilot artifacts remain separate.

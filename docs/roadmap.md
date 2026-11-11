@@ -75,8 +75,11 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    families and training-only preprocessing. Six exposed modeling participants
    remain training-only; ten record-audited candidates are reserved as final,
    with external-history clearance pending. s25 remains engineering-only.
-   Metadata-only access must be checked after login; a role-safe final feature/
-   inference extension and its leakage tests must precede reserved processing.
+   Metadata-only access must be checked after login. [Explicit final-role export/
+   inference](final-cohort-processing.md) and its leakage/compatibility tests are
+   now implemented. All 12 fixed models are frozen on s1–s6; no reserved outcome
+   or real final prediction was opened/generated. The original pipeline and
+   planning artifacts are preserved.
    The conservative archive fallback fits the measured budget provisionally;
    actual archive preflight and independent-person precision remain limitations. The bounded
    [post-session anxiety audit](session-anxiety.md) constructed and validated six
@@ -121,8 +124,9 @@ simulate video degradation. The source-backed label audit is now complete:
 current findings cover exploratory task classification and session-score
 regression; the psychological outcomes are session anxiety dimensions, not
 momentary stress. Next, resolve
-external-history clearance and the explicit-role processing/inference gate before
-any acquisition or fitting for the locked v2 session-outcome plan. New participants alone
+external-history clearance before any reserved acquisition for the locked v2
+session-outcome plan. Explicit-role support and 12-model freezing are complete;
+final data processing and scoring remain unexecuted. New participants alone
 do not remove task confounding. Camera/wrist synchronization, pulse validation,
 calibrated rejection, live capture, HRV, further acquisition and final stress-model
 evaluation remain pending. Six development-informed people
