@@ -1,0 +1,149 @@
+{
+  "all_missing_session": "train-fitted imputation; mean fallback only if training has no retained columns; keep in primary scored population",
+  "allocation_counts": {
+    "engineering_only_not_in_primary_fit": 1,
+    "model_training": 6,
+    "new_validation": 0,
+    "reserved_final": 10
+  },
+  "allocation_manifest_sha256": "7a98c6ecd744d8ce0e93cc91abf972dffed0eda16d35a55242b194c831c6b680",
+  "allocation_policy": "fixed ten-person sample of numerically ordered record-audited pool; no scenario/outcome/quality balancing or replacement after outcomes",
+  "allocation_seed": 20261113,
+  "blinding": "freeze training data/code/preprocessing and12 models before final payload processing; hash120 predictions before questionnaire release; do not parse/print reserved scores in acquisition or feature stages",
+  "calibration_or_rejection_tuning": false,
+  "classification": false,
+  "created_date": "2026-11-11",
+  "expected_final_predictions": 120,
+  "expected_training_artifacts": 12,
+  "external_history": "pending answer; local evidence is bounded, not proof of global non-exposure",
+  "failed_recordings": "retain scheduled participants/tasks/windows; unsupported features null; no frame synthesis/gap repair; freeze schedule/failure adapter before reserved processing",
+  "feature_schema_sha256": "7a50f53c24d4423b6e6dcdae1e815502874867b5c1da3192ebba7bc0f5237b2d",
+  "final_fit": "fit each of six fixed models for each of two outcomes once on all six development sessions; no LOPO ensemble and no final participant in fitting",
+  "hyperparameter_search": false,
+  "identity_failures": "quarantine mismatched/duplicate/unsafe files; retain audit, no silent renaming or participant substitution",
+  "mean_strategy": "training-outcome mean",
+  "missing_outcome": "never impute y; keep scheduled inventory and report unscorable denominator; no replacements",
+  "model_selection": false,
+  "models": {
+    "camera_bpm": [
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "facial": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "facial_camera_bpm": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "mean": [],
+    "missingness": [
+      "q_face_detected_fraction",
+      "q_track_fraction",
+      "q_multiple_faces_fraction",
+      "q_no_frames",
+      "q_mouth_valid_fraction",
+      "q_eye_valid_fraction",
+      "q_motion_valid_fraction",
+      "q_brightness_change_valid_fraction",
+      "q_region_forehead_valid_fraction",
+      "q_region_cheek_image_left_valid_fraction",
+      "q_region_cheek_image_right_valid_fraction",
+      "q_pulse_green_forehead_missing",
+      "q_pulse_green_cheek_image_left_missing",
+      "q_pulse_green_cheek_image_right_missing",
+      "q_pulse_pos_forehead_missing",
+      "q_pulse_pos_cheek_image_left_missing",
+      "q_pulse_pos_cheek_image_right_missing"
+    ],
+    "quality_values": [
+      "q_brightness_mean",
+      "q_brightness_std",
+      "q_dark_fraction_mean",
+      "q_saturated_fraction_mean",
+      "q_laplacian_variance_mean",
+      "q_face_area_mean",
+      "q_brightness_change_abs_median",
+      "q_region_forehead_area_mean",
+      "q_region_cheek_image_left_area_mean",
+      "q_region_cheek_image_right_area_mean"
+    ]
+  },
+  "other_metrics": [
+    "RMSE",
+    "pooled R2 when defined",
+    "individual errors",
+    "paired absolute-error difference versus training mean",
+    "support and failure denominators"
+  ],
+  "pilot_policy_sha256": "c399e9c4c10caf9021c8132044fdff08a53589580d5e2512e83c2dd663852875",
+  "pipeline_gate": "pilot/features/session-regression CLIs currently engineering/six-person-only; no relabeling final as pilot; minimal explicit-role export/final-inference extension with hidden-label tests required before processing",
+  "population": "one released protocol session per participant; previously exposed participants excluded from final",
+  "prediction_clipping": false,
+  "preprocessing": {
+    "add_indicator": false,
+    "imputation": "training-only median",
+    "scaling": "training-only StandardScaler",
+    "train_all_missing": "drop training-all-missing columns; mean fallback if none retained"
+  },
+  "primary_metric": "cognitive_post equal-participant MAE",
+  "regression": {
+    "alpha": 10.0,
+    "class": "Ridge",
+    "fit_intercept": true,
+    "solver": "svd"
+  },
+  "score_range": [
+    1.0,
+    4.0
+  ],
+  "source_exploratory_configuration_sha256": "e9639dc37673a2ff5122c98858ece38a14284b93fd36f3defb88a03e789b471f",
+  "sources": "official DataPort HTML public listing read without participant payloads; exact entries and snapshots private",
+  "status": "design_and_reservations_locked; execution_pending_exposure_clearance_and_role_safe_pipeline",
+  "summaries": {
+    "all_missing": "null; never zero-fill or impute",
+    "minimum_observed_windows": 1,
+    "missingness": "mean over observed original window fractions/flags",
+    "quality_values": "median over observed original windows",
+    "task_support": "reported separately, never used as anxiety label",
+    "value_features": "median over observed original windows, pooled over all three retained tasks"
+  },
+  "target_transform": false,
+  "targets": {
+    "cognitive_post": {
+      "dimension": "cognitive_anxiety",
+      "occasion": "post_session",
+      "priority": "primary"
+    },
+    "somatic_post": {
+      "dimension": "somatic_anxiety",
+      "occasion": "post_session",
+      "priority": "secondary"
+    }
+  },
+  "uncertainty_intervals": "none; descriptive ten-person bounded independent evaluation, not a powered confirmatory study",
+  "version": "independent-anxiety-evaluation-v2"
+}
