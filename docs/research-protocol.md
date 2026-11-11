@@ -186,6 +186,13 @@ confidence-plus-quality comparison. Calibration, rejection tuning, future model
 selection and final evaluation retain the separate gates above. These six people
 are development-informed; future claims require a separately planned cohort.
 
+The bounded [confound-ablation study](confound-ablation.md) now compares all
+predefined mouth/motion removals and their BPM combinations, with unchanged
+folds/model settings. Its label/participant-independent added-null mechanism
+preserves natural missingness and evaluates frozen models at every predefined
+level. This is distinct from the protocol's physical degradation and selective
+risk experiments below; no calibration or rejection-policy learning occurred.
+
 ## Coverage, estimand, and rejected windows
 
 Coverage is accepted windows / **all eligible scheduled windows**, including
@@ -364,9 +371,12 @@ downloads and model training remain separately scoped steps.
    predictor/index and reference files. No preprocessing/model was fitted during
    feature construction. The first fixed exploratory participant-held-out baseline
    is now complete, with training-fold-only preprocessing, full prediction
-   inventories and separate supported-row diagnostics. Next, freeze task-behaviour
-   and missingness/degradation ablations; calibration/rejection tuning is later
-   work. Camera/wrist comparisons remain recording-level while synchronization is
+   inventories and separate supported-row diagnostics. The separately frozen
+   [mouth/motion-removal and added-missingness study](confound-ablation.md) is
+   executed and validated; it preserves the baseline and does not simulate video
+   degradation or remove natural missingness confounding. An untouched participant
+   evaluation needs prespecification; calibration/rejection tuning is later work.
+   Camera/wrist comparisons remain recording-level while synchronization is
    unverified. Further acquisition and final test assignment remain separate steps
    with the split/evaluation gates below.
 2. **Inventory stage:** after this design is written, inspect official access,

@@ -62,8 +62,9 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    scaling. Full prediction/model inventories and saved-result metrics validated;
    numerical outcomes stay private and s25 stays development-only. See the
    [feature contract](window-features.md) and [experiment commands](exploratory-baseline.md).
-   Task-behaviour and missingness/degradation ablations are next; no independent
-   final evaluation, calibration or rejection-policy tuning is complete.
+   The frozen [mouth/motion and added-missingness study](confound-ablation.md) is
+   also executed and validated. No independent final evaluation, calibration or
+   rejection-policy tuning is complete.
 7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
    by quality indicators and reject unreliable input. Tune thresholds using
    training and validation participants only.
@@ -93,10 +94,12 @@ complete. The versioned raw window feature tables and both task contrasts are
 now constructed, with targeted validation and reproduction checks. They retain
 all scheduled rows, source/policy provenance and missingness; reference-only
 recording diagnostics remain outside predictors. The first fixed exploratory
-LOPO baseline and quality/missingness controls are now complete. Next, prespecify
-mouth/motion-removal and label-balanced missingness/degradation checks before
-interpreting task-classification gains. Camera/wrist synchronization, pulse
-validation, calibrated rejection, live capture, HRV, further cohort acquisition
+LOPO baseline and quality/missingness controls are now complete. Frozen
+mouth/motion-removal and label/participant-independent added-feature-missingness
+checks are also complete; they do not remove natural missingness confounding or
+simulate video degradation. Next, preregister an untouched participant evaluation
+with frozen comparisons and explicit task/recording-condition controls.
+Camera/wrist synchronization, pulse validation, calibrated rejection, live capture, HRV, further cohort acquisition
 and final stress-model evaluation remain pending. Six development-informed people
 provide exploratory evidence only; final evaluation needs a separately planned
 cohort, and no final test assignment has been made.

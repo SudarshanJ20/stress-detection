@@ -200,9 +200,10 @@ comparisons, support failures and per-participant variation are documented only
 in the ignored reports. This is the first exploratory baseline experiment, not
 an independent final evaluation or a deployable stress model.
 
-Next, prespecify mouth/motion-removal and label-balanced missingness/degradation
-ablations in participant-held-out folds. Audit whether apparent gains survive
-task-behaviour cues and the missingness-to-task association. Keep both contrasts,
-all scheduled rows and the same preprocessing safeguards. Confidence calibration,
-rejection-policy learning, broader acquisition and a separately planned untouched
-final cohort remain later work; no neural models or website work are included.
+The bounded [confound-ablation study](confound-ablation.md) is now executed and
+validated under a separately frozen configuration. It preserves this baseline,
+compares mouth/motion removal and uses label/participant-independent added
+feature missingness. It does not simulate video degradation or remove natural
+missingness confounding. Next, plan an untouched participant evaluation with
+frozen comparisons. Confidence calibration, rejection-policy learning, broader
+acquisition and final cohort assignment remain later work.
