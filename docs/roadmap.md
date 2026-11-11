@@ -74,10 +74,13 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    preprocessing. Mentor target/measurement review, independent-person precision
    planning and private cohort lock come next. The bounded
    [post-session anxiety audit](session-anxiety.md) constructed and validated six
-   session rows with separate outcomes and explicit no-fit receipts. Scoring is
-   still unresolved; no anxiety regression/classification was run. s1–s6 and s25
-   remain development-only. Acquisition, model fitting, calibration and rejection
-   tuning wait for this gate.
+   session rows with separate outcomes and preserved no-fit receipts. The
+   [direct-score decision](released-anxiety-targets.md) subsequently corrected the
+   reconstruction gate: released computed means can be predicted directly.
+   Frozen post-cognitive/post-somatic mean/Ridge LOPO feasibility is now complete,
+   with no categories or final-evaluation claim. s1–s6 and s25 remain development-only.
+   Independent-population/precision planning, calibration and rejection tuning
+   remain separate gates; no new acquisition is part of this experiment.
    Quality-aware rejection remains a later separate engineering experiment.
 8. **Evaluation, robustness, and laptop performance** — Report measured metrics,
    uncertainty, failure cases, lighting and motion sensitivity, rejection coverage,

@@ -1,18 +1,24 @@
-# Session anxiety feasibility: data audit complete, fitting blocked
+# Session anxiety: released-score regression completed
 
-Checked 2026-11-11. The bounded work completed the reusable data audit; **no anxiety
-model was fitted**. The user required scoring resolution before fitting. The
-adapted UBFC-Phys scoring remains unresolved in the specific ways listed below,
-so there are no held-out predictions, baseline wins, MAE/RMSE/R², or categorical
-accuracy to report. Unavailable metrics are null, not zero. All completed task
-classification and confound-ablation experiments are preserved.
+Updated 2026-11-11. The released CSV values are **author-computed dimension
+scores**, not individual item responses. Their meaning, mean scale and pre/post
+order are documented. The earlier audit unnecessarily required item-level
+reconstruction details before direct prediction. That gate is corrected in the
+[source-backed target decision](released-anxiety-targets.md). The original
+no-fit audit and all task-classification experiments are preserved unchanged.
 
-## Target and scoring gate
+The frozen six-session regression now completed for raw post cognitive anxiety
+(primary) and raw post somatic anxiety (secondary), with mean, facial, BPM,
+combined, quality and missingness comparisons. It is exploratory feasibility in
+six development-informed participants, not independent or live validation.
+Numerical results and individual released scores/predictions remain private.
+
+## Released target interpretation
 
 This request proposes **raw post-session cognitive-anxiety mean** as the primary
 outcome and **raw post-session somatic-anxiety mean** as a separate secondary
-outcome. Confidence is audited separately. This differs from the earlier
-[anxiety-change draft](untouched-evaluation.md); neither draft has been fitted.
+outcome. Confidence is audited separately. This differs from the earlier,
+unexecuted [anxiety-change draft](untouched-evaluation.md).
 Pre scores are not predictors and no post-minus-pre or ratio target is constructed.
 Task identity and test/ctrl never substitute for an individual's anxiety score.
 
@@ -28,7 +34,8 @@ were reused and local questionnaire files reinspected; no new participant acquir
 
 The released matrices pass 3×2 numeric/range checks and are compatible within
 0.00101 with means of the stated item counts. This cannot verify item coding.
-Still missing:
+The following remain unavailable for **reconstruction/independent scoring audit**,
+but are not required to use the documented existing computed scores directly:
 
 - The administered wording/language and exact selected-item mapping.
 - Reverse-coded items and confirmation of their recoding before averaging.
@@ -39,7 +46,8 @@ Still missing:
 A generic CSAI-2 scoring key cannot silently replace the dataset-specific form.
 Raw items and those instructions were not obtained from the inspected material.
 The paper's unspecified pre-normalization formula is **not needed for raw post
-scores** and is not the reason fitting stopped. No verified categorical rule for
+scores**. Neither reconstruction nor pre-normalization blocks the completed raw
+post-score regression. No verified categorical rule for
 this adaptation was found; no low/moderate/high bins, quantiles or thresholds
 were invented. Classification and class counts remain unavailable. The absence
 of an inspected rule is not proof that none exists elsewhere.
@@ -70,13 +78,16 @@ exact protocol or results. No author/mentor contact or access-protection bypass
 was performed. Public research-source attempts are saved privately under
 `data/processed/ubfc-phys/session-anxiety-sources/v1/`.
 
-## Reusable session audit
+## Preserved reusable session audit (historical no-fit checkpoint)
 
 `stress_detection.session_anxiety_audit` has **no fitting API or scoring override**.
 The frozen [`session-anxiety-audit-v1.json`](../configs/session-anxiety-audit-v1.json)
 was committed before the real audit. Canonical SHA-256:
 `2caf3fffe1ace181c24a0e7787c32b5c3e513e512aa3836be30d1878d821aec9`.
-It is an audit configuration, not an executed regression configuration.
+It is an audit configuration, not an executed regression configuration. Its
+historical `modeling_eligible=false` flag is retained unchanged. The new regression
+configuration documents a separate direct-score interpretation rather than
+rewriting the audit or pretending its original gate was already resolved.
 
 Use the existing compatible `window-features-v1` tables under unchanged
 `pilot-camera-v1`. The importer checks source inventories, recorded computation
@@ -121,11 +132,12 @@ of the competitor's baseline-video or HRV method.
 
 The config records a proposed training-outcome-mean comparator and Ridge(alpha=10,
 solver=svd, intercept fitted), training-only imputation/scaling and no search.
-**Neither was run.** The fold inventory contains five training sessions and one
-held-out session, not 60/12 independent psychological observations. Model widths
-8/6/14/10/17 relative to five training people require dimensionality/feasibility
-review before a future executable fit configuration; retaining columns for a raw
-audit is not a claim that all comparisons are adequately powered.
+Neither was run **by the original audit**. Both are now executed under the new
+regression configuration. The fold inventory contains five training sessions and
+one held-out session, not 60/12 independent psychological observations. Model widths
+8/6/14/10/17 relative to five training people severely limit interpretation.
+The fixed L2 model now runs the prespecified feasibility comparisons; neither
+regularization nor a raw audit makes them adequately powered.
 
 ## Exact commands and outputs
 
@@ -163,19 +175,78 @@ shared session inventory, scoring-gate override, reordered/tampered outcomes,
 input changes, incomplete runs and absence of all fitting/predictions. CLI and
 imported-API validation passed on the real six-session audit.
 
-## Next gate and real-world limits
+## Executed regression and exact commands
 
-Obtain and verify the adaptation/scoring specification before fitting. Then freeze
-a **new executable** post-outcome experiment with dimension-appropriate sample
-size/feature limits and independent-group preprocessing, rather than silently
-enabling this audit. Do not choose dimensions or predictors from six outcomes.
-The prior untouched-participant change-target plan remains an unexecuted draft
-and would need explicit revision if the post-score target is adopted there.
+The frozen [`session-anxiety-regression-v1.json`](../configs/session-anxiety-regression-v1.json)
+canonical SHA-256 is
+`e9639dc37673a2ff5122c98858ece38a14284b93fd36f3defb88a03e789b471f`.
+Target/configuration decision committed before fitting at `ae00721`; runner
+revision `3c0c2fd` is recorded in the run plan. No baseline or source audit was
+recomputed or modified. The compatibility importer checks every recorded source
+module and all old inventories, while permitting unrelated added module names.
 
-A real-world webcam claim additionally needs untouched participants/sessions,
-representative conditions, behavioural/recording controls and prospective use-case
-validation. Momentary anxiety requires time-local psychological labels with
-justified response lags and alignment; session scores cannot supply them. Wrist
-agreement is not psychological ground truth. New participants alone cannot remove
-task confounding. No new participants, model training, categorical thresholds,
-calibration, rejection tuning or live assessment are part of this checkpoint.
+```sh
+.venv/bin/python -m stress_detection.session_anxiety_regression --prepare \
+  --source-audit data/processed/ubfc-phys/session-anxiety/audit-v1 \
+  --output data/processed/ubfc-phys/session-anxiety/regression-v1
+
+.venv/bin/python -m stress_detection.session_anxiety_regression --execute \
+  --output data/processed/ubfc-phys/session-anxiety/regression-v1
+
+.venv/bin/python -m stress_detection.session_anxiety_regression --validate \
+  --output data/processed/ubfc-phys/session-anxiety/regression-v1
+```
+
+The root exists: validate there, or prepare a fresh ignored root to reproduce.
+Preparation performs no fitting and snapshots configuration, feature lists,
+source hashes, original session/fold identities, software, pip freeze and Git
+revision/status. Interrupted/failed runs cannot validate or be overwritten.
+
+All six original session rows are retained, with s25 excluded. Training on five
+people, each fold fits only its training medians/scaler and the fixed Ridge
+(alpha10, SVD, intercept). Mean predictions use training outcomes only. No search,
+clipping, learned feature selection, target transformation or categorical bins.
+High dimensionality relative to five training sessions is a major limitation,
+not a reason for post-result feature selection.
+
+Validated **72 held-out predictions and 72 fold models**, six predictions per
+model/outcome. Validation verifies participant separation, target alignment,
+training-only medians/scales, model parameters, training-only Ridge normal
+equations, saved-model predictions and saved-result metrics.
+No regressor is refitted during validation. MAE/RMSE are score units; pooled R²
+is computed across six held-out predictions. Per-person R² is undefined with
+one session; constant-outcome R² is also explicitly undefined.
+
+Private output root includes `predictions.jsonl`, `models/`, `metrics.json`,
+`report.md`, two error plots, receipts and validation. Report tables retain every
+individual released post score and held-out prediction. Detailed interpretation:
+`data/processed/ubfc-phys/session-anxiety/regression-review-v1/findings.md`.
+
+BPM-only has lower MAE/RMSE than training-mean prediction for both outcomes in
+this pilot. Facial-only and combined inputs do not; quality controls improve
+somatic errors but not cognitive errors. Missingness-only does not improve either
+pooled comparison. All predefined arms are reported without choosing a winner.
+These are descriptive observations, not evidence of real-world anxiety sensing.
+
+All pooled session predictors happen to be observed in this run: no imputation
+or training-empty fallback was needed. This does not imply all underlying windows
+or tasks were supported. Pooling over available values can still encode activity,
+recording conditions and missingness; report original per-task counts. Item-level
+psychometric auditing remains unverified, independently of endpoint interpretation.
+
+**140 tests and pip check passed**, plus real CLI/API validation. New tests cover
+raw post mapping, forbidden predictors, mean/fallback predictions, training-only
+preprocessing, undefined/negative R², leakage, 72-key inventory, source preservation,
+changed plans/inputs and tampered artifacts. Original experiment byte inventories
+remain unchanged; no participant data or predictions are staged for Git.
+
+## Next independent evaluation
+
+Preregister the endpoint, population, participant count rationale, fixed comparisons
+and preprocessing before opening untouched people. The six pilot people and s25
+remain development-only; do not choose a model from this small result and claim
+an independent final test. Behaviour/recording controls and representative sessions
+remain necessary. Momentary anxiety needs time-local psychological labels with
+justified response lags/alignment; session scores cannot supply them. New people
+alone do not remove task confounding. No acquisition, categorical accuracy,
+calibration, rejection tuning or live assessment occurred in this run.

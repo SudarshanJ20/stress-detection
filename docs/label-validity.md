@@ -4,6 +4,14 @@ Audit v1, 2026-11-11. This is a source and local-metadata audit, not a new model
 experiment. Existing baseline and ablation outputs are preserved. No participant
 acquisition, fitting, threshold construction or cohort assignment occurred.
 
+**Direct-score correction, 2026-11-11:** the released means are documented
+author-computed dimension scores with explicit pre/post order. Item-level
+reconstruction details are not required to predict those existing endpoints.
+The [target decision](released-anxiety-targets.md) resolves the earlier overstrict
+gate; fixed post-score regression is now executed. Missing reconstruction details
+remain limitations of independent psychometric auditing, not a fitting blocker.
+Historical descriptions of the earlier gate below are retained for context.
+
 **Decision:** UBFC-Phys supports experimental task/condition labels and pre/post
 session state-anxiety outcomes. It does not establish moment-to-moment mental
 stress. Keep the completed models described as exploratory task classifiers.

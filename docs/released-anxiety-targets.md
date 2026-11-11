@@ -68,3 +68,11 @@ or accuracy percentages. Report raw feature support and paired absolute-error
 comparisons to mean. No uncertainty intervals/significance claims from six
 exposed development participants. This is same-session outcome estimation,
 not prospective prediction, independent final evaluation or live assessment.
+
+## Execution status
+
+Both fixed outcomes completed with72 saved held-out predictions and72 fold
+artifacts, with all six sessions retained and s25 excluded. Full reproducible
+commands and private result locations are in [session anxiety](session-anxiety.md).
+No item reconstruction, categories, model selection or additional acquisition
+occurred. The original no-fit audit is preserved as a historical checkpoint.

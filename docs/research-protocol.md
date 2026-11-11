@@ -1,6 +1,6 @@
 # Provisional research protocol
 
-Version 0.5, 2026-11-11. This revision records the source-backed
+Version 0.6, 2026-11-11. This revision records the source-backed
 [label-validity decision](label-validity.md) after completed task-classification
 baselines and confound ablations. Those experiments remain exploratory engineering
 evidence. They do not validate mental-stress detection. The proposed psychological
@@ -14,9 +14,11 @@ change after examining test outcomes invalidates confirmatory interpretation.
 
 The subsequent bounded [session-anxiety request](session-anxiety.md) proposes raw
 post-session cognitive anxiety (somatic secondary), separately from the earlier
-change-target draft. Its reusable six-session audit is complete, but fitting
-stopped at the unresolved adapted-scoring gate. No regression or categorical
-anxiety result exists; no new participant or independent test was evaluated.
+change-target draft. The [direct-score decision](released-anxiety-targets.md)
+corrects the earlier reconstruction requirement: author-computed dimension means
+are adequately identified. Frozen mean/Ridge LOPO regression is now complete for
+both post-score outcomes, retaining six sessions and excluding s25. No categorical
+anxiety, new-participant or independent final evaluation was performed.
 
 ## Question and scope
 
