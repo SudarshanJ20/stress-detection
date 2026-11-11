@@ -394,3 +394,39 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
   });
   expect(deleted.ok()).toBe(true);
 });
+
+test("keyboard product tabs and questionnaire progress have accessible semantics", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("tab", { name: "Questionnaire", exact: true }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(
+    page.getByRole("tab", { name: "Webcam", exact: true }),
+  ).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("End");
+  await expect(
+    page.getByRole("tab", { name: "Your report", exact: true }),
+  ).toBeFocused();
+  await page.goto("/workspace/assessment");
+  await expect(page.getByRole("progressbar")).toHaveAttribute(
+    "aria-valuenow",
+    "0",
+  );
+  await page.getByRole("radio", { name: /Not at all/ }).focus();
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("button", { name: "Next question" }),
+  ).toBeFocused();
+  await expect(page.getByRole("progressbar")).toHaveAttribute(
+    "aria-valuenow",
+    "1",
+  );
+  await page.keyboard.press("Enter");
+  await expect(page.getByText("QUESTION 2 OF 7")).toBeVisible();
+  const scan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .analyze();
+  expect(scan.violations).toEqual([]);
+});

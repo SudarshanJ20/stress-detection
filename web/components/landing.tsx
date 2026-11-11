@@ -123,6 +123,28 @@ export function ProductPreview() {
               role="tab"
               aria-selected={tab === t}
               key={t}
+              tabIndex={tab === t ? 0 : -1}
+              onKeyDown={(event) => {
+                const tabs = ["Questionnaire", "Webcam", "Your report"];
+                const index = tabs.indexOf(t);
+                const next =
+                  event.key === "ArrowRight"
+                    ? tabs[(index + 1) % 3]
+                    : event.key === "ArrowLeft"
+                      ? tabs[(index + 2) % 3]
+                      : event.key === "Home"
+                        ? tabs[0]
+                        : event.key === "End"
+                          ? tabs[2]
+                          : null;
+                if (next) {
+                  event.preventDefault();
+                  setTab(next);
+                  document
+                    .getElementById("guide-" + next.replaceAll(" ", "-"))
+                    ?.focus();
+                }
+              }}
               onClick={() => setTab(t)}
             >
               {t}

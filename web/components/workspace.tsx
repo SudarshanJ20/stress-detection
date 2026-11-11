@@ -332,6 +332,10 @@ function Assessment() {
         </div>
         <div
           className="step-progress"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={7}
+          aria-valuenow={answers.filter((x) => x !== null).length}
           aria-label={`${answers.filter((x) => x !== null).length} of 7 answered`}
         >
           {gad.questions.map((_, i) => (
@@ -1118,8 +1122,8 @@ export function AppScreen({ section }: { section: string }) {
   return (
     <motion.div
       key={section}
-      initial={reduced || system ? false : { opacity: 0.5 }}
-      animate={{ opacity: 1 }}
+      initial={reduced || system ? false : { y: 6 }}
+      animate={{ y: 0 }}
       transition={{ duration: 0.16 }}
     >
       {content}
