@@ -115,6 +115,7 @@ class StageStore:
                 output = Path(meta['output'])
                 require_ignored(output)
                 if (meta['status'] == 'completed' and meta['signature'] == signature
+                        and meta.get('policy') == meta['specification'].get('context', {}).get('policy')
                         and meta['output_files'] and inventory(output) == meta['output_files']):
                     return meta
             except (OSError, ValueError, KeyError, TypeError):
@@ -131,6 +132,7 @@ class StageStore:
         attempt.mkdir(parents=True, exist_ok=False)
         output = attempt / 'output'
         meta = {'key': key, 'signature': signature, 'specification': specification,
+                'policy': specification.get('context', {}).get('policy'),
                 'status': 'running', 'started': now(), 'output': str(output.resolve()),
                 'receipt': str((attempt / 'receipt.json').resolve())}
         atomic(attempt / 'receipt.json', meta)

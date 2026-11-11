@@ -191,12 +191,12 @@ class PilotTests(unittest.TestCase):
         entry = self.config('s999')['participants'][0]
         files = inventory(folder)
         records = [{'participant_id': 's999', 'task_id': task, 'recording_id': 's999/' + task,
-                    'validation_status': 'passed',
+                    'validation_status': 'passed', 'camera_eligibility_policy': 'decoded-pts-v1',
                     'files': {kind: {**files[f'{kind}_s999_{task}.{ext}'], 'path': f's999/{kind}_s999_{task}.{ext}'}
                               for kind, ext in (('vid', 'avi'), ('bvp', 'csv'), ('eda', 'csv'))},
                     'candidates': {k: ['one'] for k in ('vid', 'bvp', 'eda')},
                     'signals': {'bvp': {'sampling_rate_hz': 64}, 'eda': {'sampling_rate_hz': 4}},
-                    'video': {'valid': True, 'decode_complete': True, 'decoded_frames': 1200,
+                    'video': {'camera_eligibility_policy': 'decoded-pts-v1', 'valid': True, 'decode_complete': True, 'decoded_frames': 1200,
                               'observed_duration_seconds': 30}}
                    for task in TASKS]
         def fake_command(module, arguments, log):

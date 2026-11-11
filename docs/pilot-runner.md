@@ -1,6 +1,7 @@
 # Resumable local UBFC-Phys pilot runner
 
-Checked 2026-11-10. `stress_detection.pilot` orchestrates the existing validator,
+Checked 2026-11-11. The current registered policy is `pilot-camera-v1` in
+[`configs/pilot-policy-v1.json`](../configs/pilot-policy-v1.json). `stress_detection.pilot` orchestrates the existing validator,
 participant-scoped manifest, face-quality, pulse and diagnostic commands in
 separate processes. It downloads nothing and trains nothing. Pulse `Settings`
 remain frozen, with no CLI threshold overrides. Synchronization remains
@@ -49,8 +50,9 @@ The private selection files used for this check already exist locally:
 `data/processed/ubfc-phys/pilot-selections/s25-smoke.json` and
 `batch-01-proposed.json`. They are intentionally absent from Git. The smoke
 selection identifies the existing s25 directory and explicit reuse candidates:
-the saved timestamps manifest, each full face-quality run, and each frozen pulse
-run. For other inputs create a private selection file with the schema above.
+the historical timestamps manifest, each full face-quality run, and each pulse
+run. Those historical settings predate the registered policy; use the refreshed
+selection described in [next pilot batch](next-pilot-batch.md) for current runs. For other inputs create a private selection file with the schema above.
 
 ```sh
 .venv/bin/python -m stress_detection.pilot \
@@ -149,11 +151,13 @@ alone does not establish usable RGB, pulse, acquisition clock accuracy or
 video-to-wrist synchronization. Gap diagnostics now include exact original
 fractions, preceding/current frame indices and PTS, and interval duration.
 
-### Optional bounded track restarts
+### Frozen bounded track restarts
 
-`--track-policy contiguous` remains the default. For an explicitly versioned
-development audit, `--track-policy bounded-reacquire` allows a new geometric
-segment after a short missing-face interruption. The same policy applies to
+The pilot now defaults to the registered bounded-reacquire policy for every
+participant and task. `--track-policy contiguous` conflicts with this policy
+and is refused. The standalone face command retains its legacy contiguous
+default unless `--policy` or `--track-policy` is supplied. Bounded reacquisition
+allows a new geometric segment after a short missing-face interruption. The same policy applies to
 every selected recording, independently of pulse/reference agreement.
 
 Require exactly one finite, valid, unclipped candidate and compatibility with
@@ -218,8 +222,10 @@ prevents simultaneous executions against one root. Do not edit inputs while a
 run is active; participant inputs are checked again after processing.
 
 Existing outputs can be explicitly offered in an entry's `reuse` object:
-`manifest` points to a file named `manifest.json`; `face` and `pulse` map task
-names to directories. Reuse is opt-in. Manifest imports must contain exactly
+`manifest` points to a file named `manifest.json`; `face`, `pulse`, and
+`reference` map task names to directories. `reference` verifies only the saved
+independent wrist result against the current source and frozen estimator; it
+does not adopt camera outputs from that directory. Reuse is opt-in. Manifest imports must contain exactly
 the selected person's tasks and match current source hashes/rates/completion.
 Face imports require full original timing, frame counts, matching source,
 model, settings and software. Pulse imports reproduce current camera decisions,
@@ -340,3 +346,32 @@ failure denominators, unsafe/duplicate ZIP members and CRC failure. The
 diagnostic plotter now handles recordings without complete reference windows;
 the pulse estimator and frozen settings are unchanged. Per-participant values,
 runtime/storage reports and plots remain under ignored local paths.
+
+## Registered policy and compatibility
+
+`--policy configs/pilot-policy-v1.json` is the default. The canonical JSON hash
+is registered in `stress_detection.policy`; changing its contents under the
+same version or using an unknown version fails before processing. Runtime
+measurement defaults, pulse settings and timing-policy version must match.
+Changing policies requires a new reviewed configuration/version and fresh
+compatibility checks. No participant/task-specific policy overrides are allowed.
+
+Every stage receipt and its signature carry the bundle version/hash and the
+timing, tracking and pulse component versions; face `config.json` also carries
+the stamp. Resume checks require the stamp as well as the existing input, code,
+software and output hashes. Old unstamped receipts cannot silently resume.
+Explicit imports must pass current stage verification: manifests need audited
+timing provenance, faces need the policy stamp and exact measurements, and
+pulse outputs must reproduce against the selected face frames. Dry runs and
+failed candidate receipts identify rejected reuse candidates. Never edit old
+receipts to give them new provenance. Reference-only imports are explicitly
+verified and stamped in the new receipt while the original directory stays
+unchanged. Output inventory may include historical camera files in that source
+directory; these are not adopted camera results or duplicate storage.
+
+The completed camera-continuity audit remains the evidence for the policy,
+including local overlays, preserved original outputs and before/after checks.
+Existing regression tests cover ambiguous/expired returns, invalid pending
+frames, motion/brightness resets, and restart gaps exceeding the unchanged
+0.15-second pulse limit. Registration adds tests for altered configs, conflicting
+overrides, missing receipt stamps and independent reference reuse.

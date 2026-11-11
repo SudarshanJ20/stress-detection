@@ -170,10 +170,17 @@ def save_overlay(rgb, row, masks, output):
 
 
 def run_video(input_path, output, model, model_info, *, max_frames=None, manifest=None,
-              detector_factory=MediaPipeDetector, measurement_config=None):
+              detector_factory=MediaPipeDetector, measurement_config=None, policy_path=None):
     """A new private run directory owns all outputs; summary/status mark partial failures."""
     started = time.perf_counter()
     measurements = {**DEFAULT_CONFIG, **(measurement_config or {})}
+    stamp = None
+    if policy_path is not None:
+        from .policy import load_policy
+        policy, stamp = load_policy(policy_path)
+        if measurement_config and measurements != policy['tracking']['measurements']:
+            raise ValueError('Face settings conflict with frozen policy')
+        measurements = policy['tracking']['measurements']
     output, input_path, model = Path(output), Path(input_path), Path(model)
     require_ignored(output)
     if not input_path.is_file() or not model.is_file():
@@ -203,6 +210,8 @@ def run_video(input_path, output, model, model_info, *, max_frames=None, manifes
                      "api_time": "round_half_up(1000*(original_time-first_valid_original_time)); collisions are skipped, not repaired",
                      "identity_policy": ('bounded confirmed geometric segments; no biometric identity claim'
                          if measurements['reacquire_enabled'] else 'single contiguous geometric track; no automatic reacquisition or biometric identity claim')}
+    if stamp is not None:
+        configuration['policy'] = stamp
     write_private_json(output / "config.json", configuration)
 
     def status(value):
@@ -296,11 +305,13 @@ def main():
     parser.add_argument("--model-config", type=Path, default=Path("configs/face-landmarker.json"))
     parser.add_argument("--manifest", type=Path)
     parser.add_argument("--max-frames", type=int, help="explicit partial smoke run")
-    parser.add_argument('--track-policy', choices=('contiguous', 'bounded-reacquire'), default='contiguous')
+    parser.add_argument('--policy', type=Path)
+    parser.add_argument('--track-policy', choices=('contiguous', 'bounded-reacquire'), default=None)
     args = parser.parse_args()
     result = run_video(args.input, args.output, args.model, json.loads(args.model_config.read_text()),
                        max_frames=args.max_frames, manifest=json.loads(args.manifest.read_text()) if args.manifest else None,
-                       measurement_config={'reacquire_enabled': args.track_policy == 'bounded-reacquire'})
+                       measurement_config=({'reacquire_enabled': args.track_policy == 'bounded-reacquire'}
+                           if args.track_policy is not None else None), policy_path=args.policy)
     print(json.dumps(result, indent=2))
     if result["status"] == "failed":
         raise SystemExit(1)

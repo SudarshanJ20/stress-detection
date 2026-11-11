@@ -19,6 +19,7 @@ import uuid
 import zipfile
 
 from .manifest import discover, fingerprint
+from .policy import DEFAULT_POLICY, load_policy
 from .pilot_state import (GIB, StageStore, atomic, digest, extract_zip, inspect_zip,
                           inventory, now, read)
 from .pulse import (METHODS, REGIONS, Settings, analyze_region, load_face_run,
@@ -49,13 +50,13 @@ def selection(path):
             if key in entry:
                 entry[key] = str(Path(entry[key]).expanduser().resolve())
         reuse = entry.get('reuse', {})
-        if set(reuse) - {'manifest', 'face', 'pulse'}:
+        if set(reuse) - {'manifest', 'face', 'pulse', 'reference'}:
             raise ValueError('Unsupported reuse stage')
         if 'manifest' in reuse:
             if Path(reuse['manifest']).name != 'manifest.json':
                 raise ValueError('Reused manifest must be named manifest.json')
             reuse['manifest'] = str(Path(reuse['manifest']).expanduser().resolve())
-        for key in ('face', 'pulse'):
+        for key in ('face', 'pulse', 'reference'):
             for task, value in reuse.get(key, {}).items():
                 if task not in TASKS:
                     raise ValueError('Unknown reuse task')
@@ -65,13 +66,17 @@ def selection(path):
     return config
 
 
-def context(model, model_config, track_policy='contiguous'):
-    from .face_quality import DEFAULT_CONFIG
+def context(model, model_config, track_policy=None, policy_path=DEFAULT_POLICY):
+    policy, stamp = load_policy(policy_path)
+    frozen_track = policy['tracking']['policy']
+    if track_policy is not None and track_policy != frozen_track:
+        raise ValueError('Track override conflicts with frozen pilot policy')
     info = read(model_config)
     if fingerprint(model, model.name)['sha256'] != info['sha256']:
         raise ValueError('Local face model does not match model configuration')
-    return {'pulse_settings': asdict(Settings()), 'face_track_policy': track_policy,
-            'face_settings': {**DEFAULT_CONFIG, 'reacquire_enabled': track_policy == 'bounded-reacquire'},
+    return {'policy': stamp, 'policy_path': str(policy_path.resolve()),
+            'pulse_settings': policy['pulse']['settings'], 'face_track_policy': frozen_track,
+            'face_settings': policy['tracking']['measurements'],
             'model': info, 'python': platform.python_version(),
             'software': {p: version(p) for p in ('av', 'numpy', 'mediapipe', 'opencv-contrib-python', 'matplotlib')},
             'code': {p.name: fingerprint(p, p.name)['sha256'] for p in sorted(Path(__file__).parent.glob('*.py'))}}
@@ -102,6 +107,9 @@ def verify_manifest(output, participant, files):
             or {r['recording_id'] for r in records} != {participant + '/' + t for t in TASKS}):
         raise ValueError('Incomplete/failed/wrong-participant manifest')
     for record in records:
+        if (record.get('camera_eligibility_policy') != 'decoded-pts-v1'
+                or record['video'].get('camera_eligibility_policy') != 'decoded-pts-v1'):
+            raise ValueError('Manifest lacks audited timing policy; rebuild eligibility')
         if record['participant_id'] != participant or record['validation_status'] not in ('passed', 'needs_review'):
             raise ValueError('Manifest participant/status mismatch')
         for kind, ext in (('vid', 'avi'), ('bvp', 'csv'), ('eda', 'csv')):
@@ -132,6 +140,7 @@ def verify_face(output, record, ctx):
     if (cfg.get('max_frames') is not None or cfg['source'] != record['files']['vid']
             or cfg['recording_id'] != record['recording_id'] or cfg['model'] != ctx['model']
             or cfg['measurements'] != ctx['face_settings']
+            or ('policy' in ctx and cfg.get('policy') != ctx['policy'])
             or cfg.get('python') != ctx['python']
             or cfg['software'] != {p: ctx['software'][p] for p in ('av', 'mediapipe', 'numpy', 'opencv-contrib-python')}
             or len(times) != record['video']['decoded_frames']
@@ -274,7 +283,9 @@ def plan(config, output, ctx, storage):
             if manifest_dir:
                 try:
                     verify_manifest(manifest_dir, entry['id'], files)
-                except (OSError, ValueError, KeyError, TypeError):
+                except (OSError, ValueError, KeyError, TypeError) as exc:
+                    p.setdefault('incompatible_reuse', []).append(
+                        {'stage': 'manifest', 'candidate': str(manifest_dir), 'reason': str(exc)})
                     manifest_dir = None
             p['stages'].append({'stage': 'manifest', 'decision': 'resume' if cached else 'verify-import' if manifest_dir else 'run'})
             for task in TASKS:
@@ -295,7 +306,10 @@ def plan(config, output, ctx, storage):
                     selected = Path(cached['output']) if cached else Path(candidate) if candidate else None
                     if selected and not cached:
                         try:
-                            if stage == 'face' and manifest_dir:
+                            if stage == 'reference' and manifest_dir:
+                                folder = Path(entry.get('directory', ''))
+                                verify_reference(selected, folder / Path(record['files']['bvp']['path']).name)
+                            elif stage == 'face' and manifest_dir:
                                 verify_face(selected, record, ctx)
                             elif stage == 'pulse' and face:
                                 folder = Path(entry.get('directory', ''))
@@ -304,7 +318,9 @@ def plan(config, output, ctx, storage):
                                 verify_pulse(selected, face, record, folder)
                             else:
                                 raise ValueError('Stage dependencies unavailable')
-                        except (OSError, ValueError, KeyError, TypeError):
+                        except (OSError, ValueError, KeyError, TypeError) as exc:
+                            p.setdefault('incompatible_reuse', []).append(
+                                {'stage': task + '/' + stage, 'candidate': str(selected), 'reason': str(exc)})
                             selected = None
                     p['stages'].append({'stage': task + '/' + stage,
                                         'decision': 'resume' if cached else 'verify-import' if selected else 'run after dependencies'})
@@ -369,7 +385,8 @@ def execute_participant(entry, output, ctx, storage, events):
         try:
             bvp = folder / Path(record['files']['bvp']['path']).name
             stages[task + '/reference'] = stage(task + '/reference', base,
-                lambda out, log: save_reference(out, bvp), lambda out: verify_reference(out, bvp))
+                lambda out, log: save_reference(out, bvp), lambda out: verify_reference(out, bvp),
+                Path(entry['reuse']['reference'][task]) if task in entry.get('reuse', {}).get('reference', {}) else None)
             if record['validation_status'] != 'passed':
                 failures[task] = 'structural_camera_ineligible: ' + ','.join(record.get('warnings', []))
                 continue
@@ -378,7 +395,8 @@ def execute_participant(entry, output, ctx, storage, events):
             face = stage(task + '/face', base,
                 lambda out, log: command('face_quality', ['--input', folder / Path(record['files']['vid']['path']).name,
                     '--manifest', manifest, '--model', ctx['model_path'], '--model-config', ctx['model_config_path'],
-                    '--track-policy', ctx.get('face_track_policy', 'contiguous'), '--output', out], log),
+                    '--track-policy', ctx.get('face_track_policy', 'contiguous'),
+                    *(['--policy', ctx['policy_path']] if 'policy_path' in ctx else []), '--output', out], log),
                 lambda out: verify_face(out, record, ctx), Path(candidate) if candidate else None)
             stages[task + '/face'] = face
             base['face_files'] = inventory(face)
@@ -560,7 +578,8 @@ def main():
     parser.add_argument('--selection', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--dry-run', action='store_true')
-    parser.add_argument('--track-policy', choices=('contiguous', 'bounded-reacquire'), default='contiguous')
+    parser.add_argument('--track-policy', choices=('contiguous', 'bounded-reacquire'), default=None)
+    parser.add_argument('--policy', type=Path, default=DEFAULT_POLICY)
     parser.add_argument('--model', type=Path, default=ROOT / 'models/mediapipe/face_landmarker.task')
     parser.add_argument('--model-config', type=Path, default=ROOT / 'configs/face-landmarker.json')
     parser.add_argument('--reserve-gib', type=float, default=100)
@@ -572,7 +591,7 @@ def main():
         parser.error('Storage allowances must be finite and nonnegative')
     config = selection(args.selection)
     require_ignored(args.output)
-    ctx = context(args.model, args.model_config, args.track_policy)
+    ctx = context(args.model, args.model_config, args.track_policy, args.policy)
     ctx.update(model_path=str(args.model.resolve()), model_config_path=str(args.model_config.resolve()))
     if args.dry_run:
         result = plan(config, args.output, ctx, storage)

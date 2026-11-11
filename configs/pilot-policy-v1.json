@@ -1,0 +1,55 @@
+{
+  "pulse": {
+    "settings": {
+      "grid_hz": 40.0,
+      "max_bpm": 240.0,
+      "max_gap_seconds": 0.15,
+      "min_bpm": 42.0,
+      "min_peak_fraction": 0.1,
+      "min_std": 1e-08,
+      "min_valid_fraction": 0.9,
+      "pos_seconds": 1.6,
+      "window_seconds": 30.0
+    },
+    "synchronization": "unverified; recording-level comparisons only",
+    "version": "green-pos-baseline-v1",
+    "window_origin": "first original PTS"
+  },
+  "schema_version": "1.0",
+  "timing": {
+    "complete_nonempty_decode": true,
+    "declared_count_mismatch": "warning",
+    "decoder_errors_allowed": 0,
+    "positive_final_extent": true,
+    "positive_gaps": "retain original axis; assess each pulse window",
+    "strict_original_pts": true,
+    "version": "decoded-pts-v1"
+  },
+  "tracking": {
+    "ambiguous_returns": "invalid; no automatic restart",
+    "measurements": {
+      "dark_threshold": 20,
+      "exclusion_margin_fraction": 0.015,
+      "max_track_center_shift": 0.5,
+      "max_track_gap_seconds": 0.5,
+      "min_face_detection_confidence": 0.5,
+      "min_face_presence_confidence": 0.5,
+      "min_pixels": 32,
+      "min_track_iou": 0.2,
+      "min_tracking_confidence": 0.5,
+      "num_faces": 2,
+      "reacquire_enabled": true,
+      "reacquire_max_absence_seconds": 2.0,
+      "reacquire_max_center_shift": 0.25,
+      "reacquire_min_frames": 5,
+      "reacquire_min_iou": 0.5,
+      "reacquire_stable_seconds": 0.2,
+      "saturated_threshold": 235
+    },
+    "motion_across_segments": "reset",
+    "pending_frames": "invalid; never retrofilled",
+    "policy": "bounded-reacquire",
+    "version": "bounded-reacquire-v1"
+  },
+  "version": "pilot-camera-v1"
+}
