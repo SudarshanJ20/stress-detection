@@ -69,10 +69,16 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    pending.** The [label decision](label-validity.md) confirms session pre/post
    anxiety outcomes and experimental task/condition labels, with no momentary
    stress ground truth. Exact adapted form/scoring and Supplemental I/II remain
-   unresolved. The [untouched evaluation draft](untouched-evaluation.md) defines
-   session cognitive-anxiety change, fixed comparisons and training-only
-   preprocessing. Mentor target/measurement review, independent-person precision
-   planning and private cohort lock come next. The bounded
+   unresolved for reconstruction, but direct computed-score targets are usable.
+   [Independent evaluation v2](untouched-evaluation.md) now freezes post-cognitive
+   primary/post-somatic secondary targets, existing summaries, all six model
+   families and training-only preprocessing. Six exposed modeling participants
+   remain training-only; ten record-audited candidates are reserved as final,
+   with external-history clearance pending. s25 remains engineering-only.
+   Metadata-only access must be checked after login; a role-safe final feature/
+   inference extension and its leakage tests must precede reserved processing.
+   The conservative archive fallback fits the measured budget provisionally;
+   actual archive preflight and independent-person precision remain limitations. The bounded
    [post-session anxiety audit](session-anxiety.md) constructed and validated six
    session rows with separate outcomes and preserved no-fit receipts. The
    [direct-score decision](released-anxiety-targets.md) subsequently corrected the
@@ -112,12 +118,14 @@ LOPO baseline and quality/missingness controls are now complete. Frozen
 mouth/motion-removal and label/participant-independent added-feature-missingness
 checks are also complete; they do not remove natural missingness confounding or
 simulate video degradation. The source-backed label audit is now complete:
-current claims remain task classification; the available psychological outcomes
-are participant-session anxiety dimensions, not momentary stress. Next, resolve
-the mentor/scoring/precision gates and finalize the untouched session-outcome
-preregistration before any further acquisition or fitting. New participants alone
+current findings cover exploratory task classification and session-score
+regression; the psychological outcomes are session anxiety dimensions, not
+momentary stress. Next, resolve
+external-history clearance and the explicit-role processing/inference gate before
+any acquisition or fitting for the locked v2 session-outcome plan. New participants alone
 do not remove task confounding. Camera/wrist synchronization, pulse validation,
 calibrated rejection, live capture, HRV, further acquisition and final stress-model
 evaluation remain pending. Six development-informed people
 provide exploratory evidence only; final evaluation needs a separately planned
-cohort, and no final test assignment has been made.
+cohort. A bounded ten-person final reservation is now frozen privately; it is
+not yet exposure-cleared or evaluated and does not establish cohort sufficiency.

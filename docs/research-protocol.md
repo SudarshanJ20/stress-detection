@@ -1,14 +1,15 @@
 # Provisional research protocol
 
-Version 0.6, 2026-11-11. This revision records the source-backed
+Version 0.7, 2026-11-11. This revision records the source-backed
 [label-validity decision](label-validity.md) after completed task-classification
 baselines and confound ablations. Those experiments remain exploratory engineering
 evidence. They do not validate mental-stress detection. The proposed psychological
-target is participant-session cognitive-anxiety change, with separate secondary
-self-report dimensions, conditional on questionnaire/scoring and mentor review.
-The [untouched evaluation draft](untouched-evaluation.md) fixes comparisons and
-preprocessing before any new participant inspection; cohort size/roles remain
-unassigned. No acquisition or additional fitting occurred in this revision.
+target is released post-session cognitive anxiety, with post-session somatic
+anxiety secondary. [Independent evaluation v2](untouched-evaluation.md) freezes
+the existing summaries/settings and six-model comparison, six training people
+and ten private final reservations. External exposure history and a role-safe
+final exporter/inference gate remain pending; no reserved outcome was inspected.
+No acquisition or additional fitting occurred in this planning revision.
 Changes must be versioned with reasons before final-test evaluation; a protocol
 change after examining test outcomes invalidates confirmatory interpretation.
 
@@ -30,8 +31,9 @@ original psychological-stress objective.
 
 For that objective, the label audit changes the gate: UBFC-Phys supplies no
 moment-to-moment psychological labels. A future session-level study can estimate
-prespecified self-reported cognitive-anxiety change from structured-session camera
-summaries, after the scoring/construct/precision questions are resolved. Exact
+prespecified self-reported post-session cognitive anxiety from structured-session
+camera summaries. Direct-score interpretation is resolved; independent-population
+precision, exposure clearance and controlled construct validation remain open. Exact
 rules and limitations are in the target decision and untouched evaluation draft;
 neither task IDs nor assigned conditions become measured stress outcomes.
 
@@ -54,7 +56,7 @@ Novelty remains unverified; a negative result is a valid outcome.
 | Engineering binary contrast A | T1 rest / T2 speech | Experimental task discrimination under a stress-induction protocol |
 | Engineering binary contrast B | T1 rest / T3 arithmetic | Same interpretation, reported separately |
 | Optional later descriptive analysis | `ctrl` / `test` difficulty assignments | Experimental assignment, not measured stress intensity |
-| Proposed psychological outcome, gated | Cognitive post-minus-pre mean; separate somatic/confidence changes | One participant-session outcome per dimension; not task/window stress |
+| Locked v2 psychological outcome | Cognitive post mean primary; somatic post mean secondary | One participant-session outcome per dimension; not task/window stress |
 
 Both binary contrasts are required and independently fitted/evaluated. Neither
 is selected after seeing which performs better. Do not pool T2 and T3 as one
@@ -98,6 +100,13 @@ All inspected s1–s6 and s25 are development-only. No frame, signal window,
 questionnaire outcome or derivative from these people may enter a future final
 test, including one with a newly defined target. Historical pilot receipts stay
 unchanged; they do not override this exposure rule.
+
+For the bounded v2 fixed regression study, the [specific independent plan](untouched-evaluation.md)
+overrides the generic approximate split below: six existing training sessions,
+ten reserved final sessions, no tuning/validation cohort. Parameters and all model
+comparisons are fixed; this is not a selection/calibration experiment. All final
+predictions must be hashed before target release. The ten reservations remain
+conditional on external-history clearance, not a guarantee of untouched status.
 
 Before windowing a separately planned evaluation cohort, create a private
 frozen participant manifest with disjoint **training (approximately 60%),

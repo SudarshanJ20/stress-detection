@@ -18,7 +18,8 @@ Numerical results and individual released scores/predictions remain private.
 This request proposes **raw post-session cognitive-anxiety mean** as the primary
 outcome and **raw post-session somatic-anxiety mean** as a separate secondary
 outcome. Confidence is audited separately. This differs from the earlier,
-unexecuted [anxiety-change draft](untouched-evaluation.md).
+unexecuted v1 anxiety-change draft, now superseded by the
+[post-score independent evaluation v2](untouched-evaluation.md).
 Pre scores are not predictors and no post-minus-pre or ratio target is constructed.
 Task identity and test/ctrl never substitute for an individual's anxiety score.
 
