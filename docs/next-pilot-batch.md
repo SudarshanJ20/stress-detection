@@ -8,6 +8,33 @@ protocol's maximum of two additional participants per transfer batch. Keep s25
 people are an engineering pilot, not a sufficient evaluation cohort or a basis
 for population accuracy. No acquisition or training is part of this preparation.
 
+## Execution status
+
+The prepared local batches have now been processed sequentially using the
+unchanged `pilot-camera-v1` policy. Before each execution, local archive paths,
+expected contents, declared sizes and current space passed preflight; full CRC
+scans passed. Actual extraction sizes, archive preservation and output hashes
+were verified afterward. Both unchanged executions subsequently resumed every
+stage without new attempts and preserved identical task/window results.
+
+The private cohort review uses the completed s1/s2 camera-continuity audit only
+after explicit component/settings/source/output compatibility verification;
+its historical receipts remain unstamped and unchanged. s25 stays separate.
+Detailed per-task results, unexpected availability losses, overlays and all
+scheduled/rejected rows remain under ignored
+`data/processed/ubfc-phys/pilot-review/batch-02-03/`. No participant measurements
+or plots are published here. The download-status table and provisional budget
+below describe the preparation checkpoint, not current archive availability.
+
+Next, freeze an engineering feature-table schema that retains missing values,
+coverage/rejection/track-segment flags, original bounds, policy/source provenance
+and participant roles. Keep all methods/regions and distinguish task condition
+from measured stress. Use recording-level camera/wrist aggregates or separate
+modality tables while synchronization is unverified. Review condition-dependent
+missingness and ambiguity/timeout cases before defining any complete-case
+analysis. Training, final test assignment and further acquisition remain
+separate work; no tracker or pulse rule was changed during this pilot.
+
 ## Frozen policy
 
 Use [`pilot-camera-v1`](../configs/pilot-policy-v1.json), canonical SHA-256

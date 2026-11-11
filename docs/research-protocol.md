@@ -321,13 +321,15 @@ explicit `pilot_development` roles are engineering-only; it assigns no final
 test cohort or model-fitting split. Its summaries keep s25 separate. Additional
 downloads and model training remain separately scoped steps.
 
-1. **Current stage:** the sample infrastructure and initial two-person camera
-   recovery audit are complete. Keep s25 development-only. Freeze the audited
-   timing/reacquisition rules as `pilot-camera-v1`, including receipt versions,
-   and prepare the prespecified s3–s6 engineering expansion in two batches.
-   [Next-batch preparation](next-pilot-batch.md) records official availability,
-   commands and provisional storage. Acquisition remains a separate step;
-   training waits for the larger pilot review and participant-level split gates.
+1. **Current stage:** the infrastructure, camera recovery audit and prespecified
+   engineering expansion are processed and reviewed privately under unchanged
+   `pilot-camera-v1`. Keep s25 development-only. The next scoped step is an
+   engineering feature-table contract and construction, preserving all rows,
+   missingness, original axes, policy/source provenance and participant roles.
+   [Pilot execution status](next-pilot-batch.md) records checks and next gates.
+   Camera/wrist combinations remain recording-level while synchronization is
+   unverified. Further acquisition, training and final test assignment remain
+   separate steps with the participant-level split/evaluation gates below.
 2. **Inventory stage:** after this design is written, inspect official access,
    per-participant archive/member sizes, terms, scenario availability and projected
    storage without obtaining the full cohort. Choose a reproducible acquisition

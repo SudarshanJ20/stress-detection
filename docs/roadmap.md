@@ -15,15 +15,15 @@ unverified. A pretrained landmark runtime is used for local measurements only.
      [dataset access](dataset-access.md) for limitations and reproducible commands.
    - **Video/reference synchronization — pending.** No timing alignment is
      established; nominally matching durations are insufficient.
-   - **Engineering acquisition — initial pilot and camera recovery complete;
-     expansion pending.** The completed private camera-continuity audit resolves
-     count-metadata eligibility and short missing-detection retention under a
-     common conservative rule. Registered `pilot-camera-v1` freezes timing,
-     tracking and unchanged pulse settings with receipt versions/hashes. The
-     sample stays development-only. The next prespecified engineering IDs are
-     s3–s6, all tasks, in two sequential batches; see the
-     [download list, commands and storage gates](next-pilot-batch.md). No new
-     acquisition or statistically sufficient final cohort is established.
+   - **Engineering acquisition and local pilot review — complete for the
+     prespecified batches; broader evaluation cohort pending.** The camera audit
+     established the common decoded-timing and bounded-reacquisition rules.
+     The s3–s6 expansion has been processed in two sequential batches under
+     unchanged `pilot-camera-v1`, with archive/output verification, complete
+     failure inventories and verified resume. The s1/s2 audit is included only
+     after explicit component compatibility checks. s25 remains development-only.
+     See the [execution status and next gates](next-pilot-batch.md). This is an
+     engineering pilot, with no statistically sufficient final cohort assigned.
 3. **Literature verification and research question — focused review and
    provisional protocol written.** [Primary-source comparison](literature-review.md)
    identifies prior camera fusion, quality-aware stress fusion, and abstention.
@@ -80,6 +80,11 @@ Offline pulse processing and the local camera recovery audit are complete as
 engineering work. Timing eligibility and bounded reacquisition are versioned,
 with ambiguity invalidity, motion resets and the original gap limit covered by
 regression tests. s25 compatibility is refreshed separately and original outputs
-are preserved. Pulse validation, synchronization, live capture, HRV, the next
-participant acquisitions and stress-model training remain pending. Review the
-larger pilot before choosing evaluation roles, cohort size or training models.
+are preserved. The expanded local engineering pilot and its private review are
+complete. Next, freeze and construct feature tables with all scheduled rows,
+explicit missingness/quality flags, original time axes, policy versions and
+participant provenance. Keep camera/wrist combinations at recording level while
+synchronization is unverified. Review ambiguity, long-return handling and
+condition-dependent availability before complete-case analysis. Pulse validation,
+synchronization, live capture, HRV, further cohort acquisition and stress-model
+training remain pending; evaluation roles and cohort size still need justification.
