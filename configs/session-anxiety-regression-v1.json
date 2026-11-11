@@ -1,0 +1,149 @@
+{
+  "classification": {
+    "available": false,
+    "reason": "No verified categorical rule; no thresholds or accuracy"
+  },
+  "confidence_calibration": false,
+  "evaluation": "six leave-one-participant-out folds; five training sessions, one held-out; all sessions retained",
+  "excluded_participants": [
+    "s25"
+  ],
+  "expected_per_model_target": 6,
+  "expected_predictions": 72,
+  "feature_selection": false,
+  "hyperparameter_search": false,
+  "mean_strategy": "training-outcome mean",
+  "metrics": [
+    "mae",
+    "rmse",
+    "r2"
+  ],
+  "models": {
+    "camera_bpm": [
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "facial": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "facial_camera_bpm": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "mean": [],
+    "missingness": [
+      "q_face_detected_fraction",
+      "q_track_fraction",
+      "q_multiple_faces_fraction",
+      "q_no_frames",
+      "q_mouth_valid_fraction",
+      "q_eye_valid_fraction",
+      "q_motion_valid_fraction",
+      "q_brightness_change_valid_fraction",
+      "q_region_forehead_valid_fraction",
+      "q_region_cheek_image_left_valid_fraction",
+      "q_region_cheek_image_right_valid_fraction",
+      "q_pulse_green_forehead_missing",
+      "q_pulse_green_cheek_image_left_missing",
+      "q_pulse_green_cheek_image_right_missing",
+      "q_pulse_pos_forehead_missing",
+      "q_pulse_pos_cheek_image_left_missing",
+      "q_pulse_pos_cheek_image_right_missing"
+    ],
+    "quality_values": [
+      "q_brightness_mean",
+      "q_brightness_std",
+      "q_dark_fraction_mean",
+      "q_saturated_fraction_mean",
+      "q_laplacian_variance_mean",
+      "q_face_area_mean",
+      "q_brightness_change_abs_median",
+      "q_region_forehead_area_mean",
+      "q_region_cheek_image_left_area_mean",
+      "q_region_cheek_image_right_area_mean"
+    ]
+  },
+  "outcome_unit": "one participant-session; six exposed development participants",
+  "participants": [
+    "s1",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6"
+  ],
+  "prediction_clipping": false,
+  "preprocessing": {
+    "add_indicator": false,
+    "imputation": "training-only median",
+    "scaling": "training-only StandardScaler",
+    "train_all_missing": "drop training-all-missing columns; mean fallback if none retained"
+  },
+  "r2": "pooled across six held-out sessions; undefined for single held-out session or constant outcomes",
+  "regression": {
+    "alpha": 10.0,
+    "class": "Ridge",
+    "fit_intercept": true,
+    "solver": "svd"
+  },
+  "role": "development_only",
+  "score_range": [
+    1.0,
+    4.0
+  ],
+  "seed": 20261113,
+  "source_audit_configuration_id": "2caf3fffe1ace181c24a0e7787c32b5c3e513e512aa3836be30d1878d821aec9",
+  "source_evidence": {
+    "paper": "https://doi.org/10.1109/TAFFC.2021.3056960 \u00a7\u00a72.1,2.3,4.3; dimension averages of 1-4 item responses",
+    "readme": "https://ieee-dataport.org/open-access/ubfc-phys-2 DOCUMENTATION READ_ME.docx; computed scores and explicit 3x2 order",
+    "reconstruction_details": "not required for direct prediction; unresolved item coding remains a psychometric/audit limitation"
+  },
+  "summaries": {
+    "all_missing": "null; never zero-fill or impute",
+    "minimum_observed_windows": 1,
+    "missingness": "mean over observed original window fractions/flags",
+    "quality_values": "median over observed original windows",
+    "task_support": "reported separately, never used as anxiety label",
+    "value_features": "median over observed original windows, pooled over all three retained tasks"
+  },
+  "target_interpretation": "Predict released author-computed dimension item means directly; no reconstruction, rescaling, categorization or pre-session normalization",
+  "target_transform": false,
+  "targets": {
+    "cognitive_post": {
+      "dimension": "cognitive_anxiety",
+      "occasion": "post_session",
+      "priority": "primary"
+    },
+    "somatic_post": {
+      "dimension": "somatic_anxiety",
+      "occasion": "post_session",
+      "priority": "secondary"
+    }
+  },
+  "thread_limit": 1,
+  "uncertainty_intervals": "none; report all six individual predictions and paired errors",
+  "version": "session-anxiety-regression-v1"
+}
