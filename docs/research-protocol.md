@@ -313,7 +313,7 @@ steady-state RSS with platform units documented; bound decode queues so memory
 does not grow with entire recording length. No GPU acceleration is assumed or
 claimed tested. Do not invent laptop performance before measurements.
 
-## Staged participant acquisition and storage — pending
+## Staged participant acquisition and storage — expansion pending
 
 The [local pilot runner](pilot-runner.md) implements dry-run input/storage checks,
 safe local ZIP extraction, sequential stages and content-verified resume. Its
@@ -321,9 +321,13 @@ explicit `pilot_development` roles are engineering-only; it assigns no final
 test cohort or model-fitting split. Its summaries keep s25 separate. Additional
 downloads and model training remain separately scoped steps.
 
-1. **Current stage:** use the existing sample only to implement the manifest,
-   timestamp reader, and synchronization audit. Do not train models or download
-   additional participants in this task. Keep this participant development-only.
+1. **Current stage:** the sample infrastructure and initial two-person camera
+   recovery audit are complete. Keep s25 development-only. Freeze the audited
+   timing/reacquisition rules as `pilot-camera-v1`, including receipt versions,
+   and prepare the prespecified s3–s6 engineering expansion in two batches.
+   [Next-batch preparation](next-pilot-batch.md) records official availability,
+   commands and provisional storage. Acquisition remains a separate step;
+   training waits for the larger pilot review and participant-level split gates.
 2. **Inventory stage:** after this design is written, inspect official access,
    per-participant archive/member sizes, terms, scenario availability and projected
    storage without obtaining the full cohort. Choose a reproducible acquisition
@@ -356,11 +360,14 @@ downloads and model training remain separately scoped steps.
    predictions, and detailed reports stay under ignored data/results locations;
    only synthetic fixtures, algorithms, and nonidentifying summaries enter Git.
 
-## Next small implementation milestone: timestamp reader and dataset manifest
+## Completed infrastructure milestone: timestamp reader and dataset manifest
 
-Implement **only** a timestamp-preserving sequential video reader and a private
-dataset manifest, using the existing PyAV inspection extra. Do not add facial
-models, pulse extraction, model training, or further acquisition in this step.
+The timestamp-preserving reader and private manifest are implemented using the
+PyAV inspection extra. The following original acceptance criteria remain
+regression requirements. Facial measurement, fixed pulse diagnostics and camera
+recovery are now implemented separately; this does not establish synchronization
+or authorize training. The next scoped milestone is the engineering expansion
+review described above.
 
 Acceptance criteria:
 

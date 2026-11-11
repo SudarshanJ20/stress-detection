@@ -15,10 +15,15 @@ unverified. A pretrained landmark runtime is used for local measurements only.
      [dataset access](dataset-access.md) for limitations and reproducible commands.
    - **Video/reference synchronization — pending.** No timing alignment is
      established; nominally matching durations are insufficient.
-   - **Multi-participant acquisition — pending.** Freeze participant roles and
-     staged storage/acquisition decisions using the protocol before requesting
-     more participants. The existing participant is development-only, with no
-     generalization claim or training/validation/test split possible alone.
+   - **Engineering acquisition — initial pilot and camera recovery complete;
+     expansion pending.** The completed private camera-continuity audit resolves
+     count-metadata eligibility and short missing-detection retention under a
+     common conservative rule. Registered `pilot-camera-v1` freezes timing,
+     tracking and unchanged pulse settings with receipt versions/hashes. The
+     sample stays development-only. The next prespecified engineering IDs are
+     s3–s6, all tasks, in two sequential batches; see the
+     [download list, commands and storage gates](next-pilot-batch.md). No new
+     acquisition or statistically sufficient final cohort is established.
 3. **Literature verification and research question — focused review and
    provisional protocol written.** [Primary-source comparison](literature-review.md)
    identifies prior camera fusion, quality-aware stress fusion, and abstention.
@@ -49,7 +54,7 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    This does not validate pulse accuracy or alignment. Validated quality/skin
    criteria, synchronization, HRV and live extraction remain pending. Model assets
    and all participant measurements/reference values stay ignored.
-6. **Baseline models** — Establish simple reproducible baselines and compare
+6. **Baseline models — blocked on larger pilot review and split gates.** Establish simple reproducible baselines and compare
    modalities using the predefined participant-separated evaluation protocol.
 7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
    by quality indicators and reject unreliable input. Tune thresholds using
@@ -71,6 +76,10 @@ measurement pipeline, and offline green/POS pulse baseline. Remaining gates
 include independent video/reference
 synchronization evidence, quality/skin/association validation, native-wheel
 compatibility review before live capture, and a feasible staged cohort plan.
-Offline pulse processing is complete only as an engineering baseline; pulse
-validation, live capture, HRV, further participant acquisition and stress-model
-training remain pending.
+Offline pulse processing and the local camera recovery audit are complete as
+engineering work. Timing eligibility and bounded reacquisition are versioned,
+with ambiguity invalidity, motion resets and the original gap limit covered by
+regression tests. s25 compatibility is refreshed separately and original outputs
+are preserved. Pulse validation, synchronization, live capture, HRV, the next
+participant acquisitions and stress-model training remain pending. Review the
+larger pilot before choosing evaluation roles, cohort size or training models.
