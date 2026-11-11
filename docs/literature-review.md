@@ -1,7 +1,7 @@
 # Focused literature review
 
-Checked 2026-11-08. This is a targeted comparison, not a systematic review or
-proof of novelty. Earlier titles, performance numbers, and novelty claims were
+Initial review 2026-11-08; UBFC-Phys label evidence updated 2026-11-11.
+This is a targeted comparison, not a systematic review or proof of novelty. Earlier titles, performance numbers, and novelty claims were
 not accepted as evidence. Search results were used to locate sources only.
 Technical entries below come from inspected primary full texts or explicitly
 identified publisher previews. Unknown means unverified, not absent.
@@ -17,7 +17,7 @@ identified publisher previews. Unknown means unverified, not absent.
 | **Selective Classification for Deep Neural Networks** — Yonatan Geifman, Ran El-Yaniv; NeurIPS 2017. [Official full PDF](https://proceedings.neurips.cc/paper/7073-selective-classification-for-deep-neural-networks.pdf). | Image classifiers; CIFAR-10/100, ImageNet. | Image categories; selective 0/1 classification error. | Threshold-selection analysis assumes independent identically distributed labeled samples; participant-grouped video windows are not its demonstrated setting. | Risk–coverage trade-off; finite-sample risk control under stated assumptions. | Post-hoc softmax-response and MC-dropout selection; no measured-video-quality fusion. | Standalone author implementation not verified here. Foundational confidence-only rejection baseline; its guarantees cannot simply be transferred to shifted/correlated video windows. |
 | **SelectiveNet: A Deep Neural Network with an Integrated Reject Option** — Yonatan Geifman, Ran El-Yaniv; ICML 2019. [Publisher](https://proceedings.mlr.press/v97/geifman19a.html), [full PDF](https://proceedings.mlr.press/v97/geifman19a/geifman19a.pdf). | SVHN, CIFAR-10, Cats vs. Dogs; concrete-strength tabular regression. | Image categories / compressive strength, not stress. | Benchmark sample train/test partitions; independent unlabeled validation proposed for coverage calibration (§5). No participant stress split. | Selective classification error or regression loss at specified coverage; comparison with softmax response and MC-dropout. | Joint prediction/selection/auxiliary heads; coverage-constrained loss. | [Author code](https://github.com/geifmany/SelectiveNet) verified, not run. Learned abstention is established; useful later comparator, not a reason to start deep training now. |
 | **A hybrid deep temporal architecture for multimodal stress prediction** — Yogesh J. Gaikwad, N. Mohankumar, Gagandeep Kaur; 2026. [Full publisher article](https://link.springer.com/article/10.1007/s10791-026-10719-4), DOI `10.1007/s10791-026-10719-4`. | Facial features + **contact** BVP/EDA, UBFC-Phys; not camera-only pulse. | Continuous stress regression; exact construction of target not established sufficiently in the inspected methods to reproduce it. Do not adopt its target by assumption. | Reports 45 development / 11 fixed test participants and development five-fold GroupKFold; train-fitted learned transformations. | MAE/RMSE/R²; final subject-independent evaluation reports negative R² and limits its claims. Earlier sequence-level analyses explicitly not confirmatory. | PCA/concatenation, BiLSTM, optimized XGBoost; no verified selective-rejection comparison. | No code link found. Adjacent multimodal comparator and caution about subject shift; numerical regression results are not comparable to task accuracy. |
-| **UBFC-Phys: A Multimodal Database For Psychophysiological Studies Of Social Stress** — Rita Meziati Sabour, Yannick Benezeth, Pierre De Oliveira, Julien Chappé, Fan Yang; online 2021, journal issue 2023. [Official author page](https://sites.google.com/view/ybenezeth/ubfc-phys), DOI `10.1109/TAFFC.2021.3056960`. | Camera video, wrist BVP/EDA, pre/post self-report; UBFC-Phys. | Three experimental tasks; session-level self-report distinct from conditions. See dataset documentation. | Original evaluation split, exclusions and selection effects **not fully verified** in this task. | Earlier conversational accuracy figures are not adopted here. | Full algorithm/evaluation details unknown without complete accessible paper and supplements. | [Xplore](https://ieeexplore.ieee.org/document/9346017) requires browser verification; author-linked Drive download returned HTML. No author code verified. Dataset source, not evidence of our model's performance. |
+| **UBFC-Phys: A Multimodal Database For Psychophysiological Studies Of Social Stress** — Rita Meziati Sabour, Yannick Benezeth, Pierre De Oliveira, Julien Chappé, Fan Yang; online 2021, journal issue 2023. [Official author page](https://sites.google.com/view/ybenezeth/ubfc-phys), [university laboratory full PDF](https://lead.ube.fr/wp-content/uploads/2025/04/Meziati_Sabour_et_al._2023.pdf), DOI `10.1109/TAFFC.2021.3056960`. | Camera video, wrist BVP/EDA, pre/post CSAI-based self-report; UBFC-Phys. | §4.2 operationalizes T1 versus selected T2/T3 as non-stress/stress; §4.3 classifies assigned test/ctrl scenarios. Self-report is a separate session outcome, not window ground truth. | Seven stratified KFold subsets described; participant grouping and nesting of feature selection are not explicitly established. §4.1 filters paired camera/wrist pulse by HR agreement plus visual reinstatement. Do not adopt its exclusions or claim equivalent splits. | Questionnaire dimension item means documented; exact pre-normalization formula and administered form remain unresolved. Supplemental I/II are referenced but their payloads were not accessed. | Pulse/PRV validation and classification on selected data do not certify individual psychological labels. | No author code verified. See the [label-validity audit](label-validity.md) for exact timing, scoring boundaries and exclusion semantics. |
 
 ## Evidence boundaries and consequences
 
@@ -49,10 +49,13 @@ under their stated protocol. Code availability is not code validation.
 
 ## Remaining evidence work
 
-- Obtain legitimate browser/institutional access to the original UBFC-Phys paper
-  and supplements, and the Ouzar chapter. Confirm exact task instructions,
-  retained-segment timing, subject exclusions, and participant grouping. Use the
-  official URLs above; do not infer unavailable methods from abstracts.
+- The original UBFC-Phys full paper is now inspected through its university
+  laboratory copy. Task instructions, retained timing and paired-pulse selection
+  are documented in the [label audit](label-validity.md). Obtain the actual
+  administered questionnaire/scoring key and Supplemental I/II through legitimate
+  access; the exact exclusion lists, adapted item coding and pre-normalization
+  formula remain unverified. The Ouzar full chapter also remains inaccessible.
+  Do not infer missing methods or labels from abstracts.
 - A secondary reference trail named a Du/Yang SPIE 2025 work on remote mental
   stress assessment. Its primary record/full text was not verified, so it is
   **excluded from the comparison and from technical/novelty evidence**. Verify

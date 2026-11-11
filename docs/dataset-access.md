@@ -305,3 +305,16 @@ The acquisition marker mechanism is now documented, as noted above. Wider
 cohort audit, actual individual-file download support, other participants' extracted sizes, and
 research novelty remain unresolved. Do not acquire the full dataset based on
 this sample or start model evaluation with a one-participant split.
+
+## Label-validity update, 2026-11-11
+
+The [source-backed label decision](label-validity.md) now records inspection of
+full original paper §§2 and 4, Fig. 3, Eq. (8), the current official README and
+local development metadata. Score matrices represent participant-session pre/post
+state-anxiety dimension means; there are no task/window psychological outcomes
+in the inspected files. Task IDs and randomized test/ctrl assignments remain
+experimental labels. The original paired-pulse selection does not identify a
+wrist-only failure or define our camera eligibility. Supplemental I/II and exact
+adapted form/scoring instructions remain unverified. Values, assignments and
+source snapshots stay ignored. Acquisition and training are deferred pending
+target/scoring review; see the [untouched evaluation draft](untouched-evaluation.md).
