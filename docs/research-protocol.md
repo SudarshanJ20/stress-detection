@@ -1,10 +1,11 @@
 # Provisional research protocol
 
-Version 0.2, 2026-11-11. Original design selected **before additional participant
-acquisition**. This revision freezes the implemented raw window-feature contract
-and records engineering-table validation; the research question, two task
-contrasts and evaluation rules are unchanged. No models have been trained and
-no performance is predicted.
+Version 0.3, 2026-11-11. Original design selected **before additional participant
+acquisition**. This revision records completion of the first frozen exploratory
+participant-held-out task baseline, following the raw feature contract. The
+research question and two task contrasts remain unchanged. Classical models
+have been fitted in exploratory folds only; no independent final evaluation or
+psychological-stress recognition claim is made.
 Changes must be versioned with reasons before final-test evaluation; a protocol
 change after examining test outcomes invalidates confirmatory interpretation.
 
@@ -169,6 +170,21 @@ column handling and any learned feature selection inside its training folds.
 Report the fixed video-quality-only, missingness-only and motion-only controls.
 Six pilot participants support exploratory results; a separately planned cohort
 is required for final evaluation.
+
+The first [exploratory baseline experiment](exploratory-baseline.md) is now
+implemented, executed and validated with a configuration committed before fitting.
+It uses fixed logistic settings and six leave-one-participant-out folds per
+contrast, with dummy, facial, camera BPM, concatenated facial/BPM, physical-quality
+and missingness inputs. No hyperparameter search or held-out selection occurred,
+so no inner model-selection search was needed in this bounded run. Median
+imputation/scaling and training-all-missing-column handling are fit within each
+training fold. The primary inventory includes all scheduled rows; model-specific
+supported-only results are secondary, with explicit class/participant denominators
+and undefined metrics. All predictions, models and numerical findings remain
+private. This classification-only step does not complete the primary selective
+confidence-plus-quality comparison. Calibration, rejection tuning, future model
+selection and final evaluation retain the separate gates above. These six people
+are development-informed; future claims require a separately planned cohort.
 
 ## Coverage, estimand, and rejected windows
 
@@ -345,11 +361,14 @@ downloads and model training remain separately scoped steps.
    `pilot-camera-v1`. Raw `window-features-v1` tables are constructed and validated;
    s25 stays development-only. [Feature tables](window-features.md) preserve all
    rows, missingness, original axes and policy/source provenance, with separate
-   predictor/index and reference files. The next separately scoped step is an
-   exploratory participant-held-out baseline; no preprocessing/model was fitted
-   during construction. Camera/wrist comparisons remain recording-level while
-   synchronization is unverified. Further acquisition and final test assignment
-   remain separate steps with the split/evaluation gates below.
+   predictor/index and reference files. No preprocessing/model was fitted during
+   feature construction. The first fixed exploratory participant-held-out baseline
+   is now complete, with training-fold-only preprocessing, full prediction
+   inventories and separate supported-row diagnostics. Next, freeze task-behaviour
+   and missingness/degradation ablations; calibration/rejection tuning is later
+   work. Camera/wrist comparisons remain recording-level while synchronization is
+   unverified. Further acquisition and final test assignment remain separate steps
+   with the split/evaluation gates below.
 2. **Inventory stage:** after this design is written, inspect official access,
    per-participant archive/member sizes, terms, scenario availability and projected
    storage without obtaining the full cohort. Choose a reproducible acquisition
@@ -389,7 +408,8 @@ PyAV inspection extra. The following original acceptance criteria remain
 regression requirements. Facial measurement, fixed pulse diagnostics and camera
 recovery are now implemented separately; this does not establish synchronization
 or authorize training. The completed engineering expansion and feature-table
-contract are described above; exploratory modeling remains a separate step.
+contract are described above. The bounded exploratory baseline is complete;
+calibrated selective models and independent final evaluation remain later steps.
 
 Acceptance criteria:
 

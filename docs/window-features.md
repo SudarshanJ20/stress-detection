@@ -220,7 +220,9 @@ wrong boundaries/labels/provenance/roles, forbidden predictor columns, contrast
 reference isolation and incomplete/corrupt/incompatible receipts. Participant
 tables, missingness reports and reproduction checks remain Git ignored.
 
-The validated pilot table is suitable for an **exploratory participant-held-out
-baseline** with explicit missingness and both required contrasts. Six people
-provide exploratory engineering evidence; a final evaluation needs a separately
-planned cohort. Model fitting and final test assignment remain pending.
+The first [exploratory participant-held-out baseline](exploratory-baseline.md)
+has now run from these saved tables, with explicit missingness, both required
+contrasts and training-fold-only preprocessing. Feature construction itself fit
+nothing and the saved raw tables are unchanged. Six people provide exploratory
+engineering evidence; final evaluation needs a separately planned cohort.
+Calibration/rejection tuning and final test assignment remain pending.

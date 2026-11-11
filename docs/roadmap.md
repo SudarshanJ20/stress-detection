@@ -54,14 +54,16 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    This does not validate pulse accuracy or alignment. Validated quality/skin
    criteria, synchronization, HRV and live extraction remain pending. Model assets
    and all participant measurements/reference values stay ignored.
-6. **Baseline feature tables — constructed and validated; exploratory modeling
-   is a separate next step.** `window-features-v1` keeps each original interval,
-   geometric mouth/eye/motion proxies, all fixed camera pulse variants and
-   explicit quality/missingness. Predictor-only contrast files exclude IDs,
-   times, labels and wrist diagnostics; s25 remains separate. See the
-   [feature contract and commands](window-features.md). No preprocessing or model
-   was fitted. Later exploratory participant-held-out baselines compare
-   modalities using the participant-separated evaluation protocol.
+6. **Raw feature tables and first exploratory LOPO baseline — complete.**
+   `window-features-v1` retains all original intervals, camera features and
+   missingness, with identifiers/labels and wrist diagnostics separated from
+   predictors. The first frozen six-model task-classification comparison ran
+   both contrasts with participant-held-out folds and training-only imputation/
+   scaling. Full prediction/model inventories and saved-result metrics validated;
+   numerical outcomes stay private and s25 stays development-only. See the
+   [feature contract](window-features.md) and [experiment commands](exploratory-baseline.md).
+   Task-behaviour and missingness/degradation ablations are next; no independent
+   final evaluation, calibration or rejection-policy tuning is complete.
 7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
    by quality indicators and reject unreliable input. Tune thresholds using
    training and validation participants only.
@@ -90,9 +92,11 @@ are preserved. The expanded local engineering pilot and its private review are
 complete. The versioned raw window feature tables and both task contrasts are
 now constructed, with targeted validation and reproduction checks. They retain
 all scheduled rows, source/policy provenance and missingness; reference-only
-recording diagnostics remain outside predictors. Next, separately scope an
-exploratory participant-held-out baseline with fold-fitted preprocessing and
-motion/quality/missingness-only confound checks. Camera/wrist synchronization,
-pulse validation, live capture, HRV, further cohort acquisition and final
-stress-model evaluation remain pending. A separately planned cohort is required
-for final evaluation; no final test assignment or model fitting is completed.
+recording diagnostics remain outside predictors. The first fixed exploratory
+LOPO baseline and quality/missingness controls are now complete. Next, prespecify
+mouth/motion-removal and label-balanced missingness/degradation checks before
+interpreting task-classification gains. Camera/wrist synchronization, pulse
+validation, calibrated rejection, live capture, HRV, further cohort acquisition
+and final stress-model evaluation remain pending. Six development-informed people
+provide exploratory evidence only; final evaluation needs a separately planned
+cohort, and no final test assignment has been made.
