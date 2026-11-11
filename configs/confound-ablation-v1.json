@@ -1,0 +1,253 @@
+{
+  "ablation_models": {
+    "facial_no_motion": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10"
+    ],
+    "facial_no_motion_plus_bpm": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "facial_no_mouth": [
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "facial_no_mouth_no_motion": [
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10"
+    ],
+    "facial_no_mouth_no_motion_plus_bpm": [
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "facial_no_mouth_plus_bpm": [
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ]
+  },
+  "additional_acquisition": false,
+  "baseline_configuration_id": "9f83f5a31141a6ceecbc9a0179d3777bb35518ae0f7d2d367fb9e9ff5f2934b6",
+  "confidence_calibration": false,
+  "contrasts": {
+    "rest-vs-arithmetic": "arithmetic",
+    "rest-vs-speech": "speech"
+  },
+  "decision_rule": "strictly greater; exact ties predict rest (0)",
+  "decision_threshold": 0.5,
+  "empty_ablation_policy": "unavailable; do not fit or substitute dummy",
+  "expected_rows_per_model_contrast": 72,
+  "feature_schema_sha256": "7a50f53c24d4423b6e6dcdae1e815502874867b5c1da3192ebba7bc0f5237b2d",
+  "final_test_assignment": "unassigned",
+  "folds_per_contrast": 6,
+  "hyperparameter_search": false,
+  "interpretation": "Exploratory experimental task classification in six development-informed participants; no final-test claim",
+  "logistic_regression": {
+    "C": 1.0,
+    "class_weight": null,
+    "fit_intercept": true,
+    "l1_ratio": 0.0,
+    "max_iter": 5000,
+    "random_state": 20261111,
+    "solver": "lbfgs",
+    "tol": 1e-08
+  },
+  "masking": {
+    "bit_generator": "PCG64",
+    "columns": [
+      "beh_eye_mean",
+      "beh_eye_p10",
+      "beh_eye_std",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "beh_mouth_mean",
+      "beh_mouth_p95",
+      "beh_mouth_std",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_green_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "q_brightness_change_abs_median",
+      "q_brightness_change_valid_fraction",
+      "q_brightness_mean",
+      "q_brightness_std",
+      "q_dark_fraction_mean",
+      "q_eye_valid_fraction",
+      "q_face_area_mean",
+      "q_face_detected_fraction",
+      "q_laplacian_variance_mean",
+      "q_motion_valid_fraction",
+      "q_mouth_valid_fraction",
+      "q_multiple_faces_fraction",
+      "q_no_frames",
+      "q_pulse_green_cheek_image_left_missing",
+      "q_pulse_green_cheek_image_right_missing",
+      "q_pulse_green_forehead_missing",
+      "q_pulse_pos_cheek_image_left_missing",
+      "q_pulse_pos_cheek_image_right_missing",
+      "q_pulse_pos_forehead_missing",
+      "q_region_cheek_image_left_area_mean",
+      "q_region_cheek_image_left_valid_fraction",
+      "q_region_cheek_image_right_area_mean",
+      "q_region_cheek_image_right_valid_fraction",
+      "q_region_forehead_area_mean",
+      "q_region_forehead_valid_fraction",
+      "q_saturated_fraction_mean",
+      "q_track_fraction"
+    ],
+    "inputs_to_rng": "shape and seed only; no labels, participants or identifiers",
+    "interpretation": "Added feature missingness only; not video degradation, not removal of natural missingness confounding",
+    "levels": [
+      0.0,
+      0.1,
+      0.3,
+      0.5
+    ],
+    "mask_training_inputs": false,
+    "mechanism": "iid U[0,1) per original row and feature; add null only where originally observed and score < level",
+    "nesting": "same score matrix thresholded at each level; common row-feature masks across models and both contrasts",
+    "preserve_natural_missingness": true,
+    "recompute_derived_indicators": false,
+    "refit_under_masking": false,
+    "replicates": 1,
+    "scope": "all 41 unique allowlisted predictors, including quality/missingness controls; no metadata",
+    "seed": 20261112
+  },
+  "model_selection": false,
+  "participants": [
+    "s1",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6"
+  ],
+  "preprocessing": {
+    "add_indicator": false,
+    "global_fitting": false,
+    "imputation": "training-only median",
+    "no_usable_training_columns": "training-class-prior dummy fallback, explicitly logged",
+    "scaling": "training-only StandardScaler mean/std",
+    "training_all_missing_columns": "drop using training observations only; never resurrect on held-out values"
+  },
+  "rejection_tuning": false,
+  "removed_families": {
+    "motion": [
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "mouth": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95"
+    ]
+  },
+  "saved_baseline_models": {
+    "camera_bpm": [
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "dummy": [],
+    "facial": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "facial_camera_bpm": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "missingness": [
+      "q_face_detected_fraction",
+      "q_track_fraction",
+      "q_multiple_faces_fraction",
+      "q_no_frames",
+      "q_mouth_valid_fraction",
+      "q_eye_valid_fraction",
+      "q_motion_valid_fraction",
+      "q_brightness_change_valid_fraction",
+      "q_region_forehead_valid_fraction",
+      "q_region_cheek_image_left_valid_fraction",
+      "q_region_cheek_image_right_valid_fraction",
+      "q_pulse_green_forehead_missing",
+      "q_pulse_green_cheek_image_left_missing",
+      "q_pulse_green_cheek_image_right_missing",
+      "q_pulse_pos_forehead_missing",
+      "q_pulse_pos_cheek_image_left_missing",
+      "q_pulse_pos_cheek_image_right_missing"
+    ],
+    "quality_values": [
+      "q_brightness_mean",
+      "q_brightness_std",
+      "q_dark_fraction_mean",
+      "q_saturated_fraction_mean",
+      "q_laplacian_variance_mean",
+      "q_face_area_mean",
+      "q_brightness_change_abs_median",
+      "q_region_forehead_area_mean",
+      "q_region_cheek_image_left_area_mean",
+      "q_region_cheek_image_right_area_mean"
+    ]
+  },
+  "support_definition": "all requested raw features finite AND no requested column entirely missing in training; dummy supported on every row",
+  "thread_limit": 1,
+  "train_participants_per_fold": 5,
+  "uncertainty_intervals": "none; one mask realization and six development-informed participants",
+  "version": "confound-ablation-v1"
+}
