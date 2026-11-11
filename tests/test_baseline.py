@@ -4,6 +4,10 @@ import copy
 import json
 from pathlib import Path
 import platform
+import subprocess
+import sys
+
+import joblib
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -197,3 +201,12 @@ class ExperimentTests(unittest.TestCase):
         self.assertEqual(inventory(out),before)
         (out/'predictions.jsonl').write_text('{}\n')
         with self.assertRaisesRegex(ValueError,'hash mismatch'):validate_run(out)
+
+    def test_cli_models_reload_from_imported_api_without_main_alias(self):
+        out=self.root/'cli-run'
+        base=[sys.executable,'-m','stress_detection.baseline','--output',str(out)]
+        subprocess.run([*base,'--prepare','--feature-run',str(self.features)],cwd=ROOT,check=True,capture_output=True,text=True)
+        subprocess.run([*base,'--execute'],cwd=ROOT,check=True,capture_output=True,text=True)
+        model=joblib.load(out/'models/rest-vs-speech/facial/s1/model.joblib')
+        self.assertEqual(type(model['preprocessor']).__module__,'stress_detection.baseline_preprocessing')
+        self.assertEqual(validate_run(out)['predictions'],864)
