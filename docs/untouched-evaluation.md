@@ -8,6 +8,12 @@ acceptance of this narrowing and verification of the questionnaire adaptation.
 Changes require a reasoned version bump before any new outcome/quality inspection.
 No model or comparison may be chosen from the completed pilot accuracies.
 
+The subsequent bounded [post-session feasibility request](session-anxiety.md) is
+separate: it completed a reusable audit but stopped fitting at the unresolved
+scoring gate. It did not execute or silently change this change-target draft.
+Adopting a raw-post endpoint for untouched evaluation requires a reasoned version
+revision before opening new participants.
+
 ## Target, intended use and independent observations
 
 Primary outcome is released cognitive post mean minus cognitive pre mean, in

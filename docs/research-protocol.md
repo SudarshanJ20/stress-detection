@@ -1,6 +1,6 @@
 # Provisional research protocol
 
-Version 0.4, 2026-11-11. This revision records the source-backed
+Version 0.5, 2026-11-11. This revision records the source-backed
 [label-validity decision](label-validity.md) after completed task-classification
 baselines and confound ablations. Those experiments remain exploratory engineering
 evidence. They do not validate mental-stress detection. The proposed psychological
@@ -11,6 +11,12 @@ preprocessing before any new participant inspection; cohort size/roles remain
 unassigned. No acquisition or additional fitting occurred in this revision.
 Changes must be versioned with reasons before final-test evaluation; a protocol
 change after examining test outcomes invalidates confirmatory interpretation.
+
+The subsequent bounded [session-anxiety request](session-anxiety.md) proposes raw
+post-session cognitive anxiety (somatic secondary), separately from the earlier
+change-target draft. Its reusable six-session audit is complete, but fitting
+stopped at the unresolved adapted-scoring gate. No regression or categorical
+anxiety result exists; no new participant or independent test was evaluated.
 
 ## Question and scope
 

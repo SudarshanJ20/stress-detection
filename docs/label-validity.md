@@ -202,3 +202,14 @@ an unchanged association between task, behaviour, order and stress induction.
 The next concrete step is to resolve the form/target gates and finalize the
 session-level evaluation preregistration. No further fitting or acquisition is
 authorized by this document.
+
+## Bounded post-session feasibility checkpoint
+
+The later [session-anxiety audit](session-anxiety.md) proposes raw post-session
+cognitive anxiety and separate somatic anxiety, per the subsequent user request,
+rather than this document's earlier change-target proposal. Local dimensions,
+ranges, precision and pairing are audited reproducibly, but exact adapted item,
+reverse/missing coding and computation linkage remain unresolved. The user-required
+scoring gate therefore stopped fitting. No mean/Ridge performance or categorical
+accuracy exists. Existing task experiments are unchanged; the old change-target
+untouched plan remains unexecuted. See the new command and exact blockers there.

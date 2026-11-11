@@ -72,8 +72,12 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    unresolved. The [untouched evaluation draft](untouched-evaluation.md) defines
    session cognitive-anxiety change, fixed comparisons and training-only
    preprocessing. Mentor target/measurement review, independent-person precision
-   planning and private cohort lock come next. s1–s6 and s25 remain development-only.
-   Acquisition, model fitting, calibration and rejection tuning wait for this gate.
+   planning and private cohort lock come next. The bounded
+   [post-session anxiety audit](session-anxiety.md) constructed and validated six
+   session rows with separate outcomes and explicit no-fit receipts. Scoring is
+   still unresolved; no anxiety regression/classification was run. s1–s6 and s25
+   remain development-only. Acquisition, model fitting, calibration and rejection
+   tuning wait for this gate.
    Quality-aware rejection remains a later separate engineering experiment.
 8. **Evaluation, robustness, and laptop performance** — Report measured metrics,
    uncertainty, failure cases, lighting and motion sensitivity, rejection coverage,
