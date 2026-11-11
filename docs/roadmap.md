@@ -54,8 +54,14 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    This does not validate pulse accuracy or alignment. Validated quality/skin
    criteria, synchronization, HRV and live extraction remain pending. Model assets
    and all participant measurements/reference values stay ignored.
-6. **Baseline models — blocked on larger pilot review and split gates.** Establish simple reproducible baselines and compare
-   modalities using the predefined participant-separated evaluation protocol.
+6. **Baseline feature tables — constructed and validated; exploratory modeling
+   is a separate next step.** `window-features-v1` keeps each original interval,
+   geometric mouth/eye/motion proxies, all fixed camera pulse variants and
+   explicit quality/missingness. Predictor-only contrast files exclude IDs,
+   times, labels and wrist diagnostics; s25 remains separate. See the
+   [feature contract and commands](window-features.md). No preprocessing or model
+   was fitted. Later exploratory participant-held-out baselines compare
+   modalities using the participant-separated evaluation protocol.
 7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
    by quality indicators and reject unreliable input. Tune thresholds using
    training and validation participants only.
@@ -81,10 +87,12 @@ engineering work. Timing eligibility and bounded reacquisition are versioned,
 with ambiguity invalidity, motion resets and the original gap limit covered by
 regression tests. s25 compatibility is refreshed separately and original outputs
 are preserved. The expanded local engineering pilot and its private review are
-complete. Next, freeze and construct feature tables with all scheduled rows,
-explicit missingness/quality flags, original time axes, policy versions and
-participant provenance. Keep camera/wrist combinations at recording level while
-synchronization is unverified. Review ambiguity, long-return handling and
-condition-dependent availability before complete-case analysis. Pulse validation,
-synchronization, live capture, HRV, further cohort acquisition and stress-model
-training remain pending; evaluation roles and cohort size still need justification.
+complete. The versioned raw window feature tables and both task contrasts are
+now constructed, with targeted validation and reproduction checks. They retain
+all scheduled rows, source/policy provenance and missingness; reference-only
+recording diagnostics remain outside predictors. Next, separately scope an
+exploratory participant-held-out baseline with fold-fitted preprocessing and
+motion/quality/missingness-only confound checks. Camera/wrist synchronization,
+pulse validation, live capture, HRV, further cohort acquisition and final
+stress-model evaluation remain pending. A separately planned cohort is required
+for final evaluation; no final test assignment or model fitting is completed.

@@ -26,14 +26,16 @@ scheduled/rejected rows remain under ignored
 or plots are published here. The download-status table and provisional budget
 below describe the preparation checkpoint, not current archive availability.
 
-Next, freeze an engineering feature-table schema that retains missing values,
-coverage/rejection/track-segment flags, original bounds, policy/source provenance
-and participant roles. Keep all methods/regions and distinguish task condition
-from measured stress. Use recording-level camera/wrist aggregates or separate
-modality tables while synchronization is unverified. Review condition-dependent
-missingness and ambiguity/timeout cases before defining any complete-case
-analysis. Training, final test assignment and further acquisition remain
-separate work; no tracker or pulse rule was changed during this pilot.
+The [raw window feature tables](window-features.md) are now constructed and
+validated under `window-features-v1`, retaining missing values, all methods/regions,
+original bounds and policy/source/role provenance. Predictor-only contrasts keep
+labels/IDs in separate indices and wrist diagnostics in a separate recording-level
+file. No imputation, scaling, learned selection or model fitting occurred. Next,
+separately scope exploratory participant-held-out baselines with explicit
+quality/missingness confound checks. Synchronization remains unverified; review
+ambiguity/timeout cases and condition-dependent availability before complete-case
+analysis. Final test assignment and further acquisition remain separate work;
+no tracker or pulse rule was changed during this pilot.
 
 ## Frozen policy
 

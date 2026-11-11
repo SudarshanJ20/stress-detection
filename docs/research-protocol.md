@@ -1,7 +1,10 @@
 # Provisional research protocol
 
-Version 0.1, 2026-11-08. Design selected **before additional participant
-acquisition**. No models have been trained and no performance is predicted.
+Version 0.2, 2026-11-11. Original design selected **before additional participant
+acquisition**. This revision freezes the implemented raw window-feature contract
+and records engineering-table validation; the research question, two task
+contrasts and evaluation rules are unchanged. No models have been trained and
+no performance is predicted.
 Changes must be versioned with reasons before final-test evaluation; a protocol
 change after examining test outcomes invalidates confirmatory interpretation.
 
@@ -73,8 +76,9 @@ acceptance thresholds or fusion weights.
 The existing inspected participant is development-only. No frame, signal window,
 or degraded derivative from that participant may enter a future final test.
 
-Before any cohort windowing, create a private frozen participant manifest with
-disjoint **training (approximately 60%), validation (20%), final test (20%)**
+Before windowing a separately planned evaluation cohort, create a private
+frozen participant manifest with disjoint **training (approximately 60%),
+validation (20%), final test (20%)**
 roles. These are allocation targets, not claims of statistical sufficiency.
 Use a fixed recorded seed and participant-level allocation, balance difficulty
 assignments where feasible, and report rounding and stratum counts. Do not
@@ -150,6 +154,21 @@ from training cross-validation, never on in-sample errors. Tune on validation
 tuning participants, fit probability calibration on validation calibration
 participants, set operating thresholds on validation threshold participants.
 Do not introduce a deep architecture simply to match a published percentage.
+
+The implemented [window feature contract](window-features.md),
+`window-features-v1`, now defines the raw geometric behaviour, separate camera
+pulse variants, quality/missingness and source/schema provenance. Engineering
+pilot rows retain `pilot_development` roles; s25 stays in a separate
+`development_only` output. This construction does not allocate a final test
+cohort or fit any preprocessing/model. Both contrasts keep all scheduled rows,
+including null features. Predictor files exclude identity/path/time/order/task
+metadata, labels and all wrist data; participant grouping and targets are in
+separate indices. Wrist diagnostics remain independent recording-level audits.
+Later exploratory grouped evaluation must fit imputation, scaling, all-null
+column handling and any learned feature selection inside its training folds.
+Report the fixed video-quality-only, missingness-only and motion-only controls.
+Six pilot participants support exploratory results; a separately planned cohort
+is required for final evaluation.
 
 ## Coverage, estimand, and rejected windows
 
@@ -323,13 +342,14 @@ downloads and model training remain separately scoped steps.
 
 1. **Current stage:** the infrastructure, camera recovery audit and prespecified
    engineering expansion are processed and reviewed privately under unchanged
-   `pilot-camera-v1`. Keep s25 development-only. The next scoped step is an
-   engineering feature-table contract and construction, preserving all rows,
-   missingness, original axes, policy/source provenance and participant roles.
-   [Pilot execution status](next-pilot-batch.md) records checks and next gates.
-   Camera/wrist combinations remain recording-level while synchronization is
-   unverified. Further acquisition, training and final test assignment remain
-   separate steps with the participant-level split/evaluation gates below.
+   `pilot-camera-v1`. Raw `window-features-v1` tables are constructed and validated;
+   s25 stays development-only. [Feature tables](window-features.md) preserve all
+   rows, missingness, original axes and policy/source provenance, with separate
+   predictor/index and reference files. The next separately scoped step is an
+   exploratory participant-held-out baseline; no preprocessing/model was fitted
+   during construction. Camera/wrist comparisons remain recording-level while
+   synchronization is unverified. Further acquisition and final test assignment
+   remain separate steps with the split/evaluation gates below.
 2. **Inventory stage:** after this design is written, inspect official access,
    per-participant archive/member sizes, terms, scenario availability and projected
    storage without obtaining the full cohort. Choose a reproducible acquisition
@@ -368,8 +388,8 @@ The timestamp-preserving reader and private manifest are implemented using the
 PyAV inspection extra. The following original acceptance criteria remain
 regression requirements. Facial measurement, fixed pulse diagnostics and camera
 recovery are now implemented separately; this does not establish synchronization
-or authorize training. The next scoped milestone is the engineering expansion
-review described above.
+or authorize training. The completed engineering expansion and feature-table
+contract are described above; exploratory modeling remains a separate step.
 
 Acceptance criteria:
 
