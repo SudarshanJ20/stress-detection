@@ -5,15 +5,35 @@ behaviour and camera-derived pulse, with video-quality checks.
 
 ## Current status
 
-This repository contains the development environment, sample validation, and
-timestamp-preserving video/manifest tools, pretrained face/basic quality
-measurements, and an offline green/POS pulse baseline. There is no trained stress
-model or validated stress accuracy yet.
-One dataset sample is locally readable; synchronization, wider
-dataset suitability, and research novelty remain unverified.
-No stress predictions or validated research results are available. This is a
-research project,
-not a diagnostic or clinical tool.
+**Still — Anxiety Screening & Wellbeing** is the complete local presentation app.
+It offers standard GAD-7 screening alongside separate, optional webcam pulse,
+facial-geometry and quality observations. It uses a Next.js frontend and a local
+FastAPI/native-pipeline service. There is no combined anxiety score, calibrated
+confidence or deployed webcam anxiety regressor.
+
+See [app startup, demo and validation](docs/local-app.md). The locked research
+[outcome evaluation](docs/locked-anxiety-evaluation.md) is complete and preserved:
+the facial cognitive improvement was tiny/inconsistent, and no model beat training
+mean for somatic errors. These results do not validate ordinary webcam anxiety
+assessment. Participant recordings, outcomes, reports and model assets stay ignored.
+
+Quick start in two terminals from the repository:
+
+```sh
+# Local Python service (existing pipeline environment/model required)
+.venv/bin/python -m pip install -r configs/web-requirements.txt
+.venv/bin/python -m uvicorn app_backend.main:app --host 127.0.0.1 --port 8000 --no-access-log
+```
+
+```sh
+cd web
+npm ci
+npm run dev
+```
+
+Open http://127.0.0.1:3000. Use `npm run build` then `npm run start` instead
+of `npm run dev` for the presentation production build. No public hosting or
+automatic participant-data upload is configured.
 
 ## Planned approach
 

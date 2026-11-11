@@ -99,9 +99,13 @@ unverified. A pretrained landmark runtime is used for local measurements only.
 8. **Evaluation, robustness, and laptop performance** — Report measured metrics,
    uncertainty, failure cases, lighting and motion sensitivity, rejection coverage,
    latency, and resource use. Do not invent results.
-9. **Live webcam application** — Integrate the evaluated pipeline with explicit
-   camera consent, quality feedback, and rejection behaviour. Document research
-   limitations and avoid diagnostic claims.
+9. **Local screening and observation application — implemented.**
+   [Still](local-app.md) integrates GAD-7 and separate real face/pulse observations
+   using Next.js/FastAPI, explicit capture/upload consent, quality/missingness,
+   local opt-in storage, deletion and report export. Poor-performing anxiety
+   regressors stay out of the assessment flow. Browser/native prerecorded and
+   synthetic-capture checks pass; physical camera/OS and cross-browser checks
+   remain manual. This does not validate live anxiety inference.
 10. **Research report and reproducibility documentation** — Document verified
     literature, dataset access requirements, split protocol, configurations,
     environment, methods, measured results, and limitations without publishing
