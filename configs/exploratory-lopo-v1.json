@@ -1,0 +1,132 @@
+{
+  "confidence_calibration": false,
+  "contrasts": {
+    "rest-vs-arithmetic": "arithmetic",
+    "rest-vs-speech": "speech"
+  },
+  "decision_rule": "strictly greater; exact ties predict rest (0)",
+  "decision_threshold": 0.5,
+  "dummy_strategy": "prior",
+  "excluded_participants": [
+    "s25"
+  ],
+  "expected_rows_per_contrast": 72,
+  "feature_schema_sha256": "7a50f53c24d4423b6e6dcdae1e815502874867b5c1da3192ebba7bc0f5237b2d",
+  "feature_selection_fitting": false,
+  "feature_version": "window-features-v1",
+  "final_test_cohort": "unassigned",
+  "folds_per_contrast": 6,
+  "hyperparameter_search": false,
+  "interpretation": "Exploratory experimental task classification; development-informed participants; no final-test claim",
+  "logistic_regression": {
+    "C": 1.0,
+    "class_weight": null,
+    "fit_intercept": true,
+    "l1_ratio": 0.0,
+    "max_iter": 5000,
+    "random_state": 20261111,
+    "solver": "lbfgs",
+    "tol": 1e-08
+  },
+  "models": {
+    "camera_bpm": [
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "dummy": [],
+    "facial": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "facial_camera_bpm": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "missingness": [
+      "q_face_detected_fraction",
+      "q_track_fraction",
+      "q_multiple_faces_fraction",
+      "q_no_frames",
+      "q_mouth_valid_fraction",
+      "q_eye_valid_fraction",
+      "q_motion_valid_fraction",
+      "q_brightness_change_valid_fraction",
+      "q_region_forehead_valid_fraction",
+      "q_region_cheek_image_left_valid_fraction",
+      "q_region_cheek_image_right_valid_fraction",
+      "q_pulse_green_forehead_missing",
+      "q_pulse_green_cheek_image_left_missing",
+      "q_pulse_green_cheek_image_right_missing",
+      "q_pulse_pos_forehead_missing",
+      "q_pulse_pos_cheek_image_left_missing",
+      "q_pulse_pos_cheek_image_right_missing"
+    ],
+    "quality_values": [
+      "q_brightness_mean",
+      "q_brightness_std",
+      "q_dark_fraction_mean",
+      "q_saturated_fraction_mean",
+      "q_laplacian_variance_mean",
+      "q_face_area_mean",
+      "q_brightness_change_abs_median",
+      "q_region_forehead_area_mean",
+      "q_region_cheek_image_left_area_mean",
+      "q_region_cheek_image_right_area_mean"
+    ]
+  },
+  "participant_role": "pilot_development",
+  "participants": [
+    "s1",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6"
+  ],
+  "pilot_policy": "pilot-camera-v1",
+  "preprocessing": {
+    "add_indicator": false,
+    "global_fitting": false,
+    "imputation": "training-only median",
+    "no_usable_training_columns": "training-class-prior dummy fallback, explicitly logged",
+    "scaling": "training-only StandardScaler mean/std",
+    "training_all_missing_columns": "drop using training observations only; never resurrect on held-out values"
+  },
+  "primary_evaluation": "all scheduled held-out rows, including imputed rows",
+  "rejection_policy_tuning": false,
+  "secondary_evaluation": "model-specific supported held-out rows; denominators/class balance reported; not matched support across models",
+  "support_definition": "all requested raw features finite AND no requested column entirely missing in training; dummy supported on every row",
+  "thread_limit": 1,
+  "training_participants_per_fold": 5,
+  "uncertainty_intervals": "none in this bounded first experiment; report six participant results and descriptive macro averages",
+  "undefined_metrics": "null with explicit reason; binary balanced accuracy and macro-F1 require both true classes",
+  "value_models": [
+    "facial",
+    "camera_bpm",
+    "facial_camera_bpm",
+    "quality_values"
+  ],
+  "version": "exploratory-lopo-v1"
+}
