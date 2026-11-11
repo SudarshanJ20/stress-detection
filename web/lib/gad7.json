@@ -1,0 +1,28 @@
+{
+  "version": "GAD-7 English / Still 1.0",
+  "timeframe": "Over the last 2 weeks, how often have you been bothered by the following problems?",
+  "questions": [
+    "Feeling nervous, anxious, or on edge",
+    "Not being able to stop or control worrying",
+    "Worrying too much about different things",
+    "Trouble relaxing",
+    "Being so restless that it is hard to sit still",
+    "Becoming easily annoyed or irritable",
+    "Feeling afraid, as if something awful might happen"
+  ],
+  "responses": [
+    "Not at all",
+    "Several days",
+    "More than half the days",
+    "Nearly every day"
+  ],
+  "bands": [
+    { "min": 0, "max": 4, "label": "Minimal" },
+    { "min": 5, "max": 9, "label": "Mild" },
+    { "min": 10, "max": 14, "label": "Moderate" },
+    { "min": 15, "max": 21, "label": "Severe" }
+  ],
+  "attribution": "Developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke and colleagues, with an educational grant from Pfizer Inc. No permission required to reproduce, translate, display or distribute.",
+  "source": "https://www.hiv.uw.edu/page/mental-health-screening/gad-7",
+  "scoring_source": "https://thereachinstitute.org/wp-content/uploads/2022/09/GAD-7_Anxiety-updated_2022.pdf"
+}
