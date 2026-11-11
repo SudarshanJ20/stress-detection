@@ -1,19 +1,31 @@
 # Provisional research protocol
 
-Version 0.3, 2026-11-11. Original design selected **before additional participant
-acquisition**. This revision records completion of the first frozen exploratory
-participant-held-out task baseline, following the raw feature contract. The
-research question and two task contrasts remain unchanged. Classical models
-have been fitted in exploratory folds only; no independent final evaluation or
-psychological-stress recognition claim is made.
+Version 0.4, 2026-11-11. This revision records the source-backed
+[label-validity decision](label-validity.md) after completed task-classification
+baselines and confound ablations. Those experiments remain exploratory engineering
+evidence. They do not validate mental-stress detection. The proposed psychological
+target is participant-session cognitive-anxiety change, with separate secondary
+self-report dimensions, conditional on questionnaire/scoring and mentor review.
+The [untouched evaluation draft](untouched-evaluation.md) fixes comparisons and
+preprocessing before any new participant inspection; cohort size/roles remain
+unassigned. No acquisition or additional fitting occurred in this revision.
 Changes must be versioned with reasons before final-test evaluation; a protocol
 change after examining test outcomes invalidates confirmatory interpretation.
 
 ## Question and scope
 
-**Do measured video-quality features reduce selective task-classification error
-at matched coverage compared with confidence-only rejection, on unseen
-participants under controlled video degradation?**
+The retained **engineering** question is: do measured video-quality features
+reduce selective task-classification error at matched coverage compared with
+confidence-only rejection, on unseen participants under controlled video
+degradation? This remains a separate proposed experiment, not validation of the
+original psychological-stress objective.
+
+For that objective, the label audit changes the gate: UBFC-Phys supplies no
+moment-to-moment psychological labels. A future session-level study can estimate
+prespecified self-reported cognitive-anxiety change from structured-session camera
+summaries, after the scoring/construct/precision questions are resolved. Exact
+rules and limitations are in the target decision and untouched evaluation draft;
+neither task IDs nor assigned conditions become measured stress outcomes.
 
 The intended input is one camera. Facial behaviour and rPPG are two feature
 families derived from the **same video**, not independent sensors. Shared
@@ -29,12 +41,12 @@ Novelty remains unverified; a negative result is a valid outcome.
 
 ## Labels and prediction targets
 
-| Analysis | Negative / positive | Interpretation |
+| Analysis | Target encoding | Interpretation |
 | --- | --- | --- |
-| Primary binary contrast A | T1 rest / T2 speech | Experimental task discrimination under a stress-induction protocol |
-| Separate binary contrast B | T1 rest / T3 arithmetic | Same interpretation, reported separately |
+| Engineering binary contrast A | T1 rest / T2 speech | Experimental task discrimination under a stress-induction protocol |
+| Engineering binary contrast B | T1 rest / T3 arithmetic | Same interpretation, reported separately |
 | Optional later descriptive analysis | `ctrl` / `test` difficulty assignments | Experimental assignment, not measured stress intensity |
-| Optional later participant-level outcomes | Pre/post cognitive anxiety, somatic anxiety, self-confidence | Session self-report; not a per-task or per-window stress target |
+| Proposed psychological outcome, gated | Cognitive post-minus-pre mean; separate somatic/confidence changes | One participant-session outcome per dimension; not task/window stress |
 
 Both binary contrasts are required and independently fitted/evaluated. Neither
 is selected after seeing which performs better. Do not pool T2 and T3 as one
@@ -74,8 +86,10 @@ acceptance thresholds or fusion weights.
 
 ## Participant partitions and fitting rules
 
-The existing inspected participant is development-only. No frame, signal window,
-or degraded derivative from that participant may enter a future final test.
+All inspected s1–s6 and s25 are development-only. No frame, signal window,
+questionnaire outcome or derivative from these people may enter a future final
+test, including one with a newly defined target. Historical pilot receipts stay
+unchanged; they do not override this exposure rule.
 
 Before windowing a separately planned evaluation cohort, create a private
 frozen participant manifest with disjoint **training (approximately 60%),

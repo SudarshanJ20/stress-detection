@@ -65,9 +65,16 @@ unverified. A pretrained landmark runtime is used for local measurements only.
    The frozen [mouth/motion and added-missingness study](confound-ablation.md) is
    also executed and validated. No independent final evaluation, calibration or
    rejection-policy tuning is complete.
-7. **Quality-aware fusion and unreliable-input rejection** — Explore fusion guided
-   by quality indicators and reject unreliable input. Tune thresholds using
-   training and validation participants only.
+7. **Label/construct gate before more data or training — audit complete; review
+   pending.** The [label decision](label-validity.md) confirms session pre/post
+   anxiety outcomes and experimental task/condition labels, with no momentary
+   stress ground truth. Exact adapted form/scoring and Supplemental I/II remain
+   unresolved. The [untouched evaluation draft](untouched-evaluation.md) defines
+   session cognitive-anxiety change, fixed comparisons and training-only
+   preprocessing. Mentor target/measurement review, independent-person precision
+   planning and private cohort lock come next. s1–s6 and s25 remain development-only.
+   Acquisition, model fitting, calibration and rejection tuning wait for this gate.
+   Quality-aware rejection remains a later separate engineering experiment.
 8. **Evaluation, robustness, and laptop performance** — Report measured metrics,
    uncertainty, failure cases, lighting and motion sensitivity, rejection coverage,
    latency, and resource use. Do not invent results.
@@ -97,9 +104,13 @@ recording diagnostics remain outside predictors. The first fixed exploratory
 LOPO baseline and quality/missingness controls are now complete. Frozen
 mouth/motion-removal and label/participant-independent added-feature-missingness
 checks are also complete; they do not remove natural missingness confounding or
-simulate video degradation. Next, preregister an untouched participant evaluation
-with frozen comparisons and explicit task/recording-condition controls.
-Camera/wrist synchronization, pulse validation, calibrated rejection, live capture, HRV, further cohort acquisition
-and final stress-model evaluation remain pending. Six development-informed people
+simulate video degradation. The source-backed label audit is now complete:
+current claims remain task classification; the available psychological outcomes
+are participant-session anxiety dimensions, not momentary stress. Next, resolve
+the mentor/scoring/precision gates and finalize the untouched session-outcome
+preregistration before any further acquisition or fitting. New participants alone
+do not remove task confounding. Camera/wrist synchronization, pulse validation,
+calibrated rejection, live capture, HRV, further acquisition and final stress-model
+evaluation remain pending. Six development-informed people
 provide exploratory evidence only; final evaluation needs a separately planned
 cohort, and no final test assignment has been made.
