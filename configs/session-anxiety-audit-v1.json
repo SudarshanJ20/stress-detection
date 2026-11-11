@@ -1,0 +1,149 @@
+{
+  "classification": {
+    "reason": "No verified dataset-adapted categorical scoring rule; no thresholds constructed",
+    "status": "unavailable",
+    "thresholds": null
+  },
+  "evaluation": "audit fold identities only: six participant-held-out splits, five/one sessions; no predictions or fitted preprocessing",
+  "excluded_participants": [
+    "s25"
+  ],
+  "expected_sessions": 6,
+  "expected_windows_per_session": 18,
+  "models": {
+    "camera_bpm": [
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "dummy": [],
+    "facial": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95"
+    ],
+    "facial_camera_bpm": [
+      "beh_mouth_mean",
+      "beh_mouth_std",
+      "beh_mouth_p95",
+      "beh_eye_mean",
+      "beh_eye_std",
+      "beh_eye_p10",
+      "beh_motion_median",
+      "beh_motion_p95",
+      "cam_green_forehead_bpm",
+      "cam_green_cheek_image_left_bpm",
+      "cam_green_cheek_image_right_bpm",
+      "cam_pos_forehead_bpm",
+      "cam_pos_cheek_image_left_bpm",
+      "cam_pos_cheek_image_right_bpm"
+    ],
+    "missingness": [
+      "q_face_detected_fraction",
+      "q_track_fraction",
+      "q_multiple_faces_fraction",
+      "q_no_frames",
+      "q_mouth_valid_fraction",
+      "q_eye_valid_fraction",
+      "q_motion_valid_fraction",
+      "q_brightness_change_valid_fraction",
+      "q_region_forehead_valid_fraction",
+      "q_region_cheek_image_left_valid_fraction",
+      "q_region_cheek_image_right_valid_fraction",
+      "q_pulse_green_forehead_missing",
+      "q_pulse_green_cheek_image_left_missing",
+      "q_pulse_green_cheek_image_right_missing",
+      "q_pulse_pos_forehead_missing",
+      "q_pulse_pos_cheek_image_left_missing",
+      "q_pulse_pos_cheek_image_right_missing"
+    ],
+    "quality_values": [
+      "q_brightness_mean",
+      "q_brightness_std",
+      "q_dark_fraction_mean",
+      "q_saturated_fraction_mean",
+      "q_laplacian_variance_mean",
+      "q_face_area_mean",
+      "q_brightness_change_abs_median",
+      "q_region_forehead_area_mean",
+      "q_region_cheek_image_left_area_mean",
+      "q_region_cheek_image_right_area_mean"
+    ]
+  },
+  "participants": [
+    "s1",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "s6"
+  ],
+  "pilot_policy": "pilot-camera-v1",
+  "questionnaire": {
+    "columns": [
+      "pre_session",
+      "post_session"
+    ],
+    "confidence": "audit only; higher means more confidence",
+    "fit_authorized": false,
+    "items": [
+      7,
+      7,
+      9
+    ],
+    "mean_precision_tolerance": 0.00101,
+    "missing_information": [
+      "Exact administered item wording/language and selected item mapping",
+      "Reverse-coded items and confirmation of coding before averaging",
+      "Missing-item handling and denominator rules",
+      "Authoritative score-computation specification/code linking the released CSV to that adaptation"
+    ],
+    "pre_normalization": "not used; no change/ratio target is constructed",
+    "primary_proposed": "post_session_cognitive_anxiety",
+    "range": [
+      1.0,
+      4.0
+    ],
+    "rows": [
+      "cognitive_anxiety",
+      "somatic_anxiety",
+      "self_confidence"
+    ],
+    "score_kind": "released dimension item mean",
+    "scoring_status": "unresolved",
+    "secondary_proposed": "post_session_somatic_anxiety"
+  },
+  "regression": {
+    "fit_enabled": false,
+    "hyperparameter_search": false,
+    "preprocessing": "training-only median/scaling; train-all-missing drop; no indicators; mean fallback",
+    "proposed_mean": "training-outcome mean",
+    "proposed_regularized_regression": {
+      "alpha": 10.0,
+      "class": "Ridge",
+      "fit_intercept": true,
+      "solver": "svd"
+    },
+    "status": "unavailable_scoring_unresolved"
+  },
+  "role": "development_only",
+  "scope": "raw reusable audit only; no outcome-validity certification, acquisition or model fitting",
+  "source_feature_schema_sha256": "7a50f53c24d4423b6e6dcdae1e815502874867b5c1da3192ebba7bc0f5237b2d",
+  "summaries": {
+    "all_missing": "null; never zero-fill or impute",
+    "minimum_observed_windows": 1,
+    "missingness": "mean over observed original window fractions/flags",
+    "quality_values": "median over observed original windows",
+    "task_support": "reported separately, never used as anxiety label",
+    "value_features": "median over observed original windows, pooled over all three retained tasks"
+  },
+  "version": "session-anxiety-audit-v1"
+}
