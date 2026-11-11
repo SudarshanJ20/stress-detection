@@ -130,8 +130,8 @@ def recording(entry,task,record,cfg,stamp):
     return rows,proof
 
 
-def derive(selection,cfg,plan):
-    rows=[];proof={}
+def derive(selection,cfg,plan,training_hashes):
+    rows=[];proof={};recording_hashes={}
     for e in selection['participants']:
         p=e['id'];manifest_path=checked_path(e['manifest']);mf=read(manifest_path)
         info=checked_path(Path(e['input_root'])/p/f'info_{p}.txt')
@@ -142,8 +142,13 @@ def derive(selection,cfg,plan):
             raise ValueError('Ambiguous/missing scheduled task manifest')
         for r in sorted(records,key=lambda r:r['task_id']):
             if r['recording_id']!=p+'/'+r['task_id']:raise ValueError('Recording identity mismatch')
+            sha=r.get('files',{}).get('vid',{}).get('sha256')
+            if sha:
+                if sha in training_hashes or sha in recording_hashes.values():
+                    raise ValueError('Duplicate or training/final video identity overlap')
+                recording_hashes[r['recording_id']]=sha
             windows,inputs=recording(e,r['task_id'],r,cfg,load_policy()[1]);rows+=windows;proof.update(inputs)
-    return rows,proof
+    return rows,proof,recording_hashes
 
 
 def summarize(rows,people,cfg):
@@ -190,10 +195,10 @@ def export(plan_path,selection_path,models_run,output):
         'selection_path':str(selection_path.resolve()),'policy':load_policy()[1],'feature_schema_sha256':digest(features.schema())}
     atomic(output/'receipt.json',receipt)
     try:
-        rows,proof=derive(selection,cfg,plan);people=[e['id'] for e in selection['participants']]
+        rows,proof,cameras=derive(selection,cfg,plan,set(read(models_run/'training-camera-hashes.json').values()));people=[e['id'] for e in selection['participants']]
         index,x,support=summarize(rows,people,cfg)
         for name,data in [('windows',rows),('index',index),('X',x),('support',support)]:write_jsonl(output/(name+'.jsonl'),data)
-        receipt.update(status='completed',source_files=proof,ended=now(),output_files=study.artifact_inventory(output));receipt['output_files'].pop('receipt.json',None)
+        receipt.update(status='completed',source_files=proof,source_recordings=cameras,ended=now(),output_files=study.artifact_inventory(output));receipt['output_files'].pop('receipt.json',None)
     except BaseException as exc:
         receipt.update(status='failed',failure=f'{type(exc).__name__}: {exc}')
         raise
@@ -213,6 +218,14 @@ def load_export(folder,plan_path,models_run):
     if selection!=r['selection']:raise ValueError('Export selection changed')
     for path,checksum in r['source_files'].items():
         if fingerprint(checked_path(path),path)!=checksum:raise ValueError('Camera source changed')
+    cameras={}
+    for e in selection['participants']:
+        for record in read(Path(e['manifest']))['records']:
+            sha=record.get('files',{}).get('vid',{}).get('sha256')
+            if record['participant_id']==e['id'] and sha:cameras[record['recording_id']]=sha
+    if (cameras!=r['source_recordings'] or len(set(cameras.values()))!=len(cameras)
+            or set(cameras.values()) & set(read(models_run/'training-camera-hashes.json').values())):
+        raise ValueError('Video identity overlap or changed pairing')
     rows=read_jsonl(folder/'windows.jsonl');people=[e['id'] for e in selection['participants']]
     index,x,support=summarize(rows,people,cfg)
     if index!=read_jsonl(folder/'index.jsonl') or x!=read_jsonl(folder/'X.jsonl') or support!=read_jsonl(folder/'support.jsonl'):

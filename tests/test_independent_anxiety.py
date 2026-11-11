@@ -169,6 +169,13 @@ class IndependentTests(unittest.TestCase):
         self.assertEqual(x[0]['beh_mouth_mean'],expected['beh_mouth_mean'])
         self.assertAlmostEqual(x[0]['q_pulse_green_forehead_missing'],12/18)
         self.assertEqual(x[0]['q_track_fraction'],1.)  # observed windows only, never invented zeros
+        # Identity checks reject a renamed training video before camera feature use.
+        mf_path=Path(entries[0]['manifest']);original=read(mf_path);leaked=copy.deepcopy(original)
+        leaked['records'][0]['files']['vid']['sha256']=next(iter(read(models/'training-camera-hashes.json').values()))
+        atomic(mf_path,leaked)
+        with self.assertRaisesRegex(ValueError,'identity overlap'):
+            export.export(self.plan_path,selection,models,self.root/'leaked-video')
+        atomic(mf_path,original)
         pc=Path(entries[0]['tasks']['T1']['pulse'])/'config.json';bad=read(pc);bad['settings']['max_gap_seconds']=10.;atomic(pc,bad)
         with self.assertRaises(ValueError):export.export(self.plan_path,selection,models,self.root/'bad-policy')
         self.assertEqual(read(self.root/'bad-policy/receipt.json')['status'],'failed')

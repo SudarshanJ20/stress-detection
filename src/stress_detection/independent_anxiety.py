@@ -19,7 +19,7 @@ from .validate_sample import require_ignored
 ROOT=Path(__file__).resolve().parents[2]
 CONFIG=ROOT/'configs/independent-anxiety-evaluation-v2.json'
 CONFIG_ID='c395c8052d582e83c5f24ad8e9cd75e68fd33d94752c3f8caea1567ba591a8d5'
-VERSION='explicit-final-support-v1'
+VERSION='explicit-final-support-v2'
 
 
 def load_config():
@@ -92,6 +92,9 @@ def train(plan_path,source_audit,output):
                         'training_sessions':[r['session_key'] for r in index],'preprocessing':state,'training_mean':model['mean'],
                         'fallback_to_mean':model['fallback'],'warnings':model['warnings'],
                         'parameters':model['estimator'].get_params() if model['estimator'] is not None else None})
+        feature_run=Path(read(source_audit/'receipt.json')['feature_run'])
+        cameras={r['id_recording']:r['id_video_sha256'] for r in read_jsonl(feature_run/'windows.jsonl')}
+        atomic(output/'training-camera-hashes.json',cameras)
         atomic(output/'feature-lists.json',cfg['models'])
         (output/'pip-freeze.txt').write_text(subprocess.check_output([__import__('sys').executable,'-m','pip','freeze'],text=True))
         receipt.update(status='completed',ended=now(),elapsed_seconds=time.perf_counter()-start,output_files=artifact_inventory(output))
@@ -110,6 +113,10 @@ def validate_models(folder,plan_path,deep=False):
     if (receipt['kind']!='frozen_training_bundle' or receipt['training_participants']!=plan['training_participants']
             or receipt['final_outcomes_read'] or read(folder/'feature-lists.json')!=cfg['models']):
         raise ValueError('Wrong model bundle/roles')
+    cameras=read(folder/'training-camera-hashes.json')
+    if (set(cameras)!={p+'/'+t for p in plan['training_participants'] for t in ('T1','T2','T3')}
+            or any(not isinstance(v,str) or len(v)!=64 or any(c not in '0123456789abcdef' for c in v) for v in cameras.values())):
+        raise ValueError('Training video identity inventory mismatch')
     expected={str(Path('models')/t/m/'model.joblib') for t in cfg['targets'] for m in cfg['models']}
     if {str(p.relative_to(folder)) for p in folder.rglob('*.joblib')}!=expected:
         raise ValueError('Incomplete/extra frozen model inventory')
@@ -118,6 +125,9 @@ def validate_models(folder,plan_path,deep=False):
         index,x,ys,proof=reg.load_sessions(Path(receipt['source_audit']),reg.load_config())
         if proof!=receipt['source_proof'] or [r['participant'] for r in index]!=plan['training_participants']:
             raise ValueError('Training source changed')
+        feature_run=Path(read(Path(receipt['source_audit'])/'receipt.json')['feature_run'])
+        if cameras!={r['id_recording']:r['id_video_sha256'] for r in read_jsonl(feature_run/'windows.jsonl')}:
+            raise ValueError('Training video identities changed')
         data=(index,x,ys)
     for target in cfg['targets']:
         for name,cols in cfg['models'].items():
@@ -167,9 +177,12 @@ def prediction_inventory(rows,people,cfg,plan):
 def predict_batches(plan_path,models_run,exports,output,require_all=True):
     from .final_camera_features import load_export
     cfg,plan=load_design(plan_path);validate_models(models_run,plan_path)
-    index=[];values=[];sources={}
+    index=[];values=[];sources={};video_hashes=set()
     for path in exports:
-        ix,x,_=load_export(path,plan_path,models_run)
+        ix,x,export_receipt=load_export(path,plan_path,models_run)
+        incoming=list(export_receipt['source_recordings'].values())
+        if video_hashes & set(incoming):raise ValueError('Duplicate video content across final batches')
+        video_hashes.update(incoming)
         index+=ix;values+=x;sources[str(path.resolve())]=artifact_inventory(path)
     people=[r['participant'] for r in index]
     if not people or len(set(people))!=len(people) or not set(people)<=set(plan['locked_final']):
