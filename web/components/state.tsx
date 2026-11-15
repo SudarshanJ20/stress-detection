@@ -8,8 +8,16 @@ import {
   useCallback,
 } from "react";
 import { MotionConfig } from "motion/react";
-import { Session } from "@/lib/session";
+import { Session, genuineSessions } from "@/lib/session";
+export type DemoPhase = "questionnaire" | "camera" | "processing" | "results";
 type State = {
+  demoAnswers: (number | null)[];
+  setDemoAnswers: (v: (number | null)[]) => void;
+  demoSession: Session;
+  setDemoSession: (s: Session) => void;
+  demoPhase: DemoPhase;
+  setDemoPhase: (s: DemoPhase) => void;
+  resetDemo: () => void;
   answers: (number | null)[];
   setAnswers: (v: (number | null)[]) => void;
   current: Session;
@@ -35,6 +43,23 @@ const empty = (): Session => ({
   note: "",
 });
 export function StateProvider({ children }: { children: ReactNode }) {
+  const [demoAnswers, setDemoAnswers] = useState<(number | null)[]>(
+    Array(7).fill(null),
+  );
+  const [demoSession, setDemoSession] = useState<Session>({
+    id: "",
+    date: "",
+    mode: "demo",
+    screening: null,
+    camera: null,
+    note: "",
+  });
+  const [demoPhase, setDemoPhase] = useState<DemoPhase>("questionnaire");
+  const resetDemo = () => {
+    setDemoAnswers(Array(7).fill(null));
+    setDemoSession({ ...empty(), mode: "demo" });
+    setDemoPhase("questionnaire");
+  };
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(7).fill(null),
   );
@@ -51,16 +76,19 @@ export function StateProvider({ children }: { children: ReactNode }) {
   const [storageError, error] = useState("");
   useEffect(() => {
     setCurrent(empty());
+    setDemoSession({ ...empty(), mode: "demo" });
     try {
       const v = JSON.parse(localStorage.getItem("still:sessions") || "[]");
       if (Array.isArray(v))
         setHistory(
-          v.filter(
-            (s) =>
-              typeof s.id === "string" &&
-              typeof s.date === "string" &&
-              "screening" in s &&
-              "camera" in s,
+          genuineSessions(
+            v.filter(
+              (s) =>
+                typeof s.id === "string" &&
+                typeof s.date === "string" &&
+                "screening" in s &&
+                "camera" in s,
+            ),
           ),
         );
       const p = JSON.parse(localStorage.getItem("still:preferences") || "{}");
@@ -70,6 +98,19 @@ export function StateProvider({ children }: { children: ReactNode }) {
       error("Browser storage could not be read. This session stays temporary.");
     }
   }, []);
+  useEffect(() => {
+    if (
+      !answers.some((a) => a !== null) &&
+      !demoAnswers.some((a) => a !== null)
+    )
+      return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [answers, demoAnswers]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.reduced = String(reduced);
@@ -104,17 +145,30 @@ export function StateProvider({ children }: { children: ReactNode }) {
     setHistory([]);
     setAnswers(Array(7).fill(null));
     setCurrent(empty());
+    resetDemo();
   };
   return (
     <Context.Provider
       value={{
+        demoAnswers,
+        setDemoAnswers,
+        demoSession,
+        setDemoSession,
+        demoPhase,
+        setDemoPhase,
+        resetDemo,
         answers,
         setAnswers,
         current,
         setCurrent,
         history,
         save: () =>
-          persist([current, ...history.filter((s) => s.id !== current.id)]),
+          persist(
+            genuineSessions([
+              current,
+              ...history.filter((s) => s.id !== current.id),
+            ]),
+          ),
         remove: (id) => persist(history.filter((s) => s.id !== id)),
         clear,
         newSession: () => {

@@ -1,8 +1,10 @@
 "use client";
-import { Session } from "@/lib/session";
+import { Session, genuineSessions } from "@/lib/session";
 export default function Trend({ sessions }: { sessions: Session[] }) {
   const dated = new Map<string, Session>();
-  for (const s of [...sessions].sort((a, b) => a.date.localeCompare(b.date))) {
+  for (const s of genuineSessions(sessions).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  )) {
     if (s.screening) dated.set(s.date.slice(0, 10), s);
   }
   const points = [...dated.values()];

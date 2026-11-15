@@ -42,6 +42,8 @@ export type Screening = {
   version: string;
 };
 export type Session = {
+  mode?: "genuine" | "demo";
+  demoCapture?: { duration_seconds: number; completed_at: string };
   id: string;
   date: string;
   screening: Screening | null;
@@ -50,6 +52,17 @@ export type Session = {
   note: string;
   difficulty?: string;
 };
+export const DEMO_LABEL = "Demo mode — simulated result";
+export const DEMO_EXAMPLE = Object.freeze({
+  score: 62,
+  unit: "%",
+  label: "Illustrative score",
+  category: "Moderate — example",
+  explanation:
+    "Simulated result for interface demonstration. This score is not calculated from your video or questionnaire.",
+});
+export const genuineSessions = (sessions: Session[]) =>
+  sessions.filter((s) => s.mode !== "demo");
 export function scoreGad(answers: (number | null)[]): Screening {
   if (
     answers.length !== 7 ||
@@ -69,15 +82,24 @@ export function report(s: Session) {
   return {
     report_version: "Still 1.0.0",
     date: s.date,
+    mode:
+      s.mode === "demo"
+        ? DEMO_LABEL
+        : "Questionnaire and optional observations",
+    illustrative_example: s.mode === "demo" ? DEMO_EXAMPLE : null,
+    demo_capture: s.mode === "demo" ? (s.demoCapture ?? null) : null,
     questionnaire: s.screening,
     webcam: s.camera ?? {
-      availability: "not_added",
-      explanation: "No webcam observations were added.",
+      availability: s.mode === "demo" ? "unavailable" : "not_added",
+      explanation:
+        s.mode === "demo"
+          ? "Demo capture only. No video measurements were generated; recording data was discarded in the browser."
+          : "No webcam observations were added.",
     },
     note: s.note,
     questionnaire_difficulty: s.difficulty || null,
     interpretation:
-      "Questionnaire-derived screening, not a diagnosis. Webcam observations are separate measurements and do not validate GAD-7. GAD-7 categories are not UBFC CSAI scores.",
+      "Questionnaire-derived screening covers the last two weeks and is not a diagnosis. Webcam observations and illustrative examples do not validate or change GAD-7.",
     questionnaire_attribution: gad.attribution,
     sources: [gad.source, gad.scoring_source],
   };
