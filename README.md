@@ -6,7 +6,9 @@ behaviour and camera-derived pulse, with video-quality checks.
 ## Current status
 
 **Still — Anxiety Screening & Wellbeing** is the complete local presentation app.
-It offers standard GAD-7 screening alongside separate, optional webcam pulse,
+Start assessment opens a clearly labeled demonstration: questionnaire → review → camera setup → 35-second capture → illustrative transition → results. The fixed example is simulated and is not calculated from video or answers; demo recordings are never uploaded or saved. Questionnaire only remains available for genuine scoring. Demo entries never enter real history or trends.
+
+It also offers standard GAD-7 screening alongside separate, optional webcam pulse,
 facial-geometry and quality observations. It uses a Next.js frontend and a local
 FastAPI/native-pipeline service. There is no combined anxiety score, calibrated
 confidence or deployed webcam anxiety regressor.

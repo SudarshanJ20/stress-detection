@@ -102,7 +102,7 @@ export function Footer() {
         <b>Explore</b>
         <Link href="/about">The assessment</Link>
         <Link href="/workspace/tools">Wellbeing tools</Link>
-        <Link href="/research">Research & limitations</Link>
+        <Link href="/workspace/demo">Guided demonstration</Link>
       </div>
       <div>
         <b>Your privacy</b>

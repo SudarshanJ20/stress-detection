@@ -38,12 +38,16 @@ export function Hero() {
         </h1>
         <p className="lead">
           A thoughtful check-in with how you’re feeling.
-          <br className="desktop" /> A clearer view of what your body is doing.
-          <br className="desktop" /> Two perspectives. Room to understand both.
+          <br className="desktop" /> A guided camera demonstration.
+          <br className="desktop" /> Real questionnaire scoring. Clearly
+          simulated examples.
         </p>
         <div className="hero-actions">
-          <Link className="button" href="/workspace/assessment">
-            Begin your check-in <ArrowUpRight size={18} />
+          <Link className="button" href="/workspace/demo">
+            Start assessment <ArrowUpRight size={18} />
+          </Link>
+          <Link className="text-link" href="/workspace/assessment">
+            Questionnaire only <ArrowRight size={15} />
           </Link>
           <Link className="text-link" href="/about">
             How it works <ArrowRight size={15} />
@@ -103,8 +107,8 @@ export function ProductPreview() {
           <em>Less guessing.</em>
         </h2>
         <p>
-          Your answers tell one story. Webcam observations offer a separate view
-          of facial activity and screened pulse. We keep the distinction clear.
+          Choose a genuine questionnaire check-in or explore the guided demo.
+          The demo’s illustrative outcome is always separate from your answers.
         </p>
         <Link className="text-link" href="/about">
           Explore the assessment <ArrowUpRight size={16} />
@@ -170,20 +174,20 @@ export function ProductPreview() {
             {tab === "Questionnaire"
               ? "A check-in, not a label."
               : tab === "Webcam"
-                ? "Observations, honestly presented."
+                ? "A camera experience, clearly labeled."
                 : "Only what you choose to keep."}
           </h3>
           <p>
             {tab === "Questionnaire"
               ? "Seven standard GAD-7 questions about the last two weeks. Your result comes from your answers—not your appearance."
               : tab === "Webcam"
-                ? "An optional recording, analyzed on your local computer. Supported pulse estimates and geometric facial observations are shown with their limitations."
+                ? "A guided 35-second recording with no upload. Demo mode — simulated result: the fixed example is never calculated from your video or questionnaire."
                 : "Download or print a report with clearly separated sources. Sessions stay temporary unless you explicitly save a copy."}
           </p>
           <div className="preview-note">
             <Check size={16} />{" "}
             {tab === "Webcam"
-              ? "No live numbers are estimated in this preview."
+              ? "Demo mode — simulated result. No live measurements."
               : "This guide contains no sample health data."}
           </div>
         </div>
@@ -252,7 +256,7 @@ export function Story() {
           [
             "02",
             "Observe",
-            "Optionally record a short camera session. See what was measurable—and what wasn’t.",
+            "Try the guided 35-second camera demo. Its simulated example is clearly labeled and fixed for everyone.",
           ],
           [
             "03",

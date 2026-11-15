@@ -14,8 +14,9 @@ export default function Page() {
           <em>Never one label.</em>
         </h1>
         <p className="lead">
-          A questionnaire can help you reflect on symptoms. A camera can observe
-          what is measurable. Still gives each its own space.
+          A questionnaire can help you reflect on symptoms. The guided demo
+          illustrates a future camera experience with a fixed simulated result.
+          Still keeps each source clear.
         </p>
         <div className="two-grid">
           <article className="card">
@@ -40,25 +41,24 @@ export default function Page() {
             </Link>
           </article>
           <article className="card pale">
-            <span className="eyebrow">02 / WEBCAM-DERIVED</span>
+            <span className="eyebrow">02 / DEMO MODE — SIMULATED RESULT</span>
             <h2>
-              Your observations,
+              A guided experience,
               <br />
               <em>with context.</em>
             </h2>
             <p>
-              An optional 35-second recording supports a complete 30-second
-              analysis interval. Facial opening and motion are geometric
-              proxies. Green and POS pulse estimates are screened separately for
-              each region; unsupported readings stay unavailable.
+              Explore camera setup, a 35-second recording and an illustrative
+              results dashboard. The same predefined sample appears for
+              everyone. It is not calculated from your video or questionnaire.
             </p>
             <p>
-              These observations never alter your screening score. This short
-              recording is not equivalent to the three-task UBFC session
-              contract, and no anxiety regression model is deployed.
+              Demo mode — simulated result. No video is uploaded, no
+              measurements are generated and the recording is discarded. Your
+              genuine questionnaire score remains separate.
             </p>
-            <Link className="text-link" href="/research">
-              Read the actual research <ArrowUpRight size={16} />
+            <Link className="text-link" href="/workspace/demo">
+              Explore the guided demo <ArrowUpRight size={16} />
             </Link>
           </article>
         </div>
@@ -75,8 +75,9 @@ export default function Page() {
             Published form and permission
           </a>
           <p>
-            GAD-7 categories are not equivalent to UBFC’s author-computed CSAI
-            anxiety means. Research labels cannot validate a GAD-7 result.
+            The questionnaire covers symptoms over the last two weeks. It does
+            not measure momentary anxiety or become more reliable because you
+            record a video.
           </p>
         </section>
       </main>

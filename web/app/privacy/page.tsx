@@ -23,7 +23,17 @@ export default function Page() {
           runs in the browser; your answers are not sent to the Python service.
           Navigating between pages preserves your current session in memory.
         </p>
-        <h2>Camera access is your decision</h2>
+        <h2>The guided demonstration</h2>
+        <p>
+          Demo mode — simulated result. The same fixed illustrative example is
+          shown to everyone and is not calculated from the questionnaire or
+          video. Demo answers and outcomes stay in memory, are never added to
+          genuine history or trends, and are cleared on reload or close. Camera
+          chunks are discarded immediately; no demo video is uploaded, replayed
+          or saved. Demo reports always identify the simulation and its separate
+          sources.
+        </p>
+        <h2>Optional camera observations outside the demo</h2>
         <p>
           Start camera requests video permission. Audio is never requested. Stop
           ends capture, and leaving the camera page stops all camera tracks.
@@ -34,13 +44,14 @@ export default function Page() {
         </p>
         <h2>Local processing</h2>
         <p>
-          The Python service stores uploads and intermediate landmarks/RGB in
-          the ignored data/processed/still-local directory. Intermediates and
-          the uploaded recording are deleted after processing unless you
-          explicitly choose to keep the recording. Job results are held in
-          server memory for up to 30 minutes. Unfinished jobs expire after 30
-          minutes; startup removes stale temporary jobs after an interrupted
-          server. Retained recordings survive restarts until explicitly deleted.
+          If you explicitly choose local analysis in Camera session, the Python
+          service temporarily stores your uploaded video and measurement files
+          on this computer. Intermediates and the uploaded recording are deleted
+          after processing unless you explicitly choose to keep the recording.
+          Job results are held in server memory for up to 30 minutes. Unfinished
+          jobs expire after 30 minutes; startup removes stale temporary jobs
+          after an interrupted server. Retained recordings survive restarts
+          until explicitly deleted.
         </p>
         <h2>Optional browser saving</h2>
         <p>

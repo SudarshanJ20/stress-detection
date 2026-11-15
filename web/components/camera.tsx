@@ -294,7 +294,8 @@ export default function CameraSession() {
           <em>to observe.</em>
         </h1>
         <p>
-          35 seconds, at your own pace. No anxiety model. No live estimates.
+          Optional local camera observations. No video-based anxiety result or
+          live estimates.
         </p>
       </div>
       {health !== "ready" && (
@@ -302,7 +303,7 @@ export default function CameraSession() {
           {health === "checking"
             ? "Checking local analysis service…"
             : health === "missing"
-              ? "The local landmark model is missing. See setup instructions."
+              ? "Local camera measurements are unavailable. Questionnaire scoring still works."
               : "Local Python service unavailable. Questionnaire screening still works."}
           <button className="text-link" onClick={check}>
             Check again
