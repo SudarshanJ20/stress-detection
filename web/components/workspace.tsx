@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   NotebookPen,
@@ -11,7 +11,6 @@ import {
   FileText,
   Wind,
   Settings,
-  FlaskConical,
   ArrowUpRight,
   ArrowRight,
   ChevronLeft,
@@ -31,8 +30,17 @@ import dynamic from "next/dynamic";
 import { motion, useReducedMotion } from "motion/react";
 import { Logo } from "./navigation";
 import { useStill } from "./state";
-import { gad, scoreGad, report, download, api, Session } from "@/lib/session";
+import { gad, report, download, api, Session, DEMO_LABEL } from "@/lib/session";
+import { Assessment } from "./questionnaire";
 import { Observations } from "./observations";
+const GuidedDemo = dynamic(() => import("./demo"), {
+  ssr: false,
+  loading: () => (
+    <div className="skeleton" role="status">
+      Demo mode — simulated result · Preparing your demonstration…
+    </div>
+  ),
+});
 const CameraSession = dynamic(() => import("./camera"), {
   ssr: false,
   loading: () => (
@@ -44,7 +52,8 @@ const CameraSession = dynamic(() => import("./camera"), {
 const Trend = dynamic(() => import("./trend"), { ssr: false });
 const nav = [
   ["", "Your overview", LayoutDashboard],
-  ["assessment", "Questionnaire", NotebookPen],
+  ["demo", "Guided demonstration", Play],
+  ["assessment", "Questionnaire only", NotebookPen],
   ["camera", "Camera session", Camera],
   ["results", "Your results", ChartNoAxesCombined],
   ["history", "Session history", History],
@@ -55,7 +64,11 @@ const nav = [
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [path]);
+  const drawer = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    drawer.current?.close();
+    setOpen(false);
+  }, [path]);
   return (
     <div className="workspace">
       <aside className="sidebar">
@@ -77,10 +90,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <Link className="research-link" href="/research">
-          <FlaskConical size={17} /> Research & limitations{" "}
-          <ArrowUpRight size={14} />
-        </Link>
+
         <div className="sidebar-bottom">
           <LockKeyhole size={17} />
           <p>
@@ -100,22 +110,51 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
           </span>
           <button
             className="icon-button mobile-menu"
-            onClick={() => setOpen(!open)}
+            onClick={() => {
+              setOpen(true);
+              drawer.current?.showModal();
+            }}
             aria-label="Open workspace navigation"
             aria-expanded={open}
           >
             {open ? <X /> : <Menu />}
           </button>
         </header>
-        {open && (
-          <nav className="mobile-workspace" aria-label="Mobile workspace">
-            {nav.map(([s, n]) => (
-              <Link key={s} href={"/workspace" + (s ? "/" + s : "")}>
-                {n}
-              </Link>
-            ))}
-          </nav>
-        )}
+        <dialog
+          ref={drawer}
+          className="mobile-drawer"
+          onClose={() => setOpen(false)}
+          onClick={(event) => {
+            if (event.target === drawer.current) drawer.current?.close();
+          }}
+        >
+          <div>
+            <div className="row between">
+              <Logo />
+              <button
+                className="icon-button"
+                aria-label="Close workspace navigation"
+                onClick={() => drawer.current?.close()}
+              >
+                <X />
+              </button>
+            </div>
+            {path === "/workspace/demo" && (
+              <p className="notice">{DEMO_LABEL}</p>
+            )}
+            <nav aria-label="Mobile workspace">
+              {nav.map(([slug, name]) => (
+                <Link
+                  key={slug}
+                  href={"/workspace" + (slug ? "/" + slug : "")}
+                  onClick={() => drawer.current?.close()}
+                >
+                  {name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </dialog>
         <main id="main" className="workspace-main">
           {children}
         </main>
@@ -160,7 +199,7 @@ function Empty({
   );
 }
 function Dashboard() {
-  const { current, history, answers, newSession } = useStill();
+  const { current, history, answers, newSession, demoAnswers } = useStill();
   const done = answers.filter((x) => x !== null).length;
   return (
     <>
@@ -193,14 +232,20 @@ function Dashboard() {
             <em>honest reflection.</em>
           </h2>
           <p>
-            Seven questions. The last two weeks.
-            <br />
-            No need to have it all figured out.
+            Explore a guided questionnaire and 35-second camera demo, with a
+            clearly labeled simulated result. Or choose genuine questionnaire
+            scoring on its own.
           </p>
-          <Link className="button" href="/workspace/assessment">
+          <Link className="button" href="/workspace/demo">
+            {demoAnswers.some((a) => a !== null)
+              ? "Resume demonstration"
+              : "Start assessment"}{" "}
+            <ArrowUpRight size={18} />
+          </Link>
+          <Link className="text-link" href="/workspace/assessment">
             {done && done < 7
               ? `Resume check-in · ${done}/7 answered`
-              : "Begin your check-in"}{" "}
+              : "Questionnaire only"}{" "}
             <ArrowUpRight size={18} />
           </Link>
           <span className="micro">
@@ -293,165 +338,7 @@ function Dashboard() {
     </>
   );
 }
-function Assessment() {
-  const { answers, setAnswers, current, setCurrent } = useStill();
-  const [step, setStep] = useState(0);
-  const [difficulty, setDifficulty] = useState("");
-  const [error, setError] = useState("");
-  const routerPath = "/workspace/results";
-  const complete = answers.every((x) => x !== null);
-  function finish() {
-    try {
-      setCurrent({
-        ...current,
-        date: new Date().toISOString(),
-        screening: scoreGad(answers),
-        difficulty,
-      });
-    } catch {
-      setError("Complete every question before calculating a result.");
-      return false;
-    }
-    return true;
-  }
-  return (
-    <>
-      <Heading
-        label="GAD-7 / QUESTIONNAIRE-DERIVED SCREENING"
-        title="Make room for how you feel."
-        sub="Take your time. Your answers stay in browser memory unless you choose to save the result."
-      />
-      <section className="assessment card">
-        <div className="row between">
-          <span className="eyebrow">
-            {step < 7 ? `QUESTION ${step + 1} OF 7` : "REVIEW YOUR RESPONSES"}
-          </span>
-          <span className="muted">
-            {answers.filter((x) => x !== null).length}/7 answered
-          </span>
-        </div>
-        <div
-          className="step-progress"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={7}
-          aria-valuenow={answers.filter((x) => x !== null).length}
-          aria-label={`${answers.filter((x) => x !== null).length} of 7 answered`}
-        >
-          {gad.questions.map((_, i) => (
-            <span className={answers[i] !== null ? "filled" : ""} key={i} />
-          ))}
-        </div>
-        <p className="timeframe">{gad.timeframe}</p>
-        {step < 7 ? (
-          <fieldset>
-            <legend>{gad.questions[step]}</legend>
-            <div className="answer-options">
-              {gad.responses.map((label, value) => (
-                <label
-                  key={value}
-                  className={answers[step] === value ? "selected" : ""}
-                >
-                  <input
-                    type="radio"
-                    name={"item-" + step}
-                    checked={answers[step] === value}
-                    onChange={() => {
-                      const a = [...answers];
-                      a[step] = value;
-                      setAnswers(a);
-                      setCurrent({ ...current, screening: null });
-                    }}
-                  />
-                  <span>{label}</span>
-                  <span className="answer-score">{value}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
-        ) : (
-          <>
-            <div className="review-list">
-              {gad.questions.map((q, i) => (
-                <button key={q} onClick={() => setStep(i)}>
-                  <span>
-                    {i + 1}. {q}
-                  </span>
-                  <strong>
-                    {answers[i] === null
-                      ? "Not answered"
-                      : gad.responses[answers[i]!]}
-                  </strong>
-                </button>
-              ))}
-            </div>
-            <label className="field">
-              How difficult have these problems made it for you to do your work,
-              take care of things at home, or get along with other people?
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-              >
-                <option value="">Optional context — not scored</option>
-                {[
-                  "Not difficult at all",
-                  "Somewhat difficult",
-                  "Very difficult",
-                  "Extremely difficult",
-                ].map((v) => (
-                  <option key={v}>{v}</option>
-                ))}
-              </select>
-            </label>
-          </>
-        )}
-        <div className="row between assessment-actions">
-          <button
-            className="button secondary"
-            disabled={step === 0}
-            onClick={() => setStep(step - 1)}
-          >
-            Back
-          </button>
-          {step < 7 ? (
-            <button
-              className="button"
-              disabled={answers[step] === null}
-              onClick={() => setStep(step + 1)}
-            >
-              {step === 6 ? "Review answers" : "Next question"}{" "}
-              <ArrowRight size={16} />
-            </button>
-          ) : (
-            <Link
-              aria-disabled={!complete}
-              className={"button" + (!complete ? " disabled" : "")}
-              href={routerPath}
-              onClick={(e) => {
-                if (!complete || !finish()) e.preventDefault();
-              }}
-            >
-              Calculate my screening result <ArrowRight size={16} />
-            </Link>
-          )}
-        </div>
-        {error && (
-          <p role="alert" className="error">
-            {error}
-          </p>
-        )}
-      </section>
-      <p className="attribution micro">
-        {gad.attribution} <a href={gad.source}>Published form</a> ·{" "}
-        <a href={gad.scoring_source}>Scoring guide</a>
-      </p>
-      <p className="micro">
-        Screening is not diagnosis. These categories are not equivalent to UBFC
-        CSAI scores.
-      </p>
-    </>
-  );
-}
+
 function Results({ printed = false }: { printed?: boolean }) {
   const { current, setCurrent, save, storageError } = useStill();
   const [saved, setSaved] = useState(false);
@@ -543,12 +430,7 @@ function Results({ printed = false }: { printed?: boolean }) {
         )}
       </div>
       <Observations camera={current.camera} />
-      {current.camera && (
-        <details className="card">
-          <summary>Measurement software and settings</summary>
-          <pre>{JSON.stringify(current.camera.versions, null, 2)}</pre>
-        </details>
-      )}
+
       <section className="card">
         <label className="field">
           A note to yourself (optional)
@@ -567,12 +449,6 @@ function Results({ printed = false }: { printed?: boolean }) {
       <section className="print-only">
         <h3>Session note</h3>
         <p>{current.note || "No note added."}</p>
-        {current.camera && (
-          <>
-            <h3>Measurement software and settings</h3>
-            <pre>{JSON.stringify(current.camera.versions, null, 2)}</pre>
-          </>
-        )}
       </section>
       <div className="report-actions no-print">
         <button
@@ -1095,6 +971,9 @@ export function AppScreen({ section }: { section: string }) {
   const system = useReducedMotion();
   let content;
   switch (section) {
+    case "demo":
+      content = <GuidedDemo />;
+      break;
     case "assessment":
       content = <Assessment />;
       break;

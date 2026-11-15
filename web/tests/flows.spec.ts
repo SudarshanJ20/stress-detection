@@ -232,7 +232,9 @@ test("interrupted upload/analysis is cancelled; unsupported fixture is visibly p
   });
   await page.getByRole("button", { name: "Analyze on this computer" }).click();
   await expect(page.getByText("Queued for local analysis")).toBeVisible();
-  await page.getByRole("link", { name: "Questionnaire", exact: true }).click();
+  await page
+    .getByRole("link", { name: "Questionnaire only", exact: true })
+    .click();
   await expect.poll(() => removed).toBe(true);
 });
 
@@ -280,7 +282,7 @@ for (const width of [390, 768, 1440])
       "/about",
       "/privacy",
       "/resources",
-      "/research",
+      "/workspace/demo",
       "/workspace",
       "/workspace/assessment",
       "/workspace/camera",
