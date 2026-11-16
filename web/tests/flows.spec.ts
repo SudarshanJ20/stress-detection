@@ -130,7 +130,7 @@ test("camera denied only after explicit Start, backend unavailable, and clean em
       () => (window as unknown as { cameraCalls: number }).cameraCalls,
     ),
   ).toBe(0);
-  await page.getByRole("button", { name: "Start camera" }).click();
+  await page.getByRole("button", { name: "Enable camera" }).click();
   await expect(page.locator('.error[role="alert"]')).toContainText(
     "permission was denied",
   );
@@ -141,10 +141,12 @@ test("camera denied only after explicit Start, backend unavailable, and clean em
   ).toBe(1);
   await page.route("**/api/local/health", (r) => r.abort());
   await page.reload();
-  await expect(page.getByRole("status")).toContainText(
+  await expect(page.locator('.notice[role="status"]')).toContainText(
     "Local Python service unavailable",
   );
-  await page.getByRole("button", { name: /Continue without camera/ }).click();
+  await page
+    .getByRole("button", { name: /Continue with questionnaire only/ })
+    .click();
   await expect(
     page.getByRole("heading", { name: "No result to show yet." }),
   ).toBeVisible();
@@ -169,9 +171,8 @@ test("real prerecorded development input goes through local Python, report value
   );
   await page.getByText("Use a clearly labeled prerecorded input").click();
   await page.getByLabel("Prerecorded video").setInputFiles(input);
-  await expect(
-    page.getByText("Prerecorded input — not a live measurement"),
-  ).toBeVisible();
+  await expect(page.getByText("Prerecorded input — not live")).toBeVisible();
+  await page.getByRole("checkbox", { name: /I consent to processing/ }).check();
   await page.getByRole("button", { name: "Analyze on this computer" }).click();
   await expect(
     page.getByRole("heading", { name: "A clearer perspective." }),
@@ -204,23 +205,25 @@ test("interrupted upload/analysis is cancelled; unsupported fixture is visibly p
   page,
 }) => {
   let removed = false;
+  let requestedId = "";
   await page.route("**/api/local/jobs", async (route) => {
-    if (route.request().method() === "POST")
+    if (route.request().method() === "POST") {
+      requestedId = route.request().postDataJSON().request_id;
       await route.fulfill({
-        json: { id: "test-job", stage: "awaiting_upload" },
+        json: { id: requestedId, stage: "awaiting_upload" },
       });
-    else await route.continue();
+    } else await route.continue();
   });
-  await page.route("**/api/local/jobs/test-job/video", (route) =>
+  await page.route("**/api/local/jobs/*/video", (route) =>
     route.fulfill({ json: { stage: "queued" } }),
   );
-  await page.route("**/api/local/jobs/test-job", (route) => {
+  await page.route("**/api/local/jobs/*", (route) => {
     if (route.request().method() === "DELETE") {
       removed = true;
       return route.fulfill({ json: { deleted: true } });
     }
     return route.fulfill({
-      json: { id: "test-job", stage: "queued", result: null },
+      json: { id: requestedId, stage: "queued", result: null },
     });
   });
   await page.goto("/workspace/camera");
@@ -230,8 +233,9 @@ test("interrupted upload/analysis is cancelled; unsupported fixture is visibly p
     mimeType: "video/webm",
     buffer: Buffer.from("synthetic test only"),
   });
+  await page.getByRole("checkbox", { name: /I consent to processing/ }).check();
   await page.getByRole("button", { name: "Analyze on this computer" }).click();
-  await expect(page.getByText("Queued for local analysis")).toBeVisible();
+  await expect(page.getByText("Waiting for local processing")).toBeVisible();
   await page
     .getByRole("link", { name: "Questionnaire only", exact: true })
     .click();
@@ -283,6 +287,7 @@ for (const width of [390, 768, 1440])
       "/privacy",
       "/resources",
       "/workspace/demo",
+      "/workspace/guided",
       "/workspace",
       "/workspace/assessment",
       "/workspace/camera",
@@ -354,10 +359,20 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
       },
     });
   });
-  await page.goto("/workspace/camera");
-  await page.getByRole("button", { name: "Start camera" }).click();
+  await page.goto("/workspace/guided");
+  for (let i = 0; i < 7; i++) {
+    await page.getByRole("radio", { name: /More than half the days/ }).check();
+    await page
+      .getByRole("button", {
+        name: i === 6 ? "Review answers" : "Next question",
+      })
+      .click();
+  }
+  await page.getByRole("button", { name: "Continue to camera" }).click();
+  await page.getByRole("button", { name: "Enable camera" }).click();
+  await page.getByRole("button", { name: "Start recording" }).click();
   await expect(
-    page.getByRole("button", { name: "Stop camera", exact: true }),
+    page.getByRole("button", { name: "Stop recording", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Analyze on this computer" }),
@@ -373,6 +388,7 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
     (r) =>
       r.url().endsWith("/api/local/jobs") && r.request().method() === "POST",
   );
+  await page.getByRole("checkbox", { name: /I consent to processing/ }).check();
   await page.getByRole("button", { name: "Analyze on this computer" }).click();
   const id = (await (await jobResponse).json()).id;
   await expect(
@@ -384,6 +400,11 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
   const json = JSON.parse(
     await fs.readFile((await (await event).path())!, "utf8"),
   );
+  expect(json.questionnaire.score).toBe(14);
+  expect(json.illustrative_example).toBeNull();
+  expect(json.webcam.source).toBe("webcam");
+  expect(json.webcam.timing.decode_complete).toBe(true);
+  expect(json.webcam.duration_seconds).toBeGreaterThanOrEqual(30);
   expect(json.webcam.scheduled_windows).toBe(1);
   expect(json.webcam.pulse).toHaveLength(6);
   expect(

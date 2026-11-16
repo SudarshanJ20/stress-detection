@@ -16,11 +16,13 @@ export default function DemoCamera({
   onBack,
   onCancel,
   onQuestionnaire,
+  onRecording,
 }: {
   onComplete: (duration: number) => void;
   onBack: () => void;
   onCancel: () => void;
   onQuestionnaire: () => void;
+  onRecording?: (video: Blob, duration: number) => void;
 }) {
   const [stage, setStage] = useState<Stage>("idle");
   const [error, setError] = useState("");
@@ -36,6 +38,9 @@ export default function DemoCamera({
   const generation = useRef(0);
   const started = useRef(0);
   const recording = useRef(false);
+  const parts = useRef<Blob[]>([]);
+  const recordingCallback = useRef(onRecording);
+  recordingCallback.current = onRecording;
   const finishRef = useRef(onComplete);
   finishRef.current = onComplete;
   const clearTimer = () => {
@@ -44,6 +49,7 @@ export default function DemoCamera({
   };
   const release = () => {
     clearTimer();
+    parts.current = [];
     recording.current = false;
     if (recorder.current) {
       recorder.current.onstop = null;
@@ -160,15 +166,25 @@ export default function DemoCamera({
     // Do not pass delayed/background capture off as a completed exact-length interaction.
     const complete = duration >= 35 && duration < 35.5 && !document.hidden;
     r.onstop = () => {
+      const captured =
+        recordingCallback.current && complete
+          ? new Blob(parts.current, { type: r.mimeType })
+          : null;
       release();
       busy.current = false;
       if (!mounted.current) return;
-      if (complete) finishRef.current(duration);
-      else {
+      if (complete && captured?.size)
+        recordingCallback.current?.(captured, duration);
+      else if (complete && !recordingCallback.current)
+        finishRef.current(duration);
+      else if (complete) {
+        setStage("incomplete");
+        setError("No video data was captured. Please retry.");
+      } else {
         setStage("incomplete");
         setError(
           duration < 35
-            ? `Incomplete recording — ${duration.toFixed(1)} of 35 seconds. Retry to complete the demo.`
+            ? `Incomplete recording — ${duration.toFixed(1)} of 35 seconds. Retry to complete the 35-second recording.`
             : "Browser timing was interrupted. Retry to capture an uninterrupted 35-second session.",
         );
       }
@@ -199,8 +215,21 @@ export default function DemoCamera({
         mime ? { mimeType: mime } : undefined,
       );
       recorder.current = r;
-      // Capture chunks are deliberately discarded. No Blob, replay URL, upload or file is created.
-      r.ondataavailable = () => {};
+      parts.current = [];
+      let size = 0;
+      r.ondataavailable = (event) => {
+        if (!recordingCallback.current || !event.data.size) return;
+        size += event.data.size;
+        if (size > 100 * 1024 * 1024) {
+          discard();
+          setStage("incomplete");
+          setError(
+            "Recording exceeds the 100 MiB limit. Please retry at a lower camera resolution.",
+          );
+          return;
+        }
+        parts.current.push(event.data);
+      };
       r.onerror = () => {
         discard();
         setStage("incomplete");
@@ -316,8 +345,12 @@ export default function DemoCamera({
           </div>
           <p className="micro">
             {stage === "ready"
-              ? "Preview ready. Face detection is not active in this demo."
-              : "No live face detection, pulse measurement or anxiety inference in this demo."}
+              ? onRecording
+                ? "Preview ready. Face detection runs during local processing."
+                : "Preview ready. Face detection is not active in this demo."
+              : onRecording
+                ? "No live face detection. Measurements are available after local processing."
+                : "No live face detection, pulse measurement or anxiety inference in this demo."}
           </p>
           {stage === "ready" && (
             <label className="check">
@@ -368,7 +401,7 @@ export default function DemoCamera({
               Back to review
             </button>
             <button className="text-link" onClick={() => leave(onCancel)}>
-              Cancel demo
+              {onRecording ? "Cancel assessment" : "Cancel demo"}
             </button>
           </div>
           {error && (
@@ -401,12 +434,12 @@ export default function DemoCamera({
             <ShieldCheck size={24} />
             <h3>Only on this device.</h3>
             <p>
-              Video only. No microphone. This demo does not upload your
-              recording to Python or any other service. Capture data is
-              discarded immediately.
+              {onRecording
+                ? "Video only. No microphone. After recording, you can consent to send the video to the local Python service on this computer. Temporary video is deleted after processing unless you choose to keep it."
+                : "Video only. No microphone. This demo does not upload your recording to Python or any other service. Capture data is discarded immediately."}
             </p>
             <p className="micro">
-              A full 35 seconds completes the interaction. Stopping early means
+              A full 35 seconds completes capture. Stopping early means
               retrying. Leaving this page stops the camera; your questionnaire
               answers remain in memory.
             </p>

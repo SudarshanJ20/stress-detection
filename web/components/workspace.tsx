@@ -32,7 +32,16 @@ import { Logo } from "./navigation";
 import { useStill } from "./state";
 import { gad, report, download, api, Session, DEMO_LABEL } from "@/lib/session";
 import { Assessment } from "./questionnaire";
-import { Observations } from "./observations";
+import { Results } from "./results";
+import { Heading, Empty } from "./screen-frames";
+const GuidedAssessment = dynamic(() => import("./guided-assessment"), {
+  ssr: false,
+  loading: () => (
+    <div className="skeleton" role="status">
+      Preparing your assessment…
+    </div>
+  ),
+});
 const GuidedDemo = dynamic(() => import("./demo"), {
   ssr: false,
   loading: () => (
@@ -52,7 +61,8 @@ const CameraSession = dynamic(() => import("./camera"), {
 const Trend = dynamic(() => import("./trend"), { ssr: false });
 const nav = [
   ["", "Your overview", LayoutDashboard],
-  ["demo", "Guided demonstration", Play],
+  ["guided", "Guided assessment", NotebookPen],
+  ["demo", "Interface demo", Play],
   ["assessment", "Questionnaire only", NotebookPen],
   ["camera", "Camera session", Camera],
   ["results", "Your results", ChartNoAxesCombined],
@@ -166,40 +176,8 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-function Heading({
-  label,
-  title,
-  sub,
-}: {
-  label: string;
-  title: string;
-  sub?: string;
-}) {
-  return (
-    <div className="page-heading">
-      <p className="eyebrow">{label}</p>
-      <h1>{title}</h1>
-      {sub && <p>{sub}</p>}
-    </div>
-  );
-}
-function Empty({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="card empty">
-      <Leaf size={28} />
-      <h3>{title}</h3>
-      {children}
-    </div>
-  );
-}
 function Dashboard() {
-  const { current, history, answers, newSession, demoAnswers } = useStill();
+  const { current, history, answers, newSession } = useStill();
   const done = answers.filter((x) => x !== null).length;
   return (
     <>
@@ -232,13 +210,13 @@ function Dashboard() {
             <em>honest reflection.</em>
           </h2>
           <p>
-            Explore a guided questionnaire and 35-second camera demo, with a
-            clearly labeled simulated result. Or choose genuine questionnaire
-            scoring on its own.
+            Seven questions about the last two weeks, followed by optional video
+            observations processed on this computer. You can also choose
+            questionnaire only.
           </p>
-          <Link className="button" href="/workspace/demo">
-            {demoAnswers.some((a) => a !== null)
-              ? "Resume demonstration"
+          <Link className="button" href="/workspace/guided">
+            {answers.some((a) => a !== null)
+              ? "Resume assessment"
               : "Start assessment"}{" "}
             <ArrowUpRight size={18} />
           </Link>
@@ -339,159 +317,6 @@ function Dashboard() {
   );
 }
 
-function Results({ printed = false }: { printed?: boolean }) {
-  const { current, setCurrent, save, storageError } = useStill();
-  const [saved, setSaved] = useState(false);
-  const anything = !!(current.screening || current.camera);
-  if (!anything)
-    return (
-      <>
-        <Heading label="YOUR RESULTS" title="Your perspective starts here." />
-        <Empty title="No result to show yet.">
-          <p>
-            Complete the questionnaire, add camera observations, or open a saved
-            session from history.
-          </p>
-          <Link className="button" href="/workspace/assessment">
-            Begin questionnaire <ArrowRight size={16} />
-          </Link>
-        </Empty>
-      </>
-    );
-  return (
-    <>
-      <Heading
-        label={
-          printed ? "SESSION REPORT" : "YOUR RESULTS / TWO SEPARATE SOURCES"
-        }
-        title={printed ? "A moment, on paper." : "A clearer perspective."}
-        sub={new Date(current.date).toLocaleString()}
-      />
-      {current.screening ? (
-        <section className="card screening-result">
-          <div>
-            <span className="eyebrow">QUESTIONNAIRE-DERIVED · GAD-7</span>
-            <h2>
-              {current.screening.category}
-              <br />
-              <em>reported symptoms.</em>
-            </h2>
-            <p>
-              Based on your answers about the last two weeks.
-              <br />A screening category, not a diagnosis.
-            </p>
-          </div>
-          <div className="score-circle">
-            <strong data-testid="screening-score">
-              {current.screening.score}
-            </strong>
-            <span>OUT OF 21</span>
-          </div>
-          <div className="score-scale">
-            {gad.bands.map((b) => (
-              <span
-                className={
-                  b.label === current.screening!.category ? "active" : ""
-                }
-                key={b.label}
-              >
-                {b.label}
-                <small>
-                  {b.min}–{b.max}
-                </small>
-              </span>
-            ))}
-          </div>
-          <p className="micro">
-            If symptoms affect your daily life or concern you, consider
-            discussing them with a qualified professional. The camera does not
-            validate or change this result.
-          </p>
-        </section>
-      ) : (
-        <div className="notice">
-          Questionnaire not completed. No screening result has been calculated.
-        </div>
-      )}
-      {current.difficulty && (
-        <p className="notice">
-          Unscored day-to-day difficulty: {current.difficulty}
-        </p>
-      )}
-      <div className="row between section-title">
-        <h2>Camera observations</h2>
-        {!printed && (
-          <Link className="text-link" href="/workspace/camera">
-            {current.camera
-              ? "Record a new observation"
-              : "Add an optional observation"}{" "}
-            <ArrowUpRight size={16} />
-          </Link>
-        )}
-      </div>
-      <Observations camera={current.camera} />
-
-      <section className="card">
-        <label className="field">
-          A note to yourself (optional)
-          <textarea
-            rows={3}
-            value={current.note}
-            onChange={(e) => setCurrent({ ...current, note: e.target.value })}
-            placeholder="What would you like to remember?"
-          />
-        </label>
-        <p className="micro">
-          A note stays temporary until you save this session or download a
-          report.
-        </p>
-      </section>
-      <section className="print-only">
-        <h3>Session note</h3>
-        <p>{current.note || "No note added."}</p>
-      </section>
-      <div className="report-actions no-print">
-        <button
-          className="button"
-          onClick={() => {
-            save();
-            setSaved(true);
-          }}
-        >
-          <Check size={16} />
-          {saved
-            ? "Save again in this browser"
-            : "Save this session in this browser"}
-        </button>
-        <button
-          className="button secondary"
-          onClick={() => download(report(current), "still-session-report.json")}
-        >
-          <Download size={16} /> Download JSON report
-        </button>
-        <button className="button secondary" onClick={() => window.print()}>
-          <Printer size={16} /> Print / save PDF
-        </button>
-      </div>
-      {saved && !storageError && (
-        <p role="status" className="notice">
-          Saved locally in this browser. Raw questionnaire answers are not
-          saved.
-        </p>
-      )}
-      {storageError && (
-        <p role="alert" className="error">
-          {storageError}
-        </p>
-      )}
-      <p className="micro">
-        Still 1.0.0 · GAD-7 English · Screening and observations are separate.
-        This report contains sensitive information; keep downloads private.
-      </p>
-      <p className="attribution micro">{gad.attribution}</p>
-    </>
-  );
-}
 function SavedRow({ session }: { session: Session }) {
   const { open } = useStill();
   return (
@@ -971,6 +796,9 @@ export function AppScreen({ section }: { section: string }) {
   const system = useReducedMotion();
   let content;
   switch (section) {
+    case "guided":
+      content = <GuidedAssessment />;
+      break;
     case "demo":
       content = <GuidedDemo />;
       break;

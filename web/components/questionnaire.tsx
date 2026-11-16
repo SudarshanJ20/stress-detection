@@ -66,9 +66,9 @@ export function Assessment({
   }
   return (
     <>
-      {!demo && (
+      {!demo && !onComplete && (
         <Heading
-          label="GAD-7 / QUESTIONNAIRE-DERIVED SCREENING"
+          label="Anxiety screening — questionnaire"
           title="Make room for how you feel."
           sub="Take your time. Navigating within the app keeps your answers. Reloading or closing clears unsaved progress."
         />
@@ -180,7 +180,7 @@ export function Assessment({
               {step === 6 ? "Review answers" : "Next question"}{" "}
               <ArrowRight size={16} />
             </button>
-          ) : demo ? (
+          ) : demo || onComplete ? (
             <button
               className="button"
               disabled={!complete}
@@ -214,8 +214,7 @@ export function Assessment({
         <a href={gad.scoring_source}>Scoring guide</a>
       </p>
       <p className="micro">
-        Screening is not a diagnosis. GAD-7 describes the last two weeks, not
-        how you feel during a recording.
+        GAD-7 covers the last two weeks. Screening is not a diagnosis.
       </p>
     </>
   );

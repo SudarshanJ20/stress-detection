@@ -13,6 +13,17 @@ export type Camera = {
   source: "webcam" | "prerecorded";
   duration_seconds: number;
   scheduled_windows: number;
+  window_seconds?: number;
+  timing?: {
+    codec: string;
+    decoded_frames: number;
+    decode_complete: boolean;
+    pts_span_seconds: number;
+    last_frame_duration_seconds: number;
+    observed_duration_seconds: number;
+    timing_warnings: string[];
+    timestamp_source: string;
+  };
   availability: string;
   facial: Record<
     string,
@@ -20,6 +31,11 @@ export type Camera = {
       value: number | null;
       supported_windows: number;
       scheduled_windows: number;
+      label?: string;
+      statistic?: string;
+      unit?: string;
+      source?: string;
+      reasons?: string[];
     }
   >;
   pulse: Pulse[];
@@ -88,6 +104,11 @@ export function report(s: Session) {
         : "Questionnaire and optional observations",
     illustrative_example: s.mode === "demo" ? DEMO_EXAMPLE : null,
     demo_capture: s.mode === "demo" ? (s.demoCapture ?? null) : null,
+    recording_retained_locally: Boolean(s.recordingId),
+    section_labels: {
+      questionnaire: "Anxiety screening — questionnaire",
+      webcam: "Video observations — webcam",
+    },
     questionnaire: s.screening,
     webcam: s.camera ?? {
       availability: s.mode === "demo" ? "unavailable" : "not_added",
@@ -99,7 +120,7 @@ export function report(s: Session) {
     note: s.note,
     questionnaire_difficulty: s.difficulty || null,
     interpretation:
-      "Questionnaire-derived screening covers the last two weeks and is not a diagnosis. Webcam observations and illustrative examples do not validate or change GAD-7.",
+      "Questionnaire screening covers the last two weeks and is not a diagnosis. Video observations are separately attributed camera measurements.",
     questionnaire_attribution: gad.attribution,
     sources: [gad.source, gad.scoring_source],
   };

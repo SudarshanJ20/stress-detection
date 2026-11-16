@@ -145,9 +145,7 @@ test("review/edit, back/next, in-app resume, independent questionnaire and refre
     page.getByRole("radio", { name: /Nearly every day/ }),
   ).toBeChecked();
   await page.getByRole("link", { name: "Your overview" }).click();
-  await page
-    .getByRole("link", { name: "Guided demonstration", exact: true })
-    .click();
+  await page.getByRole("link", { name: "Interface demo", exact: true }).click();
   await expect(
     page.getByRole("button", { name: /1. Feeling nervous/ }),
   ).toContainText("Nearly every day");
@@ -386,18 +384,14 @@ test("early stop, countdown cancel, retry, recorder failure, navigation cleanup 
   await expect(page.getByText("Camera ready", { exact: true })).toBeVisible();
   await page.getByRole("link", { name: "Your overview" }).click();
   await expect.poll(() => tracksEnded(page)).toBe(true);
-  await page
-    .getByRole("link", { name: "Guided demonstration", exact: true })
-    .click();
+  await page.getByRole("link", { name: "Interface demo", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Enable camera" }),
   ).toBeVisible();
   page.once("dialog", (d) => d.accept());
   await page.getByRole("button", { name: "Cancel demo" }).click();
   await expect(page).toHaveURL(/\/workspace$/);
-  await page
-    .getByRole("link", { name: "Guided demonstration", exact: true })
-    .click();
+  await page.getByRole("link", { name: "Interface demo", exact: true }).click();
   await expect(page.getByText("0/7 answered")).toBeVisible();
 });
 
