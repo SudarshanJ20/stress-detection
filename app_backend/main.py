@@ -29,6 +29,11 @@ ORIGINS = {'http://127.0.0.1:3000', 'http://localhost:3000'}
 LIMIT = 100 * 1024 * 1024
 TTL = 1800
 
+def remove_tree(path):
+    try: shutil.rmtree(path)
+    except FileNotFoundError: pass
+
+
 def score(answers):
     if not isinstance(answers, list) or len(answers) != 7 or any(type(x) is not int or not 0 <= x <= 3 for x in answers):
         raise ValueError('Complete all seven items with valid responses.')
@@ -41,6 +46,7 @@ class NewJob(BaseModel):
     request_id: str
     provenance: str = 'webcam'
     keep_recording: bool = False
+    consent_local_processing: bool = False
 
 class Store:
     def __init__(self):
@@ -49,14 +55,15 @@ class Store:
         if RUNTIME.is_symlink() or (not marker.exists() and any(RUNTIME.iterdir())):
             raise RuntimeError('Use an empty, private Still runtime directory.')
         marker.write_text('still-local-runtime-v1\n')
-        self.jobs = {}; self.lock = threading.RLock(); self.pool = ThreadPoolExecutor(max_workers=1)
+        self.jobs = {}; self.cancelled = {}; self.lock = threading.RLock(); self.pool = ThreadPoolExecutor(max_workers=1)
         (RUNTIME / 'recordings').mkdir(exist_ok=True)
-        shutil.rmtree(RUNTIME / 'jobs', ignore_errors=True); (RUNTIME / 'jobs').mkdir()
+        remove_tree(RUNTIME / 'jobs'); (RUNTIME / 'jobs').mkdir()
     def create(self, data):
         try: key = str(UUID(data.request_id))
         except ValueError: raise HTTPException(422, 'Invalid request identifier.')
         if data.provenance not in ('webcam', 'prerecorded'): raise HTTPException(422, 'Invalid recording source.')
         with self.lock:
+            if key in self.cancelled: raise HTTPException(409, 'This analysis was cancelled. Start a new recording.')
             if key in self.jobs: return self.jobs[key]
             if sum(j['stage'] not in ('completed', 'failed', 'cancelled') for j in self.jobs.values()) >= 3:
                 raise HTTPException(429, 'Analysis queue is full. Wait or cancel a session.')
@@ -69,40 +76,51 @@ class Store:
             if key not in self.jobs: raise HTTPException(404, 'Session expired or deleted.')
             return self.jobs[key]
     def run(self, j):
+        result = None
         try:
             with self.lock:
                 if j['deleted']: return
-                j['stage'] = 'checking_video'
+                j['stage'] = 'decoding'
                 j['process'] = subprocess.Popen([sys.executable, '-m', 'app_backend.worker', str(j['folder']), j['source']],
                     cwd=ROOT, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
             code = j['process'].wait()
             with self.lock:
                 if j['deleted']: return
-                result = j['folder'] / 'result.json'
-                if code == 0 and result.is_file():
-                    j['result'] = json.loads(result.read_text()); j['stage'] = 'completed'
+                output = j['folder'] / 'result.json'
+                if code == 0 and output.is_file():
+                    result = json.loads(output.read_text())
                     if j['keep']:
                         shutil.move(j['folder'] / 'input.webm', RUNTIME / 'recordings' / (j['id'] + '.webm'))
-                else: j['stage'] = 'failed'
         except Exception:
-            with self.lock:
-                if not j['deleted']: j['stage'] = 'failed'
+            result = None
         finally:
-            shutil.rmtree(j['folder'], ignore_errors=True)
+            with self.lock:
+                try: remove_tree(j['folder'])
+                except OSError:
+                    result = None; j['cleanup_failed'] = True
+                if not j['deleted']:
+                    if result is None:
+                        try: (RUNTIME / 'recordings' / (j['id'] + '.webm')).unlink(missing_ok=True)
+                        except OSError: j['cleanup_failed'] = True
+                    j['result'] = result
+                    j['stage'] = 'completed' if result is not None else 'failed'
     def delete(self, key):
+        try: key = str(UUID(key))
+        except ValueError: raise HTTPException(422, 'Invalid session identifier.')
         with self.lock:
-            j = self.jobs.pop(key, None)
+            self.cancelled[key] = time.time()
+            j = self.jobs.get(key)
             if j: j['deleted'] = True; j['stage'] = 'cancelled'
             process = j['process'] if j else None
         if process and process.poll() is None:
             try: os.killpg(process.pid, signal.SIGTERM); process.wait(timeout=2)
             except ProcessLookupError: pass
             except subprocess.TimeoutExpired: os.killpg(process.pid, signal.SIGKILL); process.wait()
-        if j: shutil.rmtree(j['folder'], ignore_errors=True)
-        # Only canonical IDs may address recordings, including files retained across restarts.
-        try: canonical = str(UUID(key))
-        except ValueError: raise HTTPException(422, 'Invalid session identifier.')
-        (RUNTIME / 'recordings' / (canonical + '.webm')).unlink(missing_ok=True)
+        # Retry addresses the owned UUID folder even if an earlier cancellation lost its response.
+        remove_tree(RUNTIME / 'jobs' / key)
+        (RUNTIME / 'recordings' / (key + '.webm')).unlink(missing_ok=True)
+        with self.lock:
+            if self.jobs.get(key) is j: self.jobs.pop(key, None)
     def clear(self):
         for key in list(self.jobs): self.delete(key)
         for f in (RUNTIME / 'recordings').glob('*.webm'): f.unlink()
@@ -116,10 +134,14 @@ async def lifespan(app):
     async def sweep():
         while True:
             await asyncio.sleep(60)
+            with store.lock:
+                store.cancelled = {k: t for k, t in store.cancelled.items() if time.time() - t <= TTL}
             for key, job in list(store.jobs.items()):
                 if time.time() - job['created'] > TTL:
                     if job['keep'] and job['stage'] == 'completed': store.jobs.pop(key, None)
-                    else: await asyncio.to_thread(store.delete, key)
+                    else:
+                        try: await asyncio.to_thread(store.delete, key)
+                        except OSError: pass  # Retry on the next sweep; never report deletion success.
     sweeper = asyncio.create_task(sweep())
     yield
     sweeper.cancel()
@@ -154,6 +176,7 @@ async def scoring(request: Request):
 
 @app.post('/api/jobs')
 def create(data: NewJob):
+    if not data.consent_local_processing: raise HTTPException(422, 'Consent to local video processing is required.')
     if not (ROOT / 'models/mediapipe/face_landmarker.task').is_file(): raise HTTPException(503, 'Local landmark model is unavailable.')
     j = store.create(data); return {'id': j['id'], 'stage': j['stage']}
 
@@ -179,7 +202,10 @@ async def upload(key: str, request: Request):
             j['stage'] = 'queued'; store.pool.submit(store.run, j)
         return {'id': key, 'stage': 'queued'}
     except BaseException:
-        j['stage'] = 'failed'; shutil.rmtree(j['folder'], ignore_errors=True); raise
+        j['stage'] = 'failed'
+        try: remove_tree(j['folder'])
+        except OSError: j['cleanup_failed'] = True
+        raise
 
 @app.get('/api/jobs/{key}')
 def job(key: str):
@@ -187,16 +213,22 @@ def job(key: str):
     if stage not in ('completed', 'failed') and (j['folder'] / 'stage.json').is_file():
         try:
             stage = json.loads((j['folder'] / 'stage.json').read_text())['stage']
-            if stage == 'completed': stage = 'summarizing'
+            if stage == 'completed': stage = 'preparing_results'
         except (OSError, ValueError): pass
     return {'id': key, 'stage': stage, 'result': j['result'], 'recording_saved': (RUNTIME / 'recordings' / (key + '.webm')).is_file(),
-            'message': 'Analysis could not finish. Check recording length, readable video, timing and local model availability.' if stage == 'failed' else None}
+            'message': ('Temporary file deletion could not be confirmed. Retry cleanup or use Settings.' if j.get('cleanup_failed') else 'Analysis could not finish. Check recording length, readable video, timing and local model availability.') if stage == 'failed' else None}
 
 @app.delete('/api/jobs/{key}')
-def delete(key: str): store.delete(key); return {'deleted': True}
+def delete(key: str):
+    try: store.delete(key)
+    except OSError: raise HTTPException(503, 'Local file deletion could not finish. Retry cleanup when the local service is available.')
+    return {'deleted': True}
 
 @app.get('/api/recordings')
 def recordings(): return {'recordings': [{'id': p.stem, 'created': datetime.fromtimestamp(p.stat().st_mtime, timezone.utc).isoformat()} for p in (RUNTIME / 'recordings').glob('*.webm')]}
 
 @app.delete('/api/jobs')
-def clear(): store.clear(); return {'deleted': True}
+def clear():
+    try: store.clear()
+    except OSError: raise HTTPException(503, 'Local file deletion could not finish. Retry cleanup when the local service is available.')
+    return {'deleted': True}

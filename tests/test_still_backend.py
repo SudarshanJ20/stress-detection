@@ -15,7 +15,7 @@ class StillTests(unittest.TestCase):
         self.runtime=Path(self.tmp.name)/'runtime';p=patch.object(main,'RUNTIME',self.runtime);p.start();self.addCleanup(p.stop)
         self.client=TestClient(main.app);self.client.__enter__();self.addCleanup(self.client.__exit__,None,None,None)
     def create(self):
-        key=str(uuid4());r=self.client.post('/api/jobs',headers=HEADERS,json={'request_id':key,'provenance':'prerecorded'})
+        key=str(uuid4());r=self.client.post('/api/jobs',headers=HEADERS,json={'request_id':key,'consent_local_processing':True,'provenance':'prerecorded'})
         self.assertEqual(r.status_code,200);return key
     def test_all_scoring_totals_boundaries_and_incomplete_inputs(self):
         for total in range(22):
@@ -33,7 +33,7 @@ class StillTests(unittest.TestCase):
         r=self.client.post('/api/jobs',headers=HEADERS,json={'request_id':str(uuid4()),'private_note':'PRIVATE RESPONSE'})
         self.assertEqual(r.status_code,422);self.assertNotIn('PRIVATE RESPONSE',r.text)
     def test_duplicate_job_upload_limit_empty_video_and_delete(self):
-        key=self.create();self.assertEqual(self.client.post('/api/jobs',headers=HEADERS,json={'request_id':key}).json()['id'],key)
+        key=self.create();self.assertEqual(self.client.post('/api/jobs',headers=HEADERS,json={'request_id':key,'consent_local_processing':True}).json()['id'],key)
         self.assertEqual(len(main.store.jobs),1)
         with patch.object(main,'LIMIT',3):
             r=self.client.put(f'/api/jobs/{key}/video',headers={**HEADERS,'content-type':'video/webm'},content=b'1234')
@@ -66,3 +66,55 @@ class StillTests(unittest.TestCase):
         with patch.object(main.subprocess,'Popen',side_effect=OSError('local launch failure')):
             main.store.run(job)
         self.assertEqual(job['stage'],'failed');self.assertFalse(job['folder'].exists())
+
+    def test_processing_requires_explicit_consent_and_late_create_cannot_resurrect_cancelled_job(self):
+        key=str(uuid4())
+        self.assertEqual(self.client.post('/api/jobs',headers=HEADERS,json={'request_id':key}).status_code,422)
+        self.assertFalse(main.store.jobs)
+        self.client.delete('/api/jobs/'+key,headers=HEADERS)
+        response=self.client.post('/api/jobs',headers=HEADERS,json={'request_id':key,'consent_local_processing':True})
+        self.assertEqual(response.status_code,409)
+        self.assertFalse((self.runtime/'jobs'/key).exists())
+
+    def test_success_deletes_intermediates_before_completion_and_retention_is_explicit(self):
+        for keep in (False, True):
+            key=self.create();job=main.store.jobs[key];job['keep']=keep
+            (job['folder']/'input.webm').write_bytes(b'synthetic lifecycle fixture')
+            (job['folder']/'result.json').write_text('{"source":"webcam"}')
+            process=Mock();process.wait.return_value=0
+            with patch.object(main.subprocess,'Popen',return_value=process): main.store.run(job)
+            self.assertEqual(job['stage'],'completed')
+            self.assertFalse(job['folder'].exists())
+            retained=self.runtime/'recordings'/(key+'.webm')
+            self.assertEqual(retained.exists(),keep)
+            self.client.delete('/api/jobs/'+key,headers=HEADERS)
+            self.assertFalse(retained.exists())
+
+    def test_failed_worker_never_retains_recording_even_with_save_opt_in(self):
+        key=self.create();job=main.store.jobs[key];job['keep']=True
+        (job['folder']/'input.webm').write_bytes(b'invalid fixture')
+        process=Mock();process.wait.return_value=1
+        with patch.object(main.subprocess,'Popen',return_value=process): main.store.run(job)
+        self.assertEqual(job['stage'],'failed')
+        self.assertFalse(job['folder'].exists())
+        self.assertFalse((self.runtime/'recordings'/(key+'.webm')).exists())
+
+    def test_deletion_failure_is_reported_and_can_be_retried(self):
+        key=self.create();folder=self.runtime/'jobs'/key
+        (folder/'input.webm').write_bytes(b'synthetic deletion fixture')
+        with patch.object(main,'remove_tree',side_effect=PermissionError('test-only failure')):
+            response=self.client.delete('/api/jobs/'+key,headers=HEADERS)
+        self.assertEqual(response.status_code,503)
+        self.assertTrue(folder.exists());self.assertIn(key,main.store.jobs)
+        self.assertEqual(self.client.delete('/api/jobs/'+key,headers=HEADERS).status_code,200)
+        self.assertFalse(folder.exists());self.assertNotIn(key,main.store.jobs)
+
+    def test_completion_is_not_published_when_temporary_file_cleanup_fails(self):
+        key=self.create();job=main.store.jobs[key]
+        (job['folder']/'result.json').write_text('{"source":"webcam"}')
+        process=Mock();process.wait.return_value=0
+        with patch.object(main.subprocess,'Popen',return_value=process), patch.object(main,'remove_tree',side_effect=PermissionError('test-only failure')):
+            main.store.run(job)
+        self.assertEqual(job['stage'],'failed');self.assertIsNone(job['result'])
+        self.assertIn('deletion',self.client.get('/api/jobs/'+key).json()['message'])
+        self.assertEqual(self.client.delete('/api/jobs/'+key,headers=HEADERS).status_code,200)
