@@ -1155,7 +1155,7 @@ tbody tr:last-child td {
   gap: 15px 35px;
   background: var(--pale);
 }
-.screening-result h2 {
+.screening-result .questionnaire-category {
   font-size: 49px;
 }
 .score-circle {
@@ -1677,7 +1677,7 @@ svg[viewBox="0 0 600 190"] {
     width: 200px;
     height: 200px;
   }
-  .screening-result h2 {
+  .screening-result .questionnaire-category {
     font-size: 44px;
   }
 }
@@ -1897,7 +1897,7 @@ svg[viewBox="0 0 600 190"] {
     grid-template-columns: 1fr 115px;
     gap: 15px;
   }
-  .screening-result h2 {
+  .screening-result .questionnaire-category {
     font-size: 34px;
   }
   .screening-result .eyebrow {
@@ -2707,5 +2707,47 @@ svg[viewBox="0 0 600 190"] {
 @media print {
   details.card > :not(summary) {
     display: block;
+  }
+}
+.guided-real .demo-steps ol {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+.capture-consent .check {
+  margin: 22px 0;
+}
+@media (max-width: 700px) {
+  .guided-real .demo-steps ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+}
+/* CSS selects entrance motion without changing server-rendered attributes. */
+.workspace-screen {
+  animation: demo-step-in 0.16s ease-out;
+}
+.hero-copy {
+  animation: hero-copy-in 0.8s ease-out;
+}
+.hero-visual {
+  animation: hero-image-in 1.1s ease-out;
+}
+@keyframes hero-copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hero-image-in {
+  from {
+    opacity: 0;
+    clip-path: inset(8% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0% 0 0 0);
   }
 }

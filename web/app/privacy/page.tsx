@@ -25,12 +25,12 @@ export default function Page() {
         </p>
         <h2>Recording and local processing</h2>
         <p>
-          Enable camera requests video permission; the microphone stays off. A
-          35-second recording first stays in browser memory. Nothing is
-          transferred until you check consent and choose “Analyze on this
-          computer.” The video goes only to the local Python backend on this
-          computer. A prerecorded file is processed only after the same explicit
-          consent, and its source stays labeled.
+          The combined assessment asks for consent to local video processing
+          before camera setup. Enable camera then requests video permission; the
+          microphone stays off. When the complete 35-second recording ends, the
+          video is sent to the local Python backend on this computer for
+          processing. You can cancel or leave at any time. The separately named
+          Questionnaire only route does not record video.
         </p>
         <p>
           Tracks stop after capture or when you leave. Browser recordings and
@@ -41,14 +41,16 @@ export default function Page() {
         </p>
         <h2>Local processing</h2>
         <p>
-          If you explicitly choose local analysis in Camera session, the Python
-          service temporarily stores your uploaded video and measurement files
-          on this computer. Intermediates and the uploaded recording are deleted
-          after processing unless you explicitly choose to keep the recording.
-          Job results are held in server memory for up to 30 minutes. Unfinished
-          jobs expire after 30 minutes; startup removes stale temporary jobs
-          after an interrupted server. Retained recordings survive restarts
-          until explicitly deleted.
+          The Python service temporarily stores the recording and measurement
+          files on this computer. The separate Video session also accepts a
+          prerecorded file, labeled by source and transferred only after
+          explicit consent and Analyze on this computer. Selecting a file does
+          not delete the original. Intermediates and the uploaded recording are
+          deleted after processing unless you explicitly choose to keep the
+          recording. Job results are held in server memory for up to 30 minutes.
+          Unfinished jobs expire after 30 minutes; startup removes stale
+          temporary jobs after an interrupted server. Retained recordings
+          survive restarts until explicitly deleted.
         </p>
         <h2>Optional browser saving</h2>
         <p>
@@ -68,21 +70,13 @@ export default function Page() {
           JSON report or a browser-printed PDF is outside the app’s control;
           remove those files yourself. We cannot remotely erase them.
         </p>
-        <h2>Separate interface demo</h2>
-        <p>
-          The optional Interface demo remains clearly labeled “Demo mode —
-          simulated result.” Its fixed sample is never calculated from video or
-          questionnaire answers. It does not upload recordings or save demo
-          outcomes to genuine history or trends. Its reports retain the
-          simulation label.
-        </p>
         <h2>No cloud processing</h2>
         <p>
           Run the frontend and backend on loopback as documented. Photos, fonts
           and icons are bundled locally. Resource links open external websites
           only when you choose them. No third-party scripts, trackers or remote
-          model services are used. Do not expose this local presentation service
-          to a public network.
+          processing services are used. Do not expose this local presentation
+          service to a public network.
         </p>
         <Link className="button" href="/workspace/settings">
           Manage local data

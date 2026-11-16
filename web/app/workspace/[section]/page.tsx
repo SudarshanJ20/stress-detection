@@ -1,7 +1,6 @@
 import { AppScreen } from "@/components/workspace";
 import { notFound } from "next/navigation";
 const sections = [
-  "demo",
   "guided",
   "assessment",
   "camera",

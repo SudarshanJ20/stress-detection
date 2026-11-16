@@ -27,10 +27,10 @@ import {
   RotateCcw,
 } from "lucide-react";
 import dynamic from "next/dynamic";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 import { Logo } from "./navigation";
 import { useStill } from "./state";
-import { gad, report, download, api, Session, DEMO_LABEL } from "@/lib/session";
+import { gad, report, download, api, Session } from "@/lib/session";
 import { Assessment } from "./questionnaire";
 import { Results } from "./results";
 import { Heading, Empty } from "./screen-frames";
@@ -39,14 +39,6 @@ const GuidedAssessment = dynamic(() => import("./guided-assessment"), {
   loading: () => (
     <div className="skeleton" role="status">
       Preparing your assessment…
-    </div>
-  ),
-});
-const GuidedDemo = dynamic(() => import("./demo"), {
-  ssr: false,
-  loading: () => (
-    <div className="skeleton" role="status">
-      Demo mode — simulated result · Preparing your demonstration…
     </div>
   ),
 });
@@ -62,9 +54,8 @@ const Trend = dynamic(() => import("./trend"), { ssr: false });
 const nav = [
   ["", "Your overview", LayoutDashboard],
   ["guided", "Guided assessment", NotebookPen],
-  ["demo", "Interface demo", Play],
   ["assessment", "Questionnaire only", NotebookPen],
-  ["camera", "Camera session", Camera],
+  ["camera", "Video session", Camera],
   ["results", "Your results", ChartNoAxesCombined],
   ["history", "Session history", History],
   ["reports", "Reports", FileText],
@@ -149,9 +140,6 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
                 <X />
               </button>
             </div>
-            {path === "/workspace/demo" && (
-              <p className="notice">{DEMO_LABEL}</p>
-            )}
             <nav aria-label="Mobile workspace">
               {nav.map(([slug, name]) => (
                 <Link
@@ -169,7 +157,7 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
         <footer className="workspace-footer">
-          <span>Still · Anxiety Screening & Wellbeing</span>
+          <span>Still · Screening & Video Analysis</span>
           <Link href="/privacy">Your data choices</Link>
         </footer>
       </div>
@@ -210,9 +198,8 @@ function Dashboard() {
             <em>honest reflection.</em>
           </h2>
           <p>
-            Seven questions about the last two weeks, followed by optional video
-            observations processed on this computer. You can also choose
-            questionnaire only.
+            Answer the questionnaire, record a short video, and review your
+            screening results and video observations.
           </p>
           <Link className="button" href="/workspace/guided">
             {answers.some((a) => a !== null)
@@ -260,8 +247,18 @@ function Dashboard() {
               <p>
                 {current.screening.category} symptoms · Questionnaire-derived
               </p>
-              <Link href="/workspace/results" className="text-link">
-                View your result <ArrowRight size={15} />
+              <Link
+                href={
+                  current.assessment_type === "combined" && !current.camera
+                    ? "/workspace/guided"
+                    : "/workspace/results"
+                }
+                className="text-link"
+              >
+                {current.assessment_type === "combined" && !current.camera
+                  ? "Continue assessment"
+                  : "View results"}{" "}
+                <ArrowRight size={15} />
               </Link>
             </>
           ) : (
@@ -271,7 +268,8 @@ function Dashboard() {
                 <br />a good beginning.
               </h3>
               <p>
-                Your result will appear after you complete the questionnaire.
+                Your results will appear after questionnaire review and video
+                processing.
               </p>
             </>
           )}
@@ -279,10 +277,10 @@ function Dashboard() {
         <Link href="/workspace/camera" className="card dashboard-camera">
           <Camera size={24} />
           <p className="eyebrow">A SEPARATE PERSPECTIVE</p>
-          <h3>Observe, if you like.</h3>
+          <h3>A clearer view.</h3>
           <p>
-            Optional camera observations. Always distinct from your screening
-            result.
+            Record 35 seconds for face-tracking, geometric and pulse
+            measurements processed on this computer.
           </p>
           <span className="text-link">
             Explore camera session <ArrowUpRight size={16} />
@@ -329,16 +327,23 @@ function SavedRow({ session }: { session: Session }) {
             day: "numeric",
           })}
         </strong>
+        <p className="eyebrow">
+          {session.screening && session.camera
+            ? "Combined assessment"
+            : session.screening
+              ? "Questionnaire only"
+              : "Video analysis"}
+        </p>
         <p>
           {session.screening
-            ? `GAD-7 ${session.screening.score}/21 · ${session.screening.category}`
-            : "Camera observations only"}{" "}
+            ? `Questionnaire results · GAD-7 ${session.screening.score}/21 · ${session.screening.category}`
+            : "Video analysis only"}{" "}
           ·{" "}
           {session.camera?.source === "prerecorded"
-            ? "Prerecorded"
+            ? "Video analysis · Prerecorded"
             : session.camera
-              ? "Webcam"
-              : "No camera"}
+              ? "Video analysis · Webcam"
+              : "Video analysis not included"}
         </p>
       </div>
       <Link
@@ -792,15 +797,10 @@ function SettingsPage() {
   );
 }
 export function AppScreen({ section }: { section: string }) {
-  const { reduced } = useStill();
-  const system = useReducedMotion();
   let content;
   switch (section) {
     case "guided":
       content = <GuidedAssessment />;
-      break;
-    case "demo":
-      content = <GuidedDemo />;
       break;
     case "assessment":
       content = <Assessment />;
@@ -827,13 +827,8 @@ export function AppScreen({ section }: { section: string }) {
       content = <Dashboard />;
   }
   return (
-    <motion.div
-      key={section}
-      initial={reduced || system ? false : { y: 6 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.16 }}
-    >
+    <div key={section} className="workspace-screen">
       {content}
-    </motion.div>
+    </div>
   );
 }

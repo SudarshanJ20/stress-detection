@@ -16,7 +16,7 @@ export default function Home() {
             <Leaf size={17} /> At your own pace
           </span>
           <span>
-            <Camera size={17} /> Camera is always optional
+            <Camera size={17} /> 35-second video recording
           </span>
         </div>
         <ProductPreview />
@@ -36,9 +36,9 @@ export default function Home() {
               <em>Your data.</em>
             </h2>
             <p>
-              Thoughts deserve privacy. Answers stay in your browser. Recordings
-              are sent to your own local Python service only when you choose
-              Analyze. Nothing is automatically uploaded to a cloud service.
+              Answers stay in your browser. With your consent, your recording is
+              processed by the local Python service on this computer. Temporary
+              video and measurement files are cleaned up after processing.
             </p>
             <Link href="/privacy" className="text-link">
               Read our privacy promise <ArrowUpRight size={16} />
@@ -62,16 +62,16 @@ export default function Home() {
                 "No. GAD-7 is a screening questionnaire. Its categories describe reported symptoms over two weeks, not a diagnosis. A qualified professional can help interpret concerns.",
               ],
               [
-                "Do I have to use my camera?",
-                "No. The questionnaire works independently. Camera observations are optional and never change your GAD-7 score.",
+                "What does the assessment include?",
+                "The combined assessment includes the GAD-7 questionnaire, answer review, camera consent and setup, a 35-second recording, local processing and results. A separately named Questionnaire only route is available for screening without recording.",
               ],
               [
-                "Can the camera tell how anxious I am?",
-                "We do not make that claim. It reports supported pulse estimates, facial geometric activity and recording quality. No anxiety probability or combined score is produced.",
+                "What will my results show?",
+                "Questionnaire results shows your GAD-7 score and screening category for the last two weeks. Video analysis shows measured tracking coverage, mouth and eye opening ratios, landmark motion and screened camera pulse, with availability and quality indicators.",
               ],
               [
                 "What happens when I close the page?",
-                "Unsaved answers and observations are cleared from the browser session. Local processing artifacts expire or are deleted after analysis. Explicitly saved browser sessions and recordings stay until deleted.",
+                "Unsaved answers and results clear when you close or reload. Leaving stops capture and requests cancellation of unfinished processing. Temporary files are cleaned up; if the connection is interrupted, deletion may need a retry in Settings. Explicitly saved sessions and retained recordings stay until you delete them.",
               ],
             ].map(([q, a]) => (
               <details key={q}>
@@ -91,8 +91,8 @@ export default function Home() {
           <h2>
             Just begin <em>here.</em>
           </h2>
-          <Link className="button light" href="/workspace/assessment">
-            Make space for a check-in <ArrowUpRight size={18} />
+          <Link className="button light" href="/workspace/guided">
+            Start assessment <ArrowUpRight size={18} />
           </Link>
         </section>
       </main>

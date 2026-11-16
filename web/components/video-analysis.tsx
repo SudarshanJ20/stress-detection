@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Check, LoaderCircle, ShieldCheck, Upload, Video } from "lucide-react";
 import { api, Camera } from "@/lib/session";
-const Capture = dynamic(() => import("./demo-camera"), {
+const Capture = dynamic(() => import("./camera-capture"), {
   ssr: false,
   loading: () => (
     <div className="skeleton" role="status">
@@ -25,11 +25,15 @@ export default function VideoAnalysis({
   onBack,
   onCancel,
   onQuestionnaire,
+  combined = false,
+  onStepChange,
 }: {
   onComplete: (camera: Camera, recordingId?: string) => void;
   onBack: () => void;
   onCancel: () => void;
-  onQuestionnaire: () => void;
+  onQuestionnaire?: () => void;
+  combined?: boolean;
+  onStepChange?: (step: "setup" | "recording" | "processing") => void;
 }) {
   const [input, setInput] = useState<Blob | null>(null);
   const [source, setSource] = useState<"webcam" | "prerecorded">("webcam");
@@ -37,7 +41,7 @@ export default function VideoAnalysis({
   const [elapsed, setElapsed] = useState<number | null>(null);
   const [consent, setConsent] = useState(false);
   const [keep, setKeep] = useState(false);
-  const [stage, setStage] = useState("capture");
+  const [stage, setStage] = useState(combined ? "consent" : "capture");
   const [error, setError] = useState("");
   const [health, setHealth] = useState("checking");
   const active = useRef(false);
@@ -86,14 +90,14 @@ export default function VideoAnalysis({
     check();
   }, []);
   useEffect(() => {
-    if (!input) {
+    if (!input || combined) {
       setPreview("");
       return;
     }
     const url = URL.createObjectURL(input);
     setPreview(url);
     return () => URL.revokeObjectURL(url);
-  }, [input]);
+  }, [input, combined]);
   function received(
     blob: Blob,
     duration: number | null,
@@ -103,8 +107,10 @@ export default function VideoAnalysis({
     setInput(blob);
     setElapsed(duration);
     setSource(provenance);
-    setConsent(false);
-    setKeep(false);
+    if (!combined) {
+      setConsent(false);
+      setKeep(false);
+    }
     setError("");
     setStage("review");
   }
@@ -228,7 +234,7 @@ export default function VideoAnalysis({
       await removeJob();
       if (!mounted.current) return;
       active.current = false;
-      setStage("capture");
+      setStage(combined ? "consent" : "capture");
       setError("");
       setConsent(false);
       action?.();
@@ -243,7 +249,23 @@ export default function VideoAnalysis({
       cancelling.current = false;
     }
   }
-  const processing = !["capture", "review", "error"].includes(stage);
+  useEffect(() => {
+    if (
+      combined &&
+      stage === "review" &&
+      input &&
+      consent &&
+      health === "ready"
+    )
+      void analyze();
+  }, [combined, stage, input, consent, health]);
+  useEffect(() => {
+    if (stage !== "capture")
+      onStepChange?.(
+        stage === "consent" || stage === "error" ? "setup" : "processing",
+      );
+  }, [stage, onStepChange]);
+  const processing = !["consent", "capture", "review", "error"].includes(stage);
   const index = processingStages.findIndex(([key]) => key === stage);
   return (
     <>
@@ -259,19 +281,74 @@ export default function VideoAnalysis({
           </button>
         </div>
       )}
+      {stage === "consent" && (
+        <section className="card capture-consent">
+          <p className="eyebrow">CAMERA CONSENT & SETUP</p>
+          <h2>A short recording. Local processing.</h2>
+          <p>
+            The combined assessment includes a 35-second video. After capture,
+            it is sent to the local Python service on this computer to measure
+            tracking coverage, facial geometry and screened pulse. Your
+            microphone stays off and questionnaire answers are not sent.
+          </p>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(event) => setConsent(event.target.checked)}
+            />
+            I consent to processing this video locally on this computer.
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={keep}
+              onChange={(event) => setKeep(event.target.checked)}
+            />
+            Keep the recording on this computer until I delete it in Settings
+            (optional).
+          </label>
+          <p className="micro">
+            Temporary video and measurement files are deleted after processing,
+            cancellation or failure. Only a recording you explicitly choose to
+            keep is retained after successful processing. You can cancel or
+            leave at any time.
+          </p>
+          <div className="report-actions">
+            <button
+              className="button"
+              disabled={!consent || health !== "ready"}
+              onClick={() => setStage("capture")}
+            >
+              Continue to camera
+            </button>
+            <button className="button secondary" onClick={onBack}>
+              Back to review
+            </button>
+            <button className="text-link" onClick={onCancel}>
+              Leave assessment
+            </button>
+          </div>
+        </section>
+      )}
       {stage === "capture" && (
         <Capture
-          onComplete={() => {}}
           onRecording={(blob, duration) => received(blob, duration, "webcam")}
           onBack={onBack}
           onCancel={onCancel}
-          onQuestionnaire={onQuestionnaire}
+          onQuestionnaire={combined ? undefined : onQuestionnaire}
+          onStatus={onStepChange}
         />
       )}
-      {stage === "review" && (
+      {stage === "review" && combined && (
+        <div className="skeleton" role="status">
+          Recording complete. Preparing local processing…
+        </div>
+      )}
+      {stage === "review" && !combined && (
         <section className="card capture-review">
           <div className="row between">
-            <p className="eyebrow">VIDEO OBSERVATIONS — WEBCAM</p>
+            <p className="eyebrow">VIDEO ANALYSIS</p>
             <span className="pill">
               {source === "prerecorded"
                 ? "Prerecorded input — not live"
@@ -373,12 +450,20 @@ export default function VideoAnalysis({
           <button className="button" onClick={() => void cancel()}>
             {job.current ? "Retry cleanup" : "Retry video"}
           </button>
-          <button
-            className="text-link"
-            onClick={() => void cancel(onQuestionnaire)}
-          >
-            Continue with questionnaire only
-          </button>
+          {combined ? (
+            <button className="text-link" onClick={() => void cancel(onCancel)}>
+              Leave assessment
+            </button>
+          ) : (
+            onQuestionnaire && (
+              <button
+                className="text-link"
+                onClick={() => void cancel(onQuestionnaire)}
+              >
+                Open questionnaire-only results
+              </button>
+            )
+          )}
         </section>
       )}
       {error && (
@@ -386,7 +471,7 @@ export default function VideoAnalysis({
           {error}
         </p>
       )}
-      {stage === "capture" && (
+      {stage === "capture" && !combined && (
         <details className="card fallback">
           <summary>
             <Upload size={16} />
@@ -413,7 +498,7 @@ export default function VideoAnalysis({
           />
         </details>
       )}
-      {!processing && stage !== "capture" && (
+      {!processing && stage !== "capture" && stage !== "consent" && (
         <button className="text-link" onClick={() => void cancel(onBack)}>
           Back to review
         </button>

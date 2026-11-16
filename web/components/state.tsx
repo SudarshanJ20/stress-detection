@@ -9,15 +9,7 @@ import {
 } from "react";
 import { MotionConfig } from "motion/react";
 import { Session, genuineSessions } from "@/lib/session";
-export type DemoPhase = "questionnaire" | "camera" | "processing" | "results";
 type State = {
-  demoAnswers: (number | null)[];
-  setDemoAnswers: (v: (number | null)[]) => void;
-  demoSession: Session;
-  setDemoSession: (s: Session) => void;
-  demoPhase: DemoPhase;
-  setDemoPhase: (s: DemoPhase) => void;
-  resetDemo: () => void;
   answers: (number | null)[];
   setAnswers: (v: (number | null)[]) => void;
   current: Session;
@@ -43,23 +35,6 @@ const empty = (): Session => ({
   note: "",
 });
 export function StateProvider({ children }: { children: ReactNode }) {
-  const [demoAnswers, setDemoAnswers] = useState<(number | null)[]>(
-    Array(7).fill(null),
-  );
-  const [demoSession, setDemoSession] = useState<Session>({
-    id: "",
-    date: "",
-    mode: "demo",
-    screening: null,
-    camera: null,
-    note: "",
-  });
-  const [demoPhase, setDemoPhase] = useState<DemoPhase>("questionnaire");
-  const resetDemo = () => {
-    setDemoAnswers(Array(7).fill(null));
-    setDemoSession({ ...empty(), mode: "demo" });
-    setDemoPhase("questionnaire");
-  };
   const [answers, setAnswers] = useState<(number | null)[]>(
     Array(7).fill(null),
   );
@@ -76,7 +51,6 @@ export function StateProvider({ children }: { children: ReactNode }) {
   const [storageError, error] = useState("");
   useEffect(() => {
     setCurrent(empty());
-    setDemoSession({ ...empty(), mode: "demo" });
     try {
       const v = JSON.parse(localStorage.getItem("still:sessions") || "[]");
       if (Array.isArray(v))
@@ -99,18 +73,14 @@ export function StateProvider({ children }: { children: ReactNode }) {
     }
   }, []);
   useEffect(() => {
-    if (
-      !answers.some((a) => a !== null) &&
-      !demoAnswers.some((a) => a !== null)
-    )
-      return;
+    if (!answers.some((a) => a !== null)) return;
     const warn = (event: BeforeUnloadEvent) => {
       event.preventDefault();
       event.returnValue = "";
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
-  }, [answers, demoAnswers]);
+  }, [answers]);
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.reduced = String(reduced);
@@ -145,18 +115,10 @@ export function StateProvider({ children }: { children: ReactNode }) {
     setHistory([]);
     setAnswers(Array(7).fill(null));
     setCurrent(empty());
-    resetDemo();
   };
   return (
     <Context.Provider
       value={{
-        demoAnswers,
-        setDemoAnswers,
-        demoSession,
-        setDemoSession,
-        demoPhase,
-        setDemoPhase,
-        resetDemo,
         answers,
         setAnswers,
         current,
@@ -175,7 +137,9 @@ export function StateProvider({ children }: { children: ReactNode }) {
           setCurrent(empty());
           setAnswers(Array(7).fill(null));
         },
-        open: setCurrent,
+        open: (s) => {
+          if (s.mode !== "demo") setCurrent(s);
+        },
         theme,
         setTheme: (t) => preferences(t, reduced),
         reduced,

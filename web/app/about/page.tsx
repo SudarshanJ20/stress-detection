@@ -20,7 +20,7 @@ export default function Page() {
         </p>
         <div className="two-grid">
           <article className="card">
-            <span className="eyebrow">Anxiety screening — questionnaire</span>
+            <span className="eyebrow">Questionnaire results</span>
             <h2>
               Your experience,
               <br />
@@ -37,19 +37,19 @@ export default function Page() {
               the total.
             </p>
             <Link className="text-link" href="/workspace/assessment">
-              Take the questionnaire <ArrowUpRight size={16} />
+              Questionnaire only <ArrowUpRight size={16} />
             </Link>
           </article>
           <article className="card pale">
-            <span className="eyebrow">Video observations — webcam</span>
+            <span className="eyebrow">Video analysis</span>
             <h2>
               Video observations,
               <br />
               <em>with context.</em>
             </h2>
             <p>
-              Record 35 seconds, review your video and consent to local
-              processing. Your report shows face-tracking coverage, geometric
+              Consent to local processing, set up your camera and record 35
+              seconds. Your report shows face-tracking coverage, geometric
               opening and motion summaries, and screened camera pulse estimates
               when supported.
             </p>

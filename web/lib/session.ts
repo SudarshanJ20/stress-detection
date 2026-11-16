@@ -59,7 +59,7 @@ export type Screening = {
 };
 export type Session = {
   mode?: "genuine" | "demo";
-  demoCapture?: { duration_seconds: number; completed_at: string };
+  assessment_type?: "combined" | "questionnaire_only" | "video_only";
   id: string;
   date: string;
   screening: Screening | null;
@@ -68,17 +68,12 @@ export type Session = {
   note: string;
   difficulty?: string;
 };
-export const DEMO_LABEL = "Demo mode — simulated result";
-export const DEMO_EXAMPLE = Object.freeze({
-  score: 62,
-  unit: "%",
-  label: "Illustrative score",
-  category: "Moderate — example",
-  explanation:
-    "Simulated result for interface demonstration. This score is not calculated from your video or questionnaire.",
-});
 export const genuineSessions = (sessions: Session[]) =>
-  sessions.filter((s) => s.mode !== "demo");
+  sessions.filter(
+    (s) =>
+      s.mode !== "demo" &&
+      (s.assessment_type !== "combined" || Boolean(s.screening && s.camera)),
+  );
 export function scoreGad(answers: (number | null)[]): Screening {
   if (
     answers.length !== 7 ||
@@ -95,27 +90,38 @@ export function scoreGad(answers: (number | null)[]): Screening {
   };
 }
 export function report(s: Session) {
+  if (s.mode === "demo")
+    throw Error("Developer fixtures cannot be exported as assessment reports.");
+  if (s.assessment_type === "combined" && (!s.screening || !s.camera))
+    throw Error(
+      "Complete the questionnaire and video analysis before exporting this assessment.",
+    );
   return {
     report_version: "Still 1.0.0",
     date: s.date,
     mode:
-      s.mode === "demo"
-        ? DEMO_LABEL
-        : "Questionnaire and optional observations",
-    illustrative_example: s.mode === "demo" ? DEMO_EXAMPLE : null,
-    demo_capture: s.mode === "demo" ? (s.demoCapture ?? null) : null,
+      s.screening && s.camera
+        ? "Combined assessment"
+        : s.screening
+          ? "Questionnaire only"
+          : "Video analysis",
+    assessment_type:
+      s.assessment_type ??
+      (s.screening && s.camera
+        ? "combined"
+        : s.screening
+          ? "questionnaire_only"
+          : "video_only"),
     recording_retained_locally: Boolean(s.recordingId),
     section_labels: {
-      questionnaire: "Anxiety screening — questionnaire",
-      webcam: "Video observations — webcam",
+      questionnaire: "Questionnaire results",
+      webcam: "Video analysis",
     },
     questionnaire: s.screening,
     webcam: s.camera ?? {
-      availability: s.mode === "demo" ? "unavailable" : "not_added",
+      availability: "not_added",
       explanation:
-        s.mode === "demo"
-          ? "Demo capture only. No video measurements were generated; recording data was discarded in the browser."
-          : "No webcam observations were added.",
+        "Questionnaire-only session. No video was recorded for this result.",
     },
     note: s.note,
     questionnaire_difficulty: s.difficulty || null,

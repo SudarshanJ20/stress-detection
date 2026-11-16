@@ -15,18 +15,45 @@ import { Observations } from "./observations";
 export function Results({ printed = false }: { printed?: boolean }) {
   const { current, setCurrent, save, storageError } = useStill();
   const [saved, setSaved] = useState(false);
+  if (current.mode === "demo")
+    return (
+      <Empty title="No assessment result available.">
+        <p>Start a new assessment to create your results.</p>
+        <Link className="button" href="/workspace/guided">
+          Start assessment
+        </Link>
+      </Empty>
+    );
+  if (
+    current.assessment_type === "combined" &&
+    (!current.screening || !current.camera)
+  )
+    return (
+      <>
+        <Heading
+          label="ASSESSMENT IN PROGRESS"
+          title="Your next step is ready."
+        />
+        <Empty title="Complete the recording and local processing.">
+          <p>
+            The combined assessment includes questionnaire results and video
+            analysis.
+          </p>
+          <Link className="button" href="/workspace/guided">
+            Resume assessment
+          </Link>
+        </Empty>
+      </>
+    );
   const anything = !!(current.screening || current.camera);
   if (!anything)
     return (
       <>
         <Heading label="YOUR RESULTS" title="Your perspective starts here." />
         <Empty title="No result to show yet.">
-          <p>
-            Complete the questionnaire, add camera observations, or open a saved
-            session from history.
-          </p>
-          <Link className="button" href="/workspace/assessment">
-            Begin questionnaire <ArrowRight size={16} />
+          <p>Complete an assessment or open a session you saved in History.</p>
+          <Link className="button" href="/workspace/guided">
+            Start assessment <ArrowRight size={16} />
           </Link>
         </Empty>
       </>
@@ -44,14 +71,14 @@ export function Results({ printed = false }: { printed?: boolean }) {
       {current.screening ? (
         <section className="card screening-result">
           <div>
-            <span className="eyebrow">Anxiety screening — questionnaire</span>
-            <h2>
+            <h2 className="eyebrow">Questionnaire results</h2>
+            <h3 className="questionnaire-category">
               {current.screening.category}
               <br />
               <em>reported symptoms.</em>
-            </h2>
+            </h3>
             <p>
-              Based on your answers about the last two weeks.
+              GAD-7 · Based on your answers about the last two weeks.
               <br />A screening category, not a diagnosis.
             </p>
           </div>
@@ -92,12 +119,12 @@ export function Results({ printed = false }: { printed?: boolean }) {
         </p>
       )}
       <div className="row between section-title">
-        <h2>Video observations — webcam</h2>
+        <h2>Video analysis</h2>
         {!printed && (
           <Link className="text-link" href="/workspace/camera">
             {current.camera
               ? "Record a new observation"
-              : "Add an optional observation"}{" "}
+              : "Start a video session"}{" "}
             <ArrowUpRight size={16} />
           </Link>
         )}

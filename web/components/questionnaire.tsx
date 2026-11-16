@@ -22,19 +22,13 @@ function Heading({
   );
 }
 export function Assessment({
-  demo = false,
   onComplete,
   onReview,
 }: {
-  demo?: boolean;
   onComplete?: () => void;
   onReview?: (review: boolean) => void;
 }) {
-  const state = useStill();
-  const answers = demo ? state.demoAnswers : state.answers;
-  const setAnswers = demo ? state.setDemoAnswers : state.setAnswers;
-  const current = demo ? state.demoSession : state.current;
-  const setCurrent = demo ? state.setDemoSession : state.setCurrent;
+  const { answers, setAnswers, current, setCurrent } = useStill();
   const [step, setStep] = useState(() => {
     const first = answers.findIndex((a) => a === null);
     return first < 0 ? 7 : first;
@@ -54,6 +48,9 @@ export function Assessment({
     try {
       setCurrent({
         ...current,
+        assessment_type: onComplete ? "combined" : "questionnaire_only",
+        camera: null,
+        recordingId: undefined,
         date: new Date().toISOString(),
         screening: scoreGad(answers),
         difficulty,
@@ -66,9 +63,9 @@ export function Assessment({
   }
   return (
     <>
-      {!demo && !onComplete && (
+      {!onComplete && (
         <Heading
-          label="Anxiety screening — questionnaire"
+          label="Questionnaire results · GAD-7"
           title="Make room for how you feel."
           sub="Take your time. Navigating within the app keeps your answers. Reloading or closing clears unsaved progress."
         />
@@ -180,7 +177,7 @@ export function Assessment({
               {step === 6 ? "Review answers" : "Next question"}{" "}
               <ArrowRight size={16} />
             </button>
-          ) : demo || onComplete ? (
+          ) : onComplete ? (
             <button
               className="button"
               disabled={!complete}

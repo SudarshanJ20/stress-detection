@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s · Still",
   },
   description:
-    "A private, local space for questionnaire screening and webcam observations, processed on this computer.",
+    "Answer the questionnaire, record a short video, and review your screening results and video analysis. Private processing on this computer.",
 };
 export default function Root({ children }: { children: React.ReactNode }) {
   return (

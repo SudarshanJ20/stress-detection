@@ -286,7 +286,6 @@ for (const width of [390, 768, 1440])
       "/about",
       "/privacy",
       "/resources",
-      "/workspace/demo",
       "/workspace/guided",
       "/workspace",
       "/workspace/assessment",
@@ -369,14 +368,23 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
       .click();
   }
   await page.getByRole("button", { name: "Continue to camera" }).click();
+  await expect(
+    page.getByRole("button", { name: "Continue to camera" }),
+  ).toBeDisabled();
+  await page.getByRole("checkbox", { name: /I consent to processing/ }).check();
+  await page.getByRole("button", { name: "Continue to camera" }).click();
+  const jobResponse = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/api/local/jobs") && r.request().method() === "POST",
+  );
   await page.getByRole("button", { name: "Enable camera" }).click();
   await page.getByRole("button", { name: "Start recording" }).click();
   await expect(
     page.getByRole("button", { name: "Stop recording", exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "Analyze on this computer" }),
-  ).toBeVisible({ timeout: 45000 });
+    page.getByRole("heading", { name: "A clearer perspective." }),
+  ).toBeVisible({ timeout: 60000 });
   expect(
     await page.evaluate(() =>
       (window as unknown as { testStream: MediaStream }).testStream
@@ -384,12 +392,6 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
         .every((t) => t.readyState === "ended"),
     ),
   ).toBe(true);
-  const jobResponse = page.waitForResponse(
-    (r) =>
-      r.url().endsWith("/api/local/jobs") && r.request().method() === "POST",
-  );
-  await page.getByRole("checkbox", { name: /I consent to processing/ }).check();
-  await page.getByRole("button", { name: "Analyze on this computer" }).click();
   const id = (await (await jobResponse).json()).id;
   await expect(
     page.getByRole("heading", { name: "A clearer perspective." }),
@@ -401,7 +403,12 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
     await fs.readFile((await (await event).path())!, "utf8"),
   );
   expect(json.questionnaire.score).toBe(14);
-  expect(json.illustrative_example).toBeNull();
+  expect(json.assessment_type).toBe("combined");
+  expect(json.section_labels).toEqual({
+    questionnaire: "Questionnaire results",
+    webcam: "Video analysis",
+  });
+  expect(json.illustrative_example).toBeUndefined();
   expect(json.webcam.source).toBe("webcam");
   expect(json.webcam.timing.decode_complete).toBe(true);
   expect(json.webcam.duration_seconds).toBeGreaterThanOrEqual(30);

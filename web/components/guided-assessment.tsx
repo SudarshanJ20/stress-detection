@@ -12,6 +12,9 @@ export default function GuidedAssessment() {
   const [phase, setPhase] = useState<"questionnaire" | "camera" | "results">(
     "questionnaire",
   );
+  const [videoStep, setVideoStep] = useState<
+    "setup" | "recording" | "processing"
+  >("setup");
   const [review, setReview] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const router = useRouter();
@@ -20,7 +23,13 @@ export default function GuidedAssessment() {
     heading.current?.focus();
   }, [phase]);
   const step =
-    phase === "questionnaire" ? (review ? 1 : 0) : phase === "camera" ? 2 : 3;
+    phase === "questionnaire"
+      ? review
+        ? 1
+        : 0
+      : phase === "camera"
+        ? { setup: 2, recording: 3, processing: 4 }[videoStep]
+        : 5;
   return (
     <div className="guided-demo guided-real">
       <div className="local-source-banner">
@@ -38,7 +47,9 @@ export default function GuidedAssessment() {
           {[
             "Questionnaire",
             "Review answers",
-            "Video & local analysis",
+            "Camera setup",
+            "35-second recording",
+            "Processing",
             "Results",
           ].map((label, index) => (
             <li
@@ -56,18 +67,26 @@ export default function GuidedAssessment() {
         <div className="page-heading">
           <p className="eyebrow">
             {phase === "questionnaire"
-              ? "Anxiety screening — questionnaire"
-              : "Video observations — webcam"}
+              ? "Questionnaire · GAD-7"
+              : "Video analysis"}
           </p>
           <h1 ref={heading} tabIndex={-1}>
             {phase === "questionnaire"
               ? "A little space to reflect."
-              : "Ready when you are."}
+              : videoStep === "recording"
+                ? "A moment, in frame."
+                : videoStep === "processing"
+                  ? "Preparing your results."
+                  : "Ready when you are."}
           </h1>
           <p>
             {phase === "questionnaire"
-              ? "Answer seven questions about the last two weeks. Then review your answers and choose whether to add video observations."
-              : "Record 35 seconds in good light. Review the recording before consenting to processing on this computer."}
+              ? "Answer the questionnaire, record a short video, and review your screening results and video observations."
+              : videoStep === "recording"
+                ? "Keep your face in the frame until the recording ends."
+                : videoStep === "processing"
+                  ? "Your video is being processed on this computer."
+                  : "Consent to local processing, set up your camera and record 35 seconds in good light."}
           </p>
         </div>
       )}
@@ -75,23 +94,27 @@ export default function GuidedAssessment() {
         <>
           <Assessment
             onReview={onReview}
-            onComplete={() => setPhase("camera")}
+            onComplete={() => {
+              setVideoStep("setup");
+              setPhase("camera");
+            }}
           />
-          <Link href="/workspace/assessment" className="text-link">
-            Questionnaire only
-          </Link>
         </>
       )}
       {phase === "camera" && (
         <VideoAnalysis
+          combined
+          onStepChange={setVideoStep}
           onBack={() => setPhase("questionnaire")}
           onCancel={() => router.push("/workspace")}
-          onQuestionnaire={() => {
-            setCurrent({ ...current, camera: null, recordingId: undefined });
-            setPhase("results");
-          }}
           onComplete={(camera, recordingId) => {
-            setCurrent({ ...current, mode: "genuine", camera, recordingId });
+            setCurrent({
+              ...current,
+              mode: "genuine",
+              assessment_type: "combined",
+              camera,
+              recordingId,
+            });
             setPhase("results");
           }}
         />
@@ -102,7 +125,16 @@ export default function GuidedAssessment() {
           <div className="report-actions no-print">
             <button
               className="button secondary"
-              onClick={() => setPhase("camera")}
+              onClick={() => {
+                setCurrent({
+                  ...current,
+                  assessment_type: "combined",
+                  camera: null,
+                  recordingId: undefined,
+                });
+                setVideoStep("setup");
+                setPhase("camera");
+              }}
             >
               <RotateCcw size={16} />
               Retry video

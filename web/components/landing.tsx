@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useStill } from "./state";
 import Image from "next/image";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
@@ -15,17 +15,9 @@ import {
   LockKeyhole,
 } from "lucide-react";
 export function Hero() {
-  const system = useReducedMotion();
-  const { reduced } = useStill();
-  const reduce = system || reduced;
   return (
     <section className="hero">
-      <motion.div
-        initial={reduce ? false : { opacity: 0, y: 25 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="hero-copy"
-      >
+      <div className="hero-copy">
         <p className="eyebrow">
           <span className="tiny-line" /> A MOMENT FOR YOURSELF
         </p>
@@ -38,7 +30,7 @@ export function Hero() {
         </h1>
         <p className="lead">
           A thoughtful check-in with how you’re feeling.
-          <br className="desktop" /> Optional video observations.
+          <br className="desktop" /> A 35-second video recording.
           <br className="desktop" /> Questionnaire screening. Local video
           processing.
         </p>
@@ -56,13 +48,8 @@ export function Hero() {
         <p className="micro">
           <LockKeyhole size={13} /> Private by default. No account needed.
         </p>
-      </motion.div>
-      <motion.div
-        className="hero-visual"
-        initial={reduce ? false : { opacity: 0, clipPath: "inset(8% 0 0 0)" }}
-        animate={{ opacity: 1, clipPath: "inset(0% 0 0 0)" }}
-        transition={{ duration: 1.1 }}
-      >
+      </div>
+      <div className="hero-visual">
         <Image
           src="/images/forest.webp"
           alt="A quiet pathway disappearing into a misty green forest"
@@ -86,7 +73,7 @@ export function Hero() {
           </div>
         </div>
         <div className="image-corner">TAKE YOUR TIME ↗</div>
-      </motion.div>
+      </div>
       <div className="hero-foot">
         <span>SCREENING, WITH PERSPECTIVE</span>
         <span>Built for reflection. Grounded in transparency.</span>
@@ -107,9 +94,9 @@ export function ProductPreview() {
           <em>Less guessing.</em>
         </h2>
         <p>
-          Reflect with the questionnaire, then add a 35-second video if you
-          choose. Your report keeps questionnaire screening and camera
-          measurements in their own sections.
+          Answer the questionnaire, record a short video, and review your
+          screening results and video observations. Each source has its own
+          section in your report.
         </p>
         <Link className="text-link" href="/about">
           Explore the assessment <ArrowUpRight size={16} />
@@ -182,7 +169,7 @@ export function ProductPreview() {
             {tab === "Questionnaire"
               ? "Seven standard GAD-7 questions about the last two weeks. Your result comes from your answers—not your appearance."
               : tab === "Webcam"
-                ? "Record 35 seconds, review the video and consent to processing on this computer. Supported face and pulse measurements appear with their quality flags."
+                ? "Consent to local processing, set up your camera and record 35 seconds. Supported face and pulse measurements appear with their quality flags."
                 : "Download or print a report with clearly separated sources. Sessions stay temporary unless you explicitly save a copy."}
           </p>
           <div className="preview-note">
@@ -245,7 +232,7 @@ export function Story() {
             <em>Then another.</em>
           </h2>
         </div>
-        <span className="muted">You decide how far to go.</span>
+        <span className="muted">A clear step at every stage.</span>
       </div>
       <div className="story-grid">
         {[
@@ -257,7 +244,7 @@ export function Story() {
           [
             "02",
             "Observe",
-            "Record a 35-second video and choose local processing. See supported measurements and concise quality indicators.",
+            "Consent to local processing and record a 35-second video. See supported measurements and clear quality indicators.",
           ],
           [
             "03",

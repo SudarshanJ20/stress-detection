@@ -23,7 +23,7 @@ async function downloadReport(page: Page) {
   return JSON.parse(await fs.readFile((await (await event).path())!, "utf8"));
 }
 
-test("guided real measurements preserve sources, units, reports and explicitly retained recording deletion", async ({
+test("real measurements preserve sources, units, reports and explicitly retained recording deletion", async ({
   page,
 }) => {
   test.setTimeout(90000);
@@ -35,7 +35,7 @@ test("guided real measurements preserve sources, units, reports and explicitly r
       .catch(() => false)),
     "Optional consented development recording unavailable.",
   );
-  await page.goto("/workspace/guided");
+  await page.goto("/workspace/assessment");
   for (let i = 0; i < 7; i++) {
     await page.getByRole("radio", { name: /More than half the days/ }).check();
     await page
@@ -44,7 +44,10 @@ test("guided real measurements preserve sources, units, reports and explicitly r
       })
       .click();
   }
-  await page.getByRole("button", { name: "Continue to camera" }).click();
+  await page
+    .getByRole("link", { name: /Calculate my screening result/ })
+    .click();
+  await page.getByRole("link", { name: "Video session", exact: true }).click();
   let created = 0;
   page.on("request", (r) => {
     if (r.url().endsWith("/api/local/jobs") && r.method() === "POST") created++;
@@ -72,15 +75,15 @@ test("guided real measurements preserve sources, units, reports and explicitly r
   expect(created).toBe(1);
   await expect(page.getByTestId("screening-score")).toHaveText("14");
   await expect(
-    page.getByText("Anxiety screening — questionnaire", { exact: true }),
+    page.getByText("Questionnaire results", { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Video observations — webcam" }),
+    page.getByRole("heading", { name: "Video analysis" }),
   ).toBeVisible();
   await expect(page.getByText("62%", { exact: true })).toHaveCount(0);
   const json = await downloadReport(page);
   expect(json.mode).not.toContain("simulated");
-  expect(json.illustrative_example).toBeNull();
+  expect(json.illustrative_example).toBeUndefined();
   expect(json.recording_retained_locally).toBe(true);
   expect(json.questionnaire.score).toBe(14);
   expect(json.webcam.source).toBe("prerecorded");
@@ -149,7 +152,7 @@ test("guided real measurements preserve sources, units, reports and explicitly r
   }
   await page.emulateMedia({ media: "print" });
   await expect(
-    page.getByRole("heading", { name: "Video observations — webcam" }),
+    page.getByRole("heading", { name: "Video analysis" }),
   ).toBeVisible();
   await expect(page.getByTestId("screening-score")).toHaveText("14");
   await page.emulateMedia({ media: "screen" });

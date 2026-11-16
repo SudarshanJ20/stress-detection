@@ -28,7 +28,9 @@ export function Observations({ camera }: { camera: Camera | null }) {
       <section className="card empty">
         <Video size={30} />
         <h3>No video observations added.</h3>
-        <p>You can add a camera recording when you’re ready.</p>
+        <p>
+          Questionnaire-only session. No video was recorded for this result.
+        </p>
       </section>
     );
   const windowSeconds = camera.window_seconds || 30;
