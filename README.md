@@ -6,9 +6,9 @@ behaviour and camera-derived pulse, with video-quality checks.
 ## Current status
 
 **Still — Anxiety Screening & Wellbeing** is the complete local presentation app.
-Start assessment opens the genuine guided flow (`/workspace/guided`): questionnaire → review → 35-second capture → explicit consent → local Python analysis → results. “Anxiety screening — questionnaire” contains the actual GAD-7 result; “Video observations — webcam” contains supported measured outputs and quality flags. Temporary recordings are deleted after processing, cancellation or failure unless you explicitly choose to retain one. Questionnaire only remains separately available.
+Start assessment opens the connected combined flow (`/workspace/guided`): questionnaire → answer review → consent/camera setup → 35-second recording → real local processing → results. Recording is a standard step in this flow. The user explicitly consents before camera setup and can cancel or leave at any time. A complete recording is processed locally under that consent. **Questionnaire results** shows the actual GAD-7 score and timeframe; **Video analysis** shows supported measured outputs and quality flags. Questionnaire only remains a separately named route.
 
-The optional Interface demo (`/workspace/demo`) remains labeled **Demo mode — simulated result**. Its fixed illustrative sample is separate from the real-analysis flow and never enters genuine history or trends.
+The simulated-result experience is retired from public routes and navigation. Historical developer source and labels are preserved in `docs/archive/interface-demo/`, outside the application bundle. Developer fixtures and incomplete combined sessions cannot enter genuine history, trends or reports.
 
 It also offers standard GAD-7 screening alongside separate, optional webcam pulse,
 facial-geometry and quality observations. It uses a Next.js frontend and a local
