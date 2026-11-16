@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s · Still",
   },
   description:
-    "A private, local space for GAD-7 screening and separate webcam observations. No diagnosis or combined anxiety score.",
+    "A private, local space for questionnaire screening and webcam observations, processed on this computer.",
 };
 export default function Root({ children }: { children: React.ReactNode }) {
   return (

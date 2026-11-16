@@ -102,7 +102,7 @@ export function Footer() {
         <b>Explore</b>
         <Link href="/about">The assessment</Link>
         <Link href="/workspace/tools">Wellbeing tools</Link>
-        <Link href="/workspace/demo">Guided demonstration</Link>
+        <Link href="/workspace/guided">Guided assessment</Link>
       </div>
       <div>
         <b>Your privacy</b>
@@ -111,7 +111,7 @@ export function Footer() {
         <Link href="/resources">Support resources</Link>
       </div>
       <div className="footer-bottom">
-        A local major-project presentation. Screening is not a diagnosis.{" "}
+        A private, local workspace. Screening is not a diagnosis.{" "}
         <span>No account. No analytics. Your choice to save.</span>
       </div>
     </footer>

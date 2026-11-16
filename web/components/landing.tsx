@@ -38,12 +38,12 @@ export function Hero() {
         </h1>
         <p className="lead">
           A thoughtful check-in with how you’re feeling.
-          <br className="desktop" /> A guided camera demonstration.
-          <br className="desktop" /> Real questionnaire scoring. Clearly
-          simulated examples.
+          <br className="desktop" /> Optional video observations.
+          <br className="desktop" /> Questionnaire screening. Local video
+          processing.
         </p>
         <div className="hero-actions">
-          <Link className="button" href="/workspace/demo">
+          <Link className="button" href="/workspace/guided">
             Start assessment <ArrowUpRight size={18} />
           </Link>
           <Link className="text-link" href="/workspace/assessment">
@@ -107,8 +107,9 @@ export function ProductPreview() {
           <em>Less guessing.</em>
         </h2>
         <p>
-          Choose a genuine questionnaire check-in or explore the guided demo.
-          The demo’s illustrative outcome is always separate from your answers.
+          Reflect with the questionnaire, then add a 35-second video if you
+          choose. Your report keeps questionnaire screening and camera
+          measurements in their own sections.
         </p>
         <Link className="text-link" href="/about">
           Explore the assessment <ArrowUpRight size={16} />
@@ -174,20 +175,20 @@ export function ProductPreview() {
             {tab === "Questionnaire"
               ? "A check-in, not a label."
               : tab === "Webcam"
-                ? "A camera experience, clearly labeled."
+                ? "Video observations, with context."
                 : "Only what you choose to keep."}
           </h3>
           <p>
             {tab === "Questionnaire"
               ? "Seven standard GAD-7 questions about the last two weeks. Your result comes from your answers—not your appearance."
               : tab === "Webcam"
-                ? "A guided 35-second recording with no upload. Demo mode — simulated result: the fixed example is never calculated from your video or questionnaire."
+                ? "Record 35 seconds, review the video and consent to processing on this computer. Supported face and pulse measurements appear with their quality flags."
                 : "Download or print a report with clearly separated sources. Sessions stay temporary unless you explicitly save a copy."}
           </p>
           <div className="preview-note">
             <Check size={16} />{" "}
             {tab === "Webcam"
-              ? "Demo mode — simulated result. No live measurements."
+              ? "Only supported measurements are displayed after processing."
               : "This guide contains no sample health data."}
           </div>
         </div>
@@ -256,7 +257,7 @@ export function Story() {
           [
             "02",
             "Observe",
-            "Try the guided 35-second camera demo. Its simulated example is clearly labeled and fixed for everyone.",
+            "Record a 35-second video and choose local processing. See supported measurements and concise quality indicators.",
           ],
           [
             "03",

@@ -23,24 +23,21 @@ export default function Page() {
           runs in the browser; your answers are not sent to the Python service.
           Navigating between pages preserves your current session in memory.
         </p>
-        <h2>The guided demonstration</h2>
+        <h2>Recording and local processing</h2>
         <p>
-          Demo mode — simulated result. The same fixed illustrative example is
-          shown to everyone and is not calculated from the questionnaire or
-          video. Demo answers and outcomes stay in memory, are never added to
-          genuine history or trends, and are cleared on reload or close. Camera
-          chunks are discarded immediately; no demo video is uploaded, replayed
-          or saved. Demo reports always identify the simulation and its separate
-          sources.
+          Enable camera requests video permission; the microphone stays off. A
+          35-second recording first stays in browser memory. Nothing is
+          transferred until you check consent and choose “Analyze on this
+          computer.” The video goes only to the local Python backend on this
+          computer. A prerecorded file is processed only after the same explicit
+          consent, and its source stays labeled.
         </p>
-        <h2>Optional camera observations outside the demo</h2>
         <p>
-          Start camera requests video permission. Audio is never requested. Stop
-          ends capture, and leaving the camera page stops all camera tracks.
-          Recording first creates a temporary browser Blob. Only clicking
-          “Analyze on this computer” sends that video to your loopback Python
-          service. Selecting a prerecorded file does not submit it
-          automatically.
+          Tracks stop after capture or when you leave. Browser recordings and
+          replay URLs are released after transfer, cancellation or failure.
+          Leaving requests cancellation of an unfinished local job. If the
+          connection fails, deletion may require a retry in Settings; temporary
+          jobs expire within 30 minutes.
         </p>
         <h2>Local processing</h2>
         <p>
@@ -70,6 +67,14 @@ export default function Page() {
           unavailable, the app reports that deletion is incomplete. A downloaded
           JSON report or a browser-printed PDF is outside the app’s control;
           remove those files yourself. We cannot remotely erase them.
+        </p>
+        <h2>Separate interface demo</h2>
+        <p>
+          The optional Interface demo remains clearly labeled “Demo mode —
+          simulated result.” Its fixed sample is never calculated from video or
+          questionnaire answers. It does not upload recordings or save demo
+          outcomes to genuine history or trends. Its reports retain the
+          simulation label.
         </p>
         <h2>No cloud processing</h2>
         <p>

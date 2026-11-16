@@ -14,13 +14,13 @@ export default function Page() {
           <em>Never one label.</em>
         </h1>
         <p className="lead">
-          A questionnaire can help you reflect on symptoms. The guided demo
-          illustrates a future camera experience with a fixed simulated result.
-          Still keeps each source clear.
+          A questionnaire can help you reflect on symptoms. Video observations
+          add separately sourced facial and pulse measurements. Processing stays
+          on this computer.
         </p>
         <div className="two-grid">
           <article className="card">
-            <span className="eyebrow">01 / QUESTIONNAIRE-DERIVED</span>
+            <span className="eyebrow">Anxiety screening — questionnaire</span>
             <h2>
               Your experience,
               <br />
@@ -41,24 +41,25 @@ export default function Page() {
             </Link>
           </article>
           <article className="card pale">
-            <span className="eyebrow">02 / DEMO MODE — SIMULATED RESULT</span>
+            <span className="eyebrow">Video observations — webcam</span>
             <h2>
-              A guided experience,
+              Video observations,
               <br />
               <em>with context.</em>
             </h2>
             <p>
-              Explore camera setup, a 35-second recording and an illustrative
-              results dashboard. The same predefined sample appears for
-              everyone. It is not calculated from your video or questionnaire.
+              Record 35 seconds, review your video and consent to local
+              processing. Your report shows face-tracking coverage, geometric
+              opening and motion summaries, and screened camera pulse estimates
+              when supported.
             </p>
             <p>
-              Demo mode — simulated result. No video is uploaded, no
-              measurements are generated and the recording is discarded. Your
-              genuine questionnaire score remains separate.
+              Quality checks may leave readings unavailable. Temporary
+              recordings are deleted after processing unless you explicitly
+              choose to keep them. Questionnaire answers stay in the browser.
             </p>
-            <Link className="text-link" href="/workspace/demo">
-              Explore the guided demo <ArrowUpRight size={16} />
+            <Link className="text-link" href="/workspace/guided">
+              Start an assessment <ArrowUpRight size={16} />
             </Link>
           </article>
         </div>
@@ -75,9 +76,8 @@ export default function Page() {
             Published form and permission
           </a>
           <p>
-            The questionnaire covers symptoms over the last two weeks. It does
-            not measure momentary anxiety or become more reliable because you
-            record a video.
+            The questionnaire covers symptoms over the last two weeks. Screening
+            is not a diagnosis.
           </p>
         </section>
       </main>
