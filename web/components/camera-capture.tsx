@@ -8,6 +8,7 @@ import {
   UserRound,
   ShieldCheck,
 } from "lucide-react";
+import CameraChecks from "./camera-checks";
 const DURATION_MS = 35_000;
 type Stage =
   "idle" | "requesting" | "ready" | "preparing" | "recording" | "incomplete";
@@ -415,15 +416,33 @@ export default function CameraCapture({
           )}
         </section>
         <aside className="demo-guidance">
+          <CameraChecks video={video} active={stage === "ready"} />
           <div className="card pale">
             <Sun size={24} />
             <h3>Find soft, even light.</h3>
-            <p>Face a window or lamp. Avoid a bright light behind you.</p>
+            <p>
+              Use steady, diffuse light on both cheeks and forehead. Avoid
+              backlighting, flickering lamps and changing screen content.
+            </p>
             <UserRound size={24} />
             <h3>Settle into the frame.</h3>
             <p>
               Place the camera at eye level and sit comfortably. The frame is a
-              positioning guide, not a face detector.
+              positioning guide, not a face detector. Keep your forehead and
+              both cheeks visible; avoid strong reflections on these areas.
+            </p>
+          </div>
+          <div className="card pale">
+            <h3>Hold still for all 35 seconds.</h3>
+            <p>
+              Support the camera, finish adjustments and let exposure settle
+              before starting. Look toward the camera, breathe normally and
+              avoid talking or typing. Stay in this tab until capture finishes.
+            </p>
+            <p className="micro">
+              The first complete 30-second interval is analyzed. The extra
+              capture time does not remove movement or lighting changes from
+              that interval.
             </p>
           </div>
           <div className="card">

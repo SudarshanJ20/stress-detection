@@ -2751,3 +2751,20 @@ svg[viewBox="0 0 600 190"] {
     clip-path: inset(0% 0 0 0);
   }
 }
+
+.camera-check-values {
+  margin: 1rem 0;
+  font-size: 0.84rem;
+}
+.camera-check-values > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line, #e5e9e4);
+}
+.camera-check-values dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
