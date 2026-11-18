@@ -11,13 +11,13 @@ const Capture = dynamic(() => import("./camera-capture"), {
     </div>
   ),
 });
-export const processingStages = [
+const processingStages = [
   ["receiving_video", "Receiving video"],
   ["queued", "Waiting for local processing"],
   ["decoding", "Decoding video and timestamps"],
   ["tracking", "Tracking facial landmarks"],
   ["extracting_features", "Extracting geometric features"],
-  ["screening_pulse", "Screening camera pulse"],
+  ["finishing_analysis", "Finishing video analysis"],
   ["preparing_results", "Preparing results"],
 ] as const;
 export default function VideoAnalysis({
@@ -199,7 +199,11 @@ export default function VideoAnalysis({
             );
             return;
           }
-          setStage(response.stage);
+          setStage(
+            response.stage === "screening_pulse"
+              ? "finishing_analysis"
+              : response.stage,
+          );
           poll.current = setTimeout(watch, 500);
         } catch (cause) {
           if (!controller.signal.aborted)
@@ -288,7 +292,7 @@ export default function VideoAnalysis({
           <p>
             The combined assessment includes a 35-second video. After capture,
             it is sent to the local Python service on this computer to measure
-            tracking coverage, facial geometry and screened pulse. Your
+            tracking coverage, facial opening ratios and landmark motion. Your
             microphone stays off and questionnaire answers are not sent.
           </p>
           <label className="check">

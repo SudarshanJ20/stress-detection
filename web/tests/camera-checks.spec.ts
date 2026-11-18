@@ -17,7 +17,7 @@ test("preview checks measure synthetic pixels, remain local and release on navig
   const checks = page.getByTestId("camera-checks");
   await expect(checks).toContainText("480 × 360");
   await expect(checks).toContainText("25.0 fps");
-  await expect(checks).toContainText("not face or pulse quality scores");
+  await expect(checks).toContainText("adjust lighting and framing");
   await expect(checks).not.toContainText("Unavailable");
   expect(writes).toBe(0);
   for (const width of [390, 768, 1440]) {

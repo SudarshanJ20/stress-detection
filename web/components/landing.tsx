@@ -169,7 +169,7 @@ export function ProductPreview() {
             {tab === "Questionnaire"
               ? "Seven standard GAD-7 questions about the last two weeks. Your result comes from your answers—not your appearance."
               : tab === "Webcam"
-                ? "Consent to local processing, set up your camera and record 35 seconds. Supported face and pulse measurements appear with their quality flags."
+                ? "Consent to local processing, set up your camera and record 35 seconds. See face-tracking coverage and supported facial landmark measurements."
                 : "Download or print a report with clearly separated sources. Sessions stay temporary unless you explicitly save a copy."}
           </p>
           <div className="preview-note">

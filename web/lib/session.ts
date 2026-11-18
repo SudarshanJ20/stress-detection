@@ -89,6 +89,28 @@ export function scoreGad(answers: (number | null)[]): Screening {
     version: gad.version,
   };
 }
+// Project saved and current recordings onto the public report fields. Raw
+// backend metadata and historical camera fields can contain internal measurements.
+export function cameraForExport(camera: Camera | null) {
+  if (!camera) return null;
+  const { quality } = camera;
+  return {
+    source: camera.source,
+    duration_seconds: camera.duration_seconds,
+    scheduled_windows: camera.scheduled_windows,
+    window_seconds: camera.window_seconds,
+    timing: camera.timing,
+    availability: camera.availability,
+    facial: camera.facial,
+    quality: {
+      tracked_coverage: quality.tracked_coverage,
+      processed_frames: quality.processed_frames,
+      missing_face_frames: quality.missing_face_frames,
+      multiple_face_frames: quality.multiple_face_frames,
+      track_event_counts: quality.track_event_counts,
+    },
+  };
+}
 export function report(s: Session) {
   if (s.mode === "demo")
     throw Error("Developer fixtures cannot be exported as assessment reports.");
@@ -118,7 +140,7 @@ export function report(s: Session) {
       webcam: "Video analysis",
     },
     questionnaire: s.screening,
-    webcam: s.camera ?? {
+    webcam: cameraForExport(s.camera) ?? {
       availability: "not_added",
       explanation:
         "Questionnaire-only session. No video was recorded for this result.",

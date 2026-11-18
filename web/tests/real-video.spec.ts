@@ -75,9 +75,6 @@ test("real measurements preserve sources, units, reports and explicitly retained
   expect(created).toBe(1);
   await expect(page.getByTestId("screening-score")).toHaveText("14");
   await expect(
-    page.getByText("Questionnaire results", { exact: true }),
-  ).toBeVisible();
-  await expect(
     page.getByRole("heading", { name: "Video analysis" }),
   ).toBeVisible();
   await expect(page.getByText("62%", { exact: true })).toHaveCount(0);
@@ -107,18 +104,10 @@ test("real measurements preserve sources, units, reports and explicitly retained
       key.includes("motion") ? "face sizes per second" : "dimensionless ratio",
     );
   }
-  for (const row of json.webcam.pulse) {
-    if (row.status === "accepted") {
-      await expect(
-        page
-          .getByText(`${row.estimated_bpm.toFixed(1)} BPM`, { exact: true })
-          .first(),
-      ).toBeVisible();
-    } else {
-      expect(row.estimated_bpm).toBeNull();
-      expect(row.rejection_reason).toBeTruthy();
-    }
-  }
+  expect(JSON.stringify(json.webcam)).not.toMatch(
+    /pulse|bpm|diffuse_spectrum/i,
+  );
+  await expect(page.locator("main")).not.toContainText(/pulse|\bBPM\b/i);
   await expect
     .poll(() =>
       fs
@@ -267,7 +256,7 @@ test("short decoded recording uses no 30-second windows and does not invent meas
     const json = await downloadReport(page);
     expect(json.webcam.duration_seconds).toBeLessThan(1);
     expect(json.webcam.scheduled_windows).toBe(0);
-    expect(json.webcam.pulse).toEqual([]);
+    expect(json.webcam).not.toHaveProperty("pulse");
     for (const f of Object.values(json.webcam.facial) as {
       value: number | null;
       reasons: string[];

@@ -11,7 +11,7 @@ type Reading = {
   reportedFps: number | null;
 };
 
-// Advisory, full-frame preview measurements only. No face/pulse inference or storage.
+// Advisory, full-frame preview measurements only. No facial inference or storage.
 export default function CameraChecks({
   video,
   active,
@@ -123,9 +123,9 @@ export default function CameraChecks({
       <p className="micro">
         Sampled every half second from the whole preview, including the
         background. Dark ≤20; bright ≥235. Image change includes movement and
-        lighting changes. These are setup aids, not face or pulse quality
-        scores. Frame rate is reported by the browser; decoded timestamps are
-        checked after recording.
+        lighting changes. Use these setup checks to adjust lighting and framing.
+        Frame rate is reported by the browser; decoded timestamps are checked
+        after recording.
       </p>
     </div>
   );

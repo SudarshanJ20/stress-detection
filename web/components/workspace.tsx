@@ -30,7 +30,14 @@ import dynamic from "next/dynamic";
 import { useReducedMotion } from "motion/react";
 import { Logo } from "./navigation";
 import { useStill } from "./state";
-import { gad, report, download, api, Session } from "@/lib/session";
+import {
+  gad,
+  report,
+  download,
+  api,
+  Session,
+  cameraForExport,
+} from "@/lib/session";
 import { Assessment } from "./questionnaire";
 import { Results } from "./results";
 import { Heading, Empty } from "./screen-frames";
@@ -279,8 +286,8 @@ function Dashboard() {
           <p className="eyebrow">A SEPARATE PERSPECTIVE</p>
           <h3>A clearer view.</h3>
           <p>
-            Record 35 seconds for face-tracking, geometric and pulse
-            measurements processed on this computer.
+            Record 35 seconds for face-tracking and facial landmark measurements
+            processed on this computer.
           </p>
           <span className="text-link">
             Explore camera session <ArrowUpRight size={16} />
@@ -715,7 +722,10 @@ function SettingsPage() {
             download(
               {
                 version: "Still 1.0.0",
-                sessions: s.history,
+                sessions: s.history.map((session) => ({
+                  ...session,
+                  camera: cameraForExport(session.camera),
+                })),
                 note: localStorage.getItem("still:notes") || "",
               },
               "still-saved-data.json",

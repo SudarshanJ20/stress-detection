@@ -15,8 +15,8 @@ export default function Page() {
         </h1>
         <p className="lead">
           A questionnaire can help you reflect on symptoms. Video observations
-          add separately sourced facial and pulse measurements. Processing stays
-          on this computer.
+          add separately sourced facial measurements. Processing stays on this
+          computer.
         </p>
         <div className="two-grid">
           <article className="card">
@@ -50,13 +50,13 @@ export default function Page() {
             <p>
               Consent to local processing, set up your camera and record 35
               seconds. Your report shows face-tracking coverage, geometric
-              opening and motion summaries, and screened camera pulse estimates
-              when supported.
+              opening ratios and landmark motion summaries when supported.
             </p>
             <p>
-              Quality checks may leave readings unavailable. Temporary
-              recordings are deleted after processing unless you explicitly
-              choose to keep them. Questionnaire answers stay in the browser.
+              Quality checks may leave facial measurements unavailable.
+              Temporary recordings are deleted after processing unless you
+              explicitly choose to keep them. Questionnaire answers stay in the
+              browser.
             </p>
             <Link className="text-link" href="/workspace/guided">
               Start an assessment <ArrowUpRight size={16} />

@@ -67,7 +67,7 @@ export default function Home() {
               ],
               [
                 "What will my results show?",
-                "Questionnaire results shows your GAD-7 score and screening category for the last two weeks. Video analysis shows measured tracking coverage, mouth and eye opening ratios, landmark motion and screened camera pulse, with availability and quality indicators.",
+                "Questionnaire results shows your GAD-7 score and screening category for the last two weeks. Video analysis shows measured tracking coverage, mouth and eye opening ratios, and landmark motion, with availability and quality indicators.",
               ],
               [
                 "What happens when I close the page?",

@@ -188,17 +188,10 @@ test("real prerecorded development input goes through local Python, report value
   expect(json.questionnaire).toBeNull();
   expect(json.webcam.source).toBe("prerecorded");
   expect(json.webcam.scheduled_windows).toBe(1);
-  expect(json.webcam.pulse).toHaveLength(6);
-  for (const row of json.webcam.pulse) {
-    if (row.status === "accepted") {
-      expect(row.estimated_bpm).not.toBeNull();
-      await expect(
-        page
-          .getByText(`${row.estimated_bpm.toFixed(1)} BPM`, { exact: true })
-          .first(),
-      ).toBeVisible();
-    } else expect(row.estimated_bpm).toBeNull();
-  }
+  expect(JSON.stringify(json.webcam)).not.toMatch(
+    /pulse|bpm|diffuse_spectrum/i,
+  );
+  expect(json.webcam.facial).toHaveProperty("beh_mouth_mean");
 });
 
 test("interrupted upload/analysis is cancelled; unsupported fixture is visibly prerecorded", async ({
@@ -223,7 +216,7 @@ test("interrupted upload/analysis is cancelled; unsupported fixture is visibly p
       return route.fulfill({ json: { deleted: true } });
     }
     return route.fulfill({
-      json: { id: requestedId, stage: "queued", result: null },
+      json: { id: requestedId, stage: "screening_pulse", result: null },
     });
   });
   await page.goto("/workspace/camera");
@@ -235,7 +228,10 @@ test("interrupted upload/analysis is cancelled; unsupported fixture is visibly p
   });
   await page.getByRole("checkbox", { name: /I consent to processing/ }).check();
   await page.getByRole("button", { name: "Analyze on this computer" }).click();
-  await expect(page.getByText("Waiting for local processing")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Finishing video analysis" }),
+  ).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(/pulse|\bBPM\b/i);
   await page
     .getByRole("link", { name: "Questionnaire only", exact: true })
     .click();
@@ -413,12 +409,10 @@ test("synthetic camera exercises real MediaRecorder, auto-stop, track cleanup an
   expect(json.webcam.timing.decode_complete).toBe(true);
   expect(json.webcam.duration_seconds).toBeGreaterThanOrEqual(30);
   expect(json.webcam.scheduled_windows).toBe(1);
-  expect(json.webcam.pulse).toHaveLength(6);
-  expect(
-    json.webcam.pulse.every(
-      (r: { estimated_bpm: number | null }) => r.estimated_bpm === null,
-    ),
-  ).toBe(true);
+  expect(JSON.stringify(json.webcam)).not.toMatch(
+    /pulse|bpm|diffuse_spectrum/i,
+  );
+  expect(json.webcam.facial.beh_mouth_mean.value).toBeNull();
   const deleted = await page.request.delete("/api/local/jobs/" + id, {
     headers: { Origin: "http://127.0.0.1:3000", "X-Still-Local": "1" },
   });
