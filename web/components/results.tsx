@@ -71,14 +71,14 @@ export function Results({ printed = false }: { printed?: boolean }) {
       {current.screening ? (
         <section className="card screening-result">
           <div>
-            <h2 className="eyebrow">Questionnaire results</h2>
+            <h2 className="eyebrow">Questionnaire and Video results</h2>
             <h3 className="questionnaire-category">
               {current.screening.category}
               <br />
               <em>reported symptoms.</em>
             </h3>
             <p>
-              GAD-7 · Based on your answers about the last two weeks.
+              GAD-7 · Based on your responses over the past two weeks and the video analysis.
               <br />A screening category, not a diagnosis.
             </p>
           </div>
